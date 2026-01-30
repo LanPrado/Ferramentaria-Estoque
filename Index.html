@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>Sistema de Controle - Ferramentaria</title>
+    <style>
+        /* RESET E CONFIGURAÇÕES GERAIS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            min-width: 1280px;
+            min-height: 720px;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+        }
+        
+        /* CONTAINER PRINCIPAL */
+        .app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            min-width: 1280px;
+            min-height: 720px;
+            overflow: hidden;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .user-info {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: white;
+            color: #1e3c72;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 15px;
+        }
+        
+        .user-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .admin-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+        
+        .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #e0e0e0;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-left: 280px;
+            width: calc(100vw - 280px);
+            height: 100vh;
+            min-width: 1000px;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .header h2 {
+            color: #2a5298;
+            font-size: 1.8rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        /* BOTÕES */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #2a5298;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .btn-logout {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        /* CARDS */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            min-width: 250px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+        }
+        
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .card-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* TABELAS */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            min-width: 800px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* BADGES DE STATUS */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-secondary {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        
+        /* FORMULÁRIOS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+        
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            min-width: 400px;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        /* LOADING */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2a5298;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* SEARCH */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 300px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        /* STATUS BUTTONS */
+        .status-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+        
+        .status-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* VIEWS */
+        .view {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        /* BOTÃO TELA CHEIA */
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2a5298;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        /* RESPONSIVO PARA TELAS MAIORES */
+        @media (min-width: 1280px) {
+            .main-content {
+                padding: 30px;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .table-container {
+                padding: 25px;
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            .main-content {
+                padding: 40px;
+            }
+            
+            .header h2 {
+                font-size: 2.2rem;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+            
+            .card-value {
+                font-size: 3rem;
+            }
+        }
+        
+        /* RESPONSIVO PARA MOBILE (OPCIONAL) */
+        @media (max-width: 1279px) {
+            .app-container {
+                min-width: 100%;
+                overflow-x: auto;
+            }
+            
+            .main-content {
+                min-width: 1000px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                min-width: 100%;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                min-width: 100%;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar">👤</div>
+                <div class="user-details">
+                    <h3 id="current-user-name">Carregando...</h3>
+                    <p id="current-user-company">Código: ---</p>
+                    <div id="admin-badge" class="admin-badge" style="display: none;">ADMIN</div>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="showView('dashboard')">
+                        <span>📊</span> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showView('loans')">
+                        <span>🔧</span> Empréstimos Ativos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showView('new-loan')">
+                        <span>➕</span> Novo Empréstimo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showView('return-tool')">
+                        <span>↩️</span> Devolução
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showView('search-user')">
+                        <span>🔍</span> Buscar Usuário
+                    </a>
+                </li>
+                <li class="nav-item" id="admin-users" style="display: none;">
+                    <a class="nav-link" onclick="showView('users')">
+                        <span>👥</span> Gerenciar Usuários
+                    </a>
+                </li>
+                <li class="nav-item" id="admin-tools" style="display: none;">
+                    <a class="nav-link" onclick="showView('tools')">
+                        <span>🛠️</span> Gerenciar Ferramentas
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div id="dashboard" class="view">
+                <div class="header">
+                    <h2>Dashboard</h2>
+                    <div class="header-actions">
+                        <div id="current-time"></div>
+                        <button class="btn btn-logout" onclick="logout()">
+                            <span>🚪</span> Sair
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-cards" id="stats-cards">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h3>Empréstimos Ativos</h3>
+                    <table id="active-loans-table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Ferramenta</th>
+                                <th>Data/Hora</th>
+                                <th>Status</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-loans-body">
+                            <tr>
+                                <td colspan="5" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Empréstimos Ativos -->
+            <div id="loans" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Empréstimos Ativos</h2>
+                    <button class="btn btn-primary" onclick="showView('new-loan')">
+                        <span>➕</span> Novo Empréstimo
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Código Empresa</th>
+                                <th>Ferramenta</th>
+                                <th>Data Retirada</th>
+                                <th>Hora Retirada</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-loans-body">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Novo Empréstimo -->
+            <div id="new-loan" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Novo Empréstimo</h2>
+                    <button class="btn" onclick="showView('dashboard')">
+                        <span>←</span> Voltar
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <form id="new-loan-form" onsubmit="registerLoan(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">Usuário *</label>
+                                <select class="form-control" id="loan-user" required>
+                                    <option value="">Selecione o usuário...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Ferramenta *</label>
+                                <select class="form-control" id="loan-tool" required>
+                                    <option value="">Selecione a ferramenta...</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" id="loan-notes" rows="3" placeholder="Observações sobre o empréstimo..."></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 30px;">
+                            <button type="button" class="btn" onclick="showView('dashboard')">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <span>📝</span> Registrar Empréstimo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Devolução -->
+            <div id="return-tool" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Devolução de Ferramenta</h2>
+                    <button class="btn" onclick="showView('dashboard')">
+                        <span>←</span> Voltar
+                    </button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-loan" 
+                           placeholder="Buscar por usuário, ferramenta ou código...">
+                    <div class="search-icon">🔍</div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Ferramenta</th>
+                                <th>Data Retirada</th>
+                                <th>Status</th>
+                                <th>Devolução</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loans-for-return">
+                            <tr>
+                                <td colspan="5" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Buscar Usuário -->
+            <div id="search-user" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Buscar Histórico por Usuário</h2>
+                    <button class="btn" onclick="showView('dashboard')">
+                        <span>←</span> Voltar
+                    </button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-user-input" 
+                           placeholder="Digite o nome ou código do usuário..."
+                           onkeyup="searchUserHistory()">
+                    <div class="search-icon">🔍</div>
+                </div>
+                
+                <div class="table-container">
+                    <h3 id="user-history-title">Histórico do Usuário</h3>
+                    <table id="user-history-table">
+                        <thead>
+                            <tr>
+                                <th>Ferramenta</th>
+                                <th>Data Retirada</th>
+                                <th>Data Devolução</th>
+                                <th>Status Devolução</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-history-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                                    Digite um nome ou código para buscar
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Gerenciar Usuários (Admin) -->
+            <div id="users" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Gerenciar Usuários</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="showAddUserModal()">
+                            <span>➕</span> Novo Usuário
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                                <th>Código Empresa</th>
+                                <th>Tipo</th>
+                                <th>Cadastrado em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Gerenciar Ferramentas (Admin) -->
+            <div id="tools" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Gerenciar Ferramentas</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="showAddToolModal()">
+                            <span>➕</span> Nova Ferramenta
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Disponível</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tools-list">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Botão Tela Cheia -->
+    <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Tela Cheia">⛶</button>
+    
+    <!-- Modal Adicionar Usuário -->
+    <div id="add-user-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Cadastrar Novo Usuário</h3>
+                <button onclick="closeModal('add-user-modal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-user-form" onsubmit="addNewUser(event)">
+                    <div class="form-group">
+                        <label class="form-label">Nome Completo *</label>
+                        <input type="text" class="form-control" id="user-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nome de Usuário *</label>
+                        <input type="text" class="form-control" id="user-username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Senha *</label>
+                        <input type="password" class="form-control" id="user-password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Código da Empresa *</label>
+                        <input type="text" class="form-control" id="user-company-code" 
+                               pattern="[0-9]{6}" 
+                               title="Digite exatamente 6 números"
+                               required>
+                        <small style="color: #666;">6 números (ex: 123456)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Usuário</label>
+                        <select class="form-control" id="user-type">
+                            <option value="user">Usuário Normal</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeModal('add-user-modal')">
+                    Cancelar
+                </button>
+                <button type="submit" form="add-user-form" class="btn btn-success">
+                    Cadastrar Usuário
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Adicionar Ferramenta -->
+    <div id="add-tool-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Cadastrar Nova Ferramenta</h3>
+                <button onclick="closeModal('add-tool-modal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-tool-form" onsubmit="addNewTool(event)">
+                    <div class="form-group">
+                        <label class="form-label">Código da Ferramenta *</label>
+                        <input type="text" class="form-control" id="tool-code" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nome da Ferramenta *</label>
+                        <input type="text" class="form-control" id="tool-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Categoria *</label>
+                        <select class="form-control" id="tool-category" required>
+                            <option value="">Selecione...</option>
+                            <option value="Ferramenta Manual">Ferramenta Manual</option>
+                            <option value="Ferramenta Elétrica">Ferramenta Elétrica</option>
+                            <option value="Equipamento">Equipamento</option>
+                            <option value="Consumível">Consumível</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" id="tool-description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeModal('add-tool-modal')">
+                    Cancelar
+                </button>
+                <button type="submit" form="add-tool-form" class="btn btn-success">
+                    Cadastrar Ferramenta
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Variáveis globais
+        let currentUser = null;
+        let database = { users: [], tools: [], loans: [], settings: {} };
+        let currentView = 'dashboard';
+        
+        // Inicializar aplicação
+        async function init() {
+            await loadDatabase();
+            loadUserInfo();
+            updateDashboard();
+            updateTime();
+            setInterval(updateTime, 60000);
+            
+            // Adiciona handler para tela cheia
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        }
+        
+        // Tela cheia
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            
+            if (!document.fullscreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement &&
+                !document.msFullscreenElement) {
+                // Entrar em tela cheia
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                // Sair da tela cheia
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        function handleFullscreenChange() {
+            const fullscreenBtn = document.querySelector('.fullscreen-btn');
+            if (document.fullscreenElement || 
+                document.webkitFullscreenElement || 
+                document.mozFullScreenElement ||
+                document.msFullscreenElement) {
+                fullscreenBtn.innerHTML = '🗕';
+                fullscreenBtn.title = 'Sair da Tela Cheia';
+            } else {
+                fullscreenBtn.innerHTML = '⛶';
+                fullscreenBtn.title = 'Tela Cheia';
+            }
+        }
+        
+        // Carregar banco de dados
+        async function loadDatabase() {
+            try {
+                database = await window.electronAPI.readDatabase();
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        // Salvar banco de dados
+        async function saveDatabase() {
+            try {
+                await window.electronAPI.writeDatabase(database);
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+                return false;
+            }
+        }
+        
+        // Carregar informações do usuário atual
+        function loadUserInfo() {
+            currentUser = database.users.find(u => u.username === 'admin') || database.users[0];
+            
+            if (currentUser) {
+                document.getElementById('current-user-name').textContent = currentUser.name;
+                document.getElementById('current-user-company').textContent = `Código: ${currentUser.companyCode}`;
+                
+                if (currentUser.isAdmin) {
+                    document.getElementById('admin-badge').style.display = 'inline-block';
+                    document.getElementById('admin-users').style.display = 'block';
+                    document.getElementById('admin-tools').style.display = 'block';
+                }
+            }
+        }
+        
+        // Atualizar dashboard
+        function updateDashboard() {
+            const totalUsers = database.users.length;
+            const totalTools = database.tools.length;
+            const activeLoans = database.loans.filter(loan => loan.status === 'emprestado').length;
+            const availableTools = database.tools.filter(tool => tool.available).length;
+            
+            // Atualizar cards
+            document.getElementById('stats-cards').innerHTML = `
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Usuários</h3>
+                        <div class="card-icon">👥</div>
+                    </div>
+                    <div class="card-value">${totalUsers}</div>
+                    <div class="card-label">Total cadastrados</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Ferramentas</h3>
+                        <div class="card-icon">🛠️</div>
+                    </div>
+                    <div class="card-value">${totalTools}</div>
+                    <div class="card-label">Total no sistema</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Empréstimos</h3>
+                        <div class="card-icon">🔧</div>
+                    </div>
+                    <div class="card-value">${activeLoans}</div>
+                    <div class="card-label">Em andamento</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Disponíveis</h3>
+                        <div class="card-icon">✅</div>
+                    </div>
+                    <div class="card-value">${availableTools}</div>
+                    <div class="card-label">Ferramentas livres</div>
+                </div>
+            `;
+            
+            // Atualizar tabela de empréstimos ativos
+            updateActiveLoansTable();
+        }
+        
+        // Atualizar tabela de empréstimos ativos
+        function updateActiveLoansTable() {
+            const activeLoans = database.loans.filter(loan => loan.status === 'emprestado');
+            const tbody = document.getElementById('active-loans-body');
+            tbody.innerHTML = '';
+            
+            if (activeLoans.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                            Nenhum empréstimo ativo no momento
+                        </td>
+                    </tr>
+                `;
+            } else {
+                activeLoans.forEach(loan => {
+                    const user = database.users.find(u => u.id === loan.userId);
+                    const tool = database.tools.find(t => t.id === loan.toolId);
+                    
+                    if (user && tool) {
+                        const loanDate = new Date(loan.borrowedAt);
+                        const statusBadge = getStatusBadge(loan.status);
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${user.name}</td>
+                                <td>${tool.name}</td>
+                                <td>${loanDate.toLocaleDateString('pt-BR')} ${loanDate.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                                <td>${statusBadge}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="returnTool('${loan.id}')" style="padding: 5px 10px; font-size: 0.9rem;">
+                                        Devolver
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+            }
+        }
+        
+        // Atualizar lista completa de empréstimos
+        function updateAllLoansTable() {
+            const tbody = document.getElementById('all-loans-body');
+            tbody.innerHTML = '';
+            
+            // Ordenar por data (mais recente primeiro)
+            const sortedLoans = [...database.loans].sort((a, b) => 
+                new Date(b.borrowedAt) - new Date(a.borrowedAt)
+            );
+            
+            sortedLoans.forEach(loan => {
+                const user = database.users.find(u => u.id === loan.userId);
+                const tool = database.tools.find(t => t.id === loan.toolId);
+                
+                if (user && tool) {
+                    const borrowedDate = new Date(loan.borrowedAt);
+                    const returnedDate = loan.returnedAt ? new Date(loan.returnedAt) : null;
+                    const statusBadge = getStatusBadge(loan.status);
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${user.name}</td>
+                            <td>${user.companyCode}</td>
+                            <td>${tool.name}</td>
+                            <td>${borrowedDate.toLocaleDateString('pt-BR')}</td>
+                            <td>${borrowedDate.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                            <td>${statusBadge}</td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+        
+        // Atualizar lista para devolução
+        function updateReturnTable() {
+            const activeLoans = database.loans.filter(loan => loan.status === 'emprestado');
+            const tbody = document.getElementById('loans-for-return');
+            tbody.innerHTML = '';
+            
+            if (activeLoans.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                            Nenhum empréstimo ativo para devolução
+                        </td>
+                    </tr>
+                `;
+            } else {
+                activeLoans.forEach(loan => {
+                    const user = database.users.find(u => u.id === loan.userId);
+                    const tool = database.tools.find(t => t.id === loan.toolId);
+                    
+                    if (user && tool) {
+                        const borrowedDate = new Date(loan.borrowedAt);
+                        const statusBadge = getStatusBadge(loan.status);
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${user.name}</td>
+                                <td>${tool.name}</td>
+                                <td>${borrowedDate.toLocaleDateString('pt-BR')} ${borrowedDate.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                                <td>${statusBadge}</td>
+                                <td>
+                                    <div class="status-buttons">
+                                        <button class="status-btn" style="background: #28a745; color: white;" 
+                                                onclick="updateLoanStatus('${loan.id}', 'devolvido')">
+                                            Devolvido
+                                        </button>
+                                        <button class="status-btn" style="background: #ffc107; color: #333;" 
+                                                onclick="updateLoanStatus('${loan.id}', 'nao-entregue')">
+                                            Não Entregue
+                                        </button>
+                                        <button class="status-btn" style="background: #dc3545; color: white;" 
+                                                onclick="updateLoanStatus('${loan.id}', 'quebrado')">
+                                            Quebrado
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+            }
+        }
+        
+        // Atualizar status do empréstimo
+        async function updateLoanStatus(loanId, status) {
+            const loanIndex = database.loans.findIndex(l => l.id === loanId);
+            if (loanIndex === -1) return;
+            
+            database.loans[loanIndex].status = status;
+            database.loans[loanIndex].returnedAt = new Date().toISOString();
+            
+            // Se devolvido, marcar ferramenta como disponível
+            if (status === 'devolvido') {
+                const toolId = database.loans[loanIndex].toolId;
+                const toolIndex = database.tools.findIndex(t => t.id === toolId);
+                if (toolIndex !== -1) {
+                    database.tools[toolIndex].available = true;
+                    database.tools[toolIndex].status = 'disponivel';
+                }
+            } else if (status === 'quebrado') {
+                // Se quebrado, marcar ferramenta como indisponível
+                const toolId = database.loans[loanIndex].toolId;
+                const toolIndex = database.tools.findIndex(t => t.id === toolId);
+                if (toolIndex !== -1) {
+                    database.tools[toolIndex].available = false;
+                    database.tools[toolIndex].status = 'quebrado';
+                }
+            }
+            
+            const saved = await saveDatabase();
+            if (saved) {
+                alert(`Status atualizado para: ${status}`);
+                updateDashboard();
+                updateReturnTable();
+                updateAllLoansTable();
+                
+                // Mostrar notificação
+                if (window.electronAPI.showNotification) {
+                    window.electronAPI.showNotification('Devolução Registrada', `Ferramenta marcada como ${status}`);
+                }
+            }
+        }
+        
+        // Buscar histórico do usuário
+        function searchUserHistory() {
+            const searchTerm = document.getElementById('search-user-input').value.toLowerCase();
+            const tbody = document.getElementById('user-history-body');
+            
+            if (!searchTerm) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                            Digite um nome ou código para buscar
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Filtrar usuários
+            const filteredUsers = database.users.filter(user => 
+                user.name.toLowerCase().includes(searchTerm) || 
+                user.companyCode.includes(searchTerm)
+            );
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                            Nenhum usuário encontrado
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Para simplificar, pegar o primeiro usuário encontrado
+            const user = filteredUsers[0];
+            document.getElementById('user-history-title').textContent = `Histórico de ${user.name}`;
+            
+            // Buscar empréstimos deste usuário
+            const userLoans = database.loans.filter(loan => loan.userId === user.id);
+            
+            if (userLoans.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                            Nenhum empréstimo registrado para este usuário
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = '';
+                userLoans.forEach(loan => {
+                    const tool = database.tools.find(t => t.id === loan.toolId);
+                    if (tool) {
+                        const borrowedDate = new Date(loan.borrowedAt);
+                        const returnedDate = loan.returnedAt ? new Date(loan.returnedAt) : null;
+                        const statusBadge = getStatusBadge(loan.status);
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${tool.name}</td>
+                                <td>${borrowedDate.toLocaleDateString('pt-BR')} ${borrowedDate.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                                <td>${returnedDate ? returnedDate.toLocaleDateString('pt-BR') + ' ' + returnedDate.toLocaleTimeString('pt-BR').slice(0,5) : '-'}</td>
+                                <td>${statusBadge}</td>
+                            </tr>
+                        `;
+                    }
+                });
+            }
+        }
+        
+        // Registrar novo empréstimo
+        async function registerLoan(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('loan-user').value;
+            const toolId = document.getElementById('loan-tool').value;
+            const notes = document.getElementById('loan-notes').value;
+            
+            const user = database.users.find(u => u.id === userId);
+            const tool = database.tools.find(t => t.id === toolId);
+            
+            if (!user || !tool) {
+                alert('Selecione um usuário e uma ferramenta válidos!');
+                return;
+            }
+            
+            if (!tool.available) {
+                alert('Esta ferramenta não está disponível no momento!');
+                return;
+            }
+            
+            const newLoan = {
+                id: Date.now().toString(),
+                userId: userId,
+                toolId: toolId,
+                borrowedAt: new Date().toISOString(),
+                returnedAt: null,
+                status: 'emprestado',
+                notes: notes,
+                returnedBy: currentUser.id
+            };
+            
+            database.loans.push(newLoan);
+            
+            // Atualizar status da ferramenta
+            const toolIndex = database.tools.findIndex(t => t.id === toolId);
+            if (toolIndex !== -1) {
+                database.tools[toolIndex].available = false;
+                database.tools[toolIndex].status = 'emprestado';
+            }
+            
+            const saved = await saveDatabase();
+            if (saved) {
+                alert('Empréstimo registrado com sucesso!');
+                
+                // Limpar formulário
+                event.target.reset();
+                
+                // Atualizar views
+                showView('dashboard');
+                updateDashboard();
+                
+                // Mostrar notificação
+                if (window.electronAPI.showNotification) {
+                    window.electronAPI.showNotification('Empréstimo Registrado', `${user.name} pegou ${tool.name}`);
+                }
+            }
+        }
+        
+        // Carregar opções para novo empréstimo
+        function loadLoanOptions() {
+            const userSelect = document.getElementById('loan-user');
+            const toolSelect = document.getElementById('loan-tool');
+            
+            // Limpar opções
+            userSelect.innerHTML = '<option value="">Selecione o usuário...</option>';
+            toolSelect.innerHTML = '<option value="">Selecione a ferramenta...</option>';
+            
+            // Carregar usuários
+            database.users.forEach(user => {
+                userSelect.innerHTML += `
+                    <option value="${user.id}">${user.name} (${user.companyCode})</option>
+                `;
+            });
+            
+            // Carregar ferramentas disponíveis
+            database.tools.filter(tool => tool.available).forEach(tool => {
+                toolSelect.innerHTML += `
+                    <option value="${tool.id}">${tool.code} - ${tool.name}</option>
+                `;
+            });
+        }
+        
+        // Gerenciar usuários (admin)
+        function updateUsersTable() {
+            const tbody = document.getElementById('users-list');
+            tbody.innerHTML = '';
+            
+            database.users.forEach(user => {
+                const userType = user.isAdmin ? 'Administrador' : 'Usuário Normal';
+                const userTypeBadge = user.isAdmin ? 
+                    '<span class="badge badge-success">ADMIN</span>' : 
+                    '<span class="badge badge-secondary">USER</span>';
+                
+                const createdAt = new Date(user.createdAt);
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.username}</td>
+                        <td>${user.companyCode}</td>
+                        <td>${userTypeBadge}</td>
+                        <td>${createdAt.toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            ${user.id !== '1' ? `
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')" style="padding: 5px 10px; font-size: 0.9rem;">
+                                    Excluir
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // Adicionar novo usuário
+        async function addNewUser(event) {
+            event.preventDefault();
+            
+            const bcrypt = require('bcryptjs');
+            const salt = bcrypt.genSaltSync(10);
+            const hashedPassword = bcrypt.hashSync(document.getElementById('user-password').value, salt);
+            
+            const newUser = {
+                id: Date.now().toString(),
+                username: document.getElementById('user-username').value,
+                password: hashedPassword,
+                name: document.getElementById('user-name').value,
+                companyCode: document.getElementById('user-company-code').value,
+                isAdmin: document.getElementById('user-type').value === 'admin',
+                createdAt: new Date().toISOString()
+            };
+            
+            // Verificar se código já existe
+            if (database.users.some(u => u.companyCode === newUser.companyCode)) {
+                alert('Já existe um usuário com este código da empresa!');
+                return;
+            }
+            
+            // Verificar se username já existe
+            if (database.users.some(u => u.username === newUser.username)) {
+                alert('Nome de usuário já existe!');
+                return;
+            }
+            
+            database.users.push(newUser);
+            const saved = await saveDatabase();
+            
+            if (saved) {
+                alert('Usuário cadastrado com sucesso!');
+                closeModal('add-user-modal');
+                event.target.reset();
+                updateUsersTable();
+                updateDashboard();
+            }
+        }
+        
+        // Excluir usuário
+        async function deleteUser(userId) {
+            if (userId === '1') {
+                alert('Não é possível excluir o usuário administrador principal!');
+                return;
+            }
+            
+            if (!confirm('Tem certeza que deseja excluir este usuário?')) {
+                return;
+            }
+            
+            // Verificar se usuário tem empréstimos ativos
+            const hasActiveLoans = database.loans.some(loan => 
+                loan.userId === userId && loan.status === 'emprestado'
+            );
+            
+            if (hasActiveLoans) {
+                alert('Não é possível excluir usuário com empréstimos ativos!');
+                return;
+            }
+            
+            database.users = database.users.filter(u => u.id !== userId);
+            const saved = await saveDatabase();
+            
+            if (saved) {
+                alert('Usuário excluído com sucesso!');
+                updateUsersTable();
+                updateDashboard();
+            }
+        }
+        
+        // Gerenciar ferramentas
+        function updateToolsTable() {
+            const tbody = document.getElementById('tools-list');
+            tbody.innerHTML = '';
+            
+            database.tools.forEach(tool => {
+                const availableBadge = tool.available ? 
+                    '<span class="badge badge-success">DISPONÍVEL</span>' : 
+                    '<span class="badge badge-danger">INDISPONÍVEL</span>';
+                
+                const statusBadge = getStatusBadge(tool.status);
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${tool.code}</td>
+                        <td>${tool.name}</td>
+                        <td>${tool.category}</td>
+                        <td>${availableBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTool('${tool.id}')" style="padding: 5px 10px; font-size: 0.9rem;">
+                                Excluir
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // Adicionar nova ferramenta
+        async function addNewTool(event) {
+            event.preventDefault();
+            
+            const newTool = {
+                id: Date.now().toString(),
+                code: document.getElementById('tool-code').value,
+                name: document.getElementById('tool-name').value,
+                category: document.getElementById('tool-category').value,
+                description: document.getElementById('tool-description').value,
+                available: true,
+                status: 'disponivel',
+                createdAt: new Date().toISOString()
+            };
+            
+            // Verificar se código já existe
+            if (database.tools.some(t => t.code === newTool.code)) {
+                alert('Já existe uma ferramenta com este código!');
+                return;
+            }
+            
+            database.tools.push(newTool);
+            const saved = await saveDatabase();
+            
+            if (saved) {
+                alert('Ferramenta cadastrada com sucesso!');
+                closeModal('add-tool-modal');
+                event.target.reset();
+                updateToolsTable();
+                updateDashboard();
+            }
+        }
+        
+        // Excluir ferramenta
+        async function deleteTool(toolId) {
+            // Verificar se ferramenta está emprestada
+            const isBorrowed = database.loans.some(loan => 
+                loan.toolId === toolId && loan.status === 'emprestado'
+            );
+            
+            if (isBorrowed) {
+                alert('Não é possível excluir ferramenta que está emprestada!');
+                return;
+            }
+            
+            if (!confirm('Tem certeza que deseja excluir esta ferramenta?')) {
+                return;
+            }
+            
+            database.tools = database.tools.filter(t => t.id !== toolId);
+            const saved = await saveDatabase();
+            
+            if (saved) {
+                alert('Ferramenta excluída com sucesso!');
+                updateToolsTable();
+                updateDashboard();
+            }
+        }
+        
+        // Helper functions
+        function getStatusBadge(status) {
+            const statusMap = {
+                'emprestado': { class: 'badge-warning', text: 'EMPRESTADO' },
+                'devolvido': { class: 'badge-success', text: 'DEVOLVIDO' },
+                'nao-entregue': { class: 'badge-danger', text: 'NÃO ENTREGUE' },
+                'quebrado': { class: 'badge-danger', text: 'QUEBRADO' },
+                'disponivel': { class: 'badge-success', text: 'DISPONÍVEL' },
+                'manutencao': { class: 'badge-info', text: 'MANUTENÇÃO' }
+            };
+            
+            const statusInfo = statusMap[status] || { class: 'badge-secondary', text: status };
+            return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>`;
+        }
+        
+        // Navegação entre views
+        function showView(viewName) {
+            // Esconder todas as views
+            document.querySelectorAll('.view').forEach(view => {
+                view.style.display = 'none';
+            });
+            
+            // Mostrar view selecionada
+            document.getElementById(viewName).style.display = 'block';
+            
+            // Atualizar menu ativo
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Encontrar e ativar link correto
+            let activeSelector = '';
+            switch(viewName) {
+                case 'dashboard': 
+                    activeSelector = '[onclick="showView(\'dashboard\')"]';
+                    updateDashboard();
+                    break;
+                case 'loans': 
+                    activeSelector = '[onclick="showView(\'loans\')"]';
+                    updateAllLoansTable();
+                    break;
+                case 'new-loan': 
+                    activeSelector = '[onclick="showView(\'new-loan\')"]';
+                    loadLoanOptions();
+                    break;
+                case 'return-tool': 
+                    activeSelector = '[onclick="showView(\'return-tool\')"]';
+                    updateReturnTable();
+                    break;
+                case 'search-user': 
+                    activeSelector = '[onclick="showView(\'search-user\')"]';
+                    break;
+                case 'users': 
+                    activeSelector = '[onclick="showView(\'users\')"]';
+                    updateUsersTable();
+                    break;
+                case 'tools': 
+                    activeSelector = '[onclick="showView(\'tools\')"]';
+                    updateToolsTable();
+                    break;
+            }
+            
+            if (activeSelector) {
+                document.querySelector(activeSelector).classList.add('active');
+            }
+            
+            currentView = viewName;
+        }
+        
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function showAddUserModal() {
+            showModal('add-user-modal');
+        }
+        
+        function showAddToolModal() {
+            showModal('add-tool-modal');
+        }
+        
+        // Atualizar hora atual
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = 
+                now.toLocaleTimeString('pt-BR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    //second: '2-digit'
+                });
+        }
+        
+        // Logout
+        async function logout() {
+            await window.electronAPI.logout();
+        }
+        
+        // Iniciar quando a página carregar
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

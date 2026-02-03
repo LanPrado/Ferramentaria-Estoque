@@ -1,256 +1,34 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Controle de Ferramentas</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .login-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        
-        .logo {
-            margin-bottom: 30px;
-        }
-        
-        .logo h1 {
-            color: #1e3c72;
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .logo p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-login {
-            background: #1e3c72;
-            color: white;
-            margin-bottom: 15px;
-        }
-        
-        .btn-login:hover {
-            background: #2a5298;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(30, 60, 114, 0.3);
-        }
-        
-        .btn-login:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #1e3c72;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .login-info {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .login-info strong {
-            color: #1e3c72;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>
-                <span>🔧</span>
-                Ferramentaria
-            </h1>
-            <p>Sistema de Controle de Empréstimos</p>
-        </div>
-        
-        <div id="error-message" class="error-message">
-            <!-- Mensagens de erro aparecem aqui -->
-        </div>
-        
-        <form id="login-form">
-            <div class="form-group">
-                <label for="username">Usuário</label>
-                <input type="text" 
-                       id="username" 
-                       class="form-control" 
-                       placeholder="Digite seu usuário"
-                       required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" 
-                       id="password" 
-                       class="form-control" 
-                       placeholder="Digite sua senha"
-                       required>
-            </div>
-            
-            <button type="submit" class="btn btn-login" id="login-btn">
-                <span id="login-text">Entrar</span>
-                <span id="login-loading" class="loading" style="display: none;"></span>
-            </button>
-        </form>
-        
-        <div class="login-info">
-            <p><strong>Usuário admin:</strong> admin</p>
-            <p><strong>Senha:</strong> admin123</p>
-        </div>
-    </div>
-    
-    <script>
-        const loginForm = document.getElementById('login-form');
-        const errorMessage = document.getElementById('error-message');
-        const loginBtn = document.getElementById('login-btn');
-        const loginText = document.getElementById('login-text');
-        const loginLoading = document.getElementById('login-loading');
-        
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            
-            if (!username || !password) {
-                showError('Preencha todos os campos');
-                return;
-            }
-            
-            // Mostrar loading
-            loginBtn.disabled = true;
-            loginText.textContent = 'Autenticando...';
-            loginLoading.style.display = 'inline-block';
-            
-            try {
-                const result = await window.electronAPI.login({
-                    username,
-                    password
-                });
-                
-                if (result.success) {
-                    // Login bem-sucedido
-                    window.location.href = 'index.html';
-                } else {
-                    showError(result.message || 'Credenciais inválidas');
-                }
-            } catch (error) {
-                showError('Erro ao conectar com o servidor');
-                console.error('Login error:', error);
-            } finally {
-                // Restaurar botão
-                loginBtn.disabled = false;
-                loginText.textContent = 'Entrar';
-                loginLoading.style.display = 'none';
-            }
+<script>
+const loginForm = document.getElementById('login-form');
+const errorMessage = document.getElementById('error-message');
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
         });
-        
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-            
-            // Esconder erro após 5 segundos
-            setTimeout(() => {
-                errorMessage.classList.remove('show');
-            }, 5000);
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            errorMessage.textContent = result.message || 'Erro no login';
+            errorMessage.style.display = 'block';
+            return;
         }
-        
-        // Focar no campo de usuário ao carregar
-        document.getElementById('username').focus();
-    </script>
-</body>
-</html>
+
+        // ✅ REDIRECIONAMENTO PELO PERFIL
+        window.location.href = result.redirect;
+
+    } catch (err) {
+        errorMessage.textContent = 'Servidor offline';
+        errorMessage.style.display = 'block';
+    }
+});
+</script>

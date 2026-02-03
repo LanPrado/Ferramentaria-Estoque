@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+        <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/estilo.css">
+    <title>Controle de Ferramental</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle - Ferramenteiro</title>
+    <!-- MESMO CSS DO ADMIN (INALTERADO) -->
+</head>
+<body>
+<div class="app-container">
+    <nav class="sidebar">
+        <div class="user-info">
+            <div class="user-avatar">👷</div>
+            <div class="user-details">
+                <h3 id="current-user-name">Ferramenteiro</h3>
+                <p>Código: USER</p>
+                <div class="admin-badge" style="background:#28a745">USUÁRIO</div>
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a class="nav-link active" onclick="showView('dashboard')">📊 Meu Painel</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="showView('user-loans')">📦 Meus Empréstimos</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="showView('request-tool')">➕ Solicitar Ferramenta</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div id="dashboard" class="view">
+            <div class="header">
+                <h2>Meu Painel</h2>
+                <button class="btn btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+            <div class="stats-cards" id="stats-cards"></div>
+        </div>
+
+        <div id="user-loans" class="view" style="display:none"></div>
+        <div id="request-tool" class="view" style="display:none"></div>
+    </main>
+</div>
+<script src="shared.js"></script>
+</body>
+</html>
+
+<script src="Assets/js/shared.js"></script>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle - CNC</title>
+    <!-- MESMO CSS DO ADMIN (INALTERADO) -->
+</head>
+<body>
+<div class="app-container">
+    <nav class="sidebar">
+        <div class="user-info">
+            <div class="user-avatar">🧰</div>
+            <div class="user-details">
+                <h3 id="current-user-name">Líder CNC</h3>
+                <p>Código: CNC</p>
+                <div class="admin-badge" style="background:#ffc107;color:#333">CNC</div>
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a class="nav-link active" onclick="showView('dashboard')">📊 Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="showView('loans')">🔧 Empréstimos Ativos</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="showView('return-tool')">↩️ Devolução</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="showView('search-user')">🔍 Buscar Usuário</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div id="dashboard" class="view">
+            <div class="header">
+                <h2>Dashboard CNC</h2>
+                <button class="btn btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+            <div class="stats-cards" id="stats-cards"></div>
+        </div>
+
+        <div id="loans" class="view" style="display:none"></div>
+        <div id="return-tool" class="view" style="display:none"></div>
+        <div id="search-user" class="view" style="display:none"></div>
+    </main>
+</div>
+<script src="shared.js"></script>
+</body>
+</html>
+
+<script src="Assets/js/shared.js"></script>

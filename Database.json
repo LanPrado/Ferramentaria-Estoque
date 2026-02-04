@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "$2a$10$.qDZEnsQorAkUpLUnuiGAujbazbWWxw0gcNooJaBmGO4eOXMRmKn6",
+      "name": "Administrador",
+      "companyCode": "000000",
+      "role": "ADMIN_GERAL",
+      "isAdmin": true,
+      "createdAt": "2026-02-04T02:17:56.462Z"
+    }
+  ],
+  "tools": [
+    {
+      "id": "1",
+      "code": "F001",
+      "name": "Martelo",
+      "category": "Ferramenta Manual",
+      "available": true,
+      "status": "disponivel",
+      "setor": "GERAL"
+    },
+    {
+      "id": "2",
+      "code": "F002",
+      "name": "Chave de Fenda",
+      "category": "Ferramenta Manual",
+      "available": true,
+      "status": "disponivel",
+      "setor": "GERAL"
+    },
+    {
+      "id": "3",
+      "code": "F003",
+      "name": "Alicate",
+      "category": "Ferramenta Manual",
+      "available": true,
+      "status": "disponivel",
+      "setor": "CNC"
+    }
+  ],
+  "loans": []
+}

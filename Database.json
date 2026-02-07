@@ -9,36 +9,191 @@
       "role": "ADMIN_GERAL",
       "isAdmin": true,
       "createdAt": "2026-02-04T02:17:56.462Z"
+    },
+    {
+      "id": "1770377813870",
+      "username": "Luan Prado",
+      "password": "$2a$10$DpwYAhCqWH/FxMLnsEsCU.xb6l73OZsqtbCB8iGxrrgDi.1FtqfLO",
+      "name": "Luan Henrique Coelho Prado",
+      "companyCode": "123456",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-06T11:36:53.871Z"
+    },
+    {
+      "id": "1770384027966",
+      "username": "branches",
+      "password": "$2a$10$/1K2Zdb17zvgVezLd0nXHOTyNbFr9ydKEv699Q6zzBMoiO4oIAlj6",
+      "name": "Ronald Branches",
+      "companyCode": "223344",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-06T13:20:27.966Z"
+    },
+    {
+      "id": "1770384296371",
+      "username": "vinicius",
+      "password": "$2a$10$EtVmxGjp/YzBtAqzA8dnI.kehSgqkI1qTnvmbSdSS3FTBVGEN9oDS",
+      "name": "Vinicius Castro",
+      "companyCode": "223334",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-06T13:24:56.371Z"
+    },
+    {
+      "id": "1770385500422",
+      "username": "aluizio",
+      "password": "$2a$10$9cubW0dk9ZtV0Iw5vLoeLOlx/ZCP5c2fZ9dBPXMIJlP4aFqjTU/Vy",
+      "name": "Aluizio Santana",
+      "companyCode": "332211",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-06T13:45:00.422Z"
+    },
+    {
+      "id": "1770392118767",
+      "username": "vinicinho",
+      "password": "$2a$10$KgnxcdzeZbtRQ/Bj3yWzEO8wGxc8Geafy26xNl3KxU/mu1xViQuja",
+      "name": "Vinicius emanuel",
+      "companyCode": "051515",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-06T15:35:18.767Z"
     }
   ],
   "tools": [
     {
-      "id": "1",
-      "code": "F001",
-      "name": "Martelo",
+      "id": "1770385116685",
+      "code": "233211222",
+      "name": "Broca 3/8",
       "category": "Ferramenta Manual",
-      "available": true,
+      "description": "",
+      "totalQuantity": 1,
+      "availableQuantity": 1,
       "status": "disponivel",
-      "setor": "GERAL"
+      "setor": "GERAL",
+      "createdAt": "2026-02-06T13:38:36.685Z"
     },
     {
-      "id": "2",
-      "code": "F002",
-      "name": "Chave de Fenda",
+      "id": "1770391561913",
+      "code": "12312312312321",
+      "name": "Broca 3/8",
       "category": "Ferramenta Manual",
-      "available": true,
+      "description": "",
+      "totalQuantity": 6,
+      "availableQuantity": 5,
       "status": "disponivel",
-      "setor": "GERAL"
+      "setor": "GERAL",
+      "createdAt": "2026-02-06T15:26:01.913Z"
     },
     {
-      "id": "3",
-      "code": "F003",
-      "name": "Alicate",
-      "category": "Ferramenta Manual",
-      "available": true,
+      "id": "1770391833547",
+      "code": "0122",
+      "name": "Macho M12 ",
+      "category": "Consumível",
+      "description": "",
+      "totalQuantity": 4,
+      "availableQuantity": 4,
       "status": "disponivel",
-      "setor": "CNC"
+      "setor": "GERAL",
+      "createdAt": "2026-02-06T15:30:33.547Z"
     }
   ],
-  "loans": []
+  "loans": [
+    {
+      "id": "1770379229945",
+      "userId": "1770377813870",
+      "toolId": "2",
+      "borrowedAt": "2026-02-06T12:00:29.945Z",
+      "returnedAt": "2026-02-06T14:19:20.828Z",
+      "status": "devolvido",
+      "notes": " | Setor: GERAL"
+    },
+    {
+      "id": "1770379258975",
+      "userId": "1770377813870",
+      "toolId": "3",
+      "borrowedAt": "2026-02-06T12:00:58.975Z",
+      "returnedAt": "2026-02-06T14:19:22.778Z",
+      "status": "devolvido",
+      "notes": " | Setor: GERAL"
+    },
+    {
+      "id": "1770379677631",
+      "userId": "1770377813870",
+      "toolId": "1",
+      "borrowedAt": "2026-02-06T12:07:57.631Z",
+      "returnedAt": "2026-02-06T14:19:30.108Z",
+      "status": "devolvido",
+      "notes": " | Setor: GERAL"
+    },
+    {
+      "id": "1770384050221",
+      "userId": "1770384027966",
+      "toolId": "1770383413193",
+      "borrowedAt": "2026-02-06T13:20:50.221Z",
+      "returnedAt": "2026-02-06T14:21:56.669Z",
+      "status": "devolvido",
+      "notes": ""
+    },
+    {
+      "id": "1770384321940",
+      "userId": "1770384296371",
+      "toolId": "1770383429705",
+      "borrowedAt": "2026-02-06T13:25:21.940Z",
+      "returnedAt": "2026-02-06T15:24:27.841Z",
+      "status": "devolvido",
+      "notes": ""
+    },
+    {
+      "id": "1770387551452",
+      "userId": "1770385500422",
+      "toolId": "1770383470225",
+      "borrowedAt": "2026-02-06T14:19:11.452Z",
+      "returnedAt": "2026-02-06T15:24:32.544Z",
+      "status": "devolvido",
+      "notes": "mimimimi\n",
+      "returnedBy": null
+    },
+    {
+      "id": "1770387727319",
+      "userId": "1770384296371",
+      "toolId": "1770383470225",
+      "borrowedAt": "2026-02-06T14:22:07.319Z",
+      "returnedAt": "2026-02-06T15:26:35.059Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    },
+    {
+      "id": "1770387738268",
+      "userId": "1770384296371",
+      "toolId": "1770383470225",
+      "borrowedAt": "2026-02-06T14:22:18.268Z",
+      "returnedAt": "2026-02-06T15:26:36.705Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    },
+    {
+      "id": "1770391574205",
+      "userId": "1770377813870",
+      "toolId": "1770391561913",
+      "borrowedAt": "2026-02-06T15:26:14.205Z",
+      "returnedAt": null,
+      "status": "emprestado",
+      "notes": "",
+      "returnedBy": null
+    },
+    {
+      "id": "1770391856178",
+      "userId": "1770384027966",
+      "toolId": "1770391833547",
+      "borrowedAt": "2026-02-06T15:30:56.178Z",
+      "returnedAt": "2026-02-06T15:31:23.119Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    }
+  ]
 }

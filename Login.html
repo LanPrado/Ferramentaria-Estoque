@@ -5,191 +5,574 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Ferramentaria</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0;
+            padding: 20px;
         }
+        
         .login-container {
             background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
+            overflow: hidden;
         }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+        
+        .login-tabs {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
         }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #2a5298;
+            border-bottom: 3px solid #2a5298;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            padding: 30px;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
-        label {
+        
+        .form-label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
         }
-        input {
+        
+        .form-control {
             width: 100%;
-            padding: 12px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
         }
-        button {
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+        
+        .btn {
             width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        button:hover {
-            background: #5a67d8;
+        
+        .btn-primary {
+            background: #2a5298;
+            color: white;
         }
-        .error {
-            color: #e53e3e;
-            background: #fed7d7;
-            padding: 10px;
-            border-radius: 5px;
+        
+        .btn-primary:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
             margin-bottom: 20px;
             display: none;
+            border-left: 4px solid #c33;
         }
-        .debug-info {
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #28a745;
+        }
+        
+        .login-footer {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #666;
+        }
+        
+        .login-footer a {
+            color: #2a5298;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .server-status {
             margin-top: 20px;
             padding: 10px;
-            background: #f7fafc;
-            border: 1px solid #cbd5e0;
-            border-radius: 5px;
-            font-size: 12px;
-            color: #4a5568;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .server-status.online {
+            color: #28a745;
+            background: #d4edda;
+        }
+        
+        .server-status.offline {
+            color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .password-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .admin-creds {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .admin-creds h4 {
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+        
+        .admin-creds code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                border-radius: 10px;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .tab-btn {
+                padding: 15px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2>🔐 Login - Ferramentaria</h2>
+        <div class="login-tabs">
+            <button class="tab-btn active" onclick="showTab('login')">
+                🔐 Login
+            </button>
+            <button class="tab-btn" onclick="showTab('register')">
+                📝 Criar Conta
+            </button>
+        </div>
         
-        <div id="error-message" class="error"></div>
-        
-        <form id="login-form">
-            <div class="form-group">
-                <label for="username">Usuário</label>
-                <input type="text" id="username" required placeholder="Digite seu usuário" value="admin">
+        <!-- TAB LOGIN -->
+        <div class="tab-content">
+            <div id="login-tab" class="tab-pane active">
+                <h2 style="color: #2a5298; margin-bottom: 25px; text-align: center;">Acessar Sistema</h2>
+                
+                <div id="login-error" class="error-message"></div>
+                <div id="login-success" class="success-message"></div>
+                
+                <form id="login-form" onsubmit="login(event)">
+                    <div class="form-group">
+                        <label class="form-label">Usuário</label>
+                        <input type="text" class="form-control" id="login-username" 
+                               placeholder="Digite seu usuário" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="login-password" 
+                               placeholder="Digite sua senha" required>
+                        <div class="password-info">Senha é obrigatória</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="login-btn">
+                        <span>→</span> Entrar no Sistema
+                    </button>
+                </form>
+                
+                <div class="admin-creds">
+                    <h4>👑 Acesso Administrativo:</h4>
+                    <p><strong>Usuário:</strong> <code>admin</code></p>
+                    <p><strong>Senha:</strong> <code>admin123</code></p>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" required placeholder="Digite sua senha" value="admin123">
+            <!-- TAB REGISTRO -->
+            <div id="register-tab" class="tab-pane">
+                <h2 style="color: #2a5298; margin-bottom: 25px; text-align: center;">Criar Nova Conta</h2>
+                
+                <div id="register-error" class="error-message"></div>
+                <div id="register-success" class="success-message"></div>
+                
+                <form id="register-form" onsubmit="register(event)">
+                    <div class="form-group">
+                        <label class="form-label">Nome Completo *</label>
+                        <input type="text" class="form-control" id="register-name" 
+                               placeholder="Seu nome completo" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nome de Usuário *</label>
+                        <input type="text" class="form-control" id="register-username" 
+                               placeholder="Escolha um nome de usuário" required>
+                        <div class="password-info">Será usado para fazer login</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Senha *</label>
+                        <input type="password" class="form-control" id="register-password" 
+                               placeholder="Crie uma senha segura" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Código da Empresa *</label>
+                        <input type="text" class="form-control" id="register-company" 
+                               placeholder="6 dígitos numéricos" 
+                               pattern="\d{6}"
+                               maxlength="6"
+                               required>
+                        <div class="password-info">Exatamente 6 números (ex: 123456)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Setor</label>
+                        <select class="form-control" id="register-setor">
+                            <option value="GERAL">Geral</option>
+                            <option value="CNC">CNC</option>
+                            <option value="MANUTENCAO">Manutenção</option>
+                            <option value="OUTROS">Outros</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="register-btn">
+                        <span>✓</span> Criar Minha Conta
+                    </button>
+                </form>
+                
+                <div class="login-footer">
+                    Já tem uma conta? <a onclick="showTab('login')">Faça login aqui</a>
+                </div>
             </div>
-            
-            <button type="submit">Entrar</button>
-        </form>
+        </div>
         
-        <div class="debug-info">
-            <div>Servidor: <span id="server-status">Testando conexão...</span></div>
-            <div id="api-status"></div>
+        <div class="server-status" id="server-status">
+            Testando conexão com servidor...
         </div>
     </div>
-
+    
     <script>
-        // Testar conexão com o servidor
-        async function testConnection() {
+        // Verificar status do servidor
+        async function checkServerStatus() {
+            const statusEl = document.getElementById('server-status');
             try {
                 const response = await fetch('/api/health');
                 if (response.ok) {
-                    document.getElementById('server-status').innerHTML = 
-                        '✅ Conectado ao servidor';
-                    document.getElementById('server-status').style.color = '#38a169';
+                    statusEl.textContent = '✅ Servidor online';
+                    statusEl.className = 'server-status online';
                 } else {
-                    document.getElementById('server-status').innerHTML = 
-                        '⚠️ Servidor respondeu com erro';
-                    document.getElementById('server-status').style.color = '#dd6b20';
+                    statusEl.textContent = '⚠️ Servidor com problemas';
+                    statusEl.className = 'server-status offline';
                 }
             } catch (error) {
-                document.getElementById('server-status').innerHTML = 
-                    '❌ Servidor offline. Verifique se o servidor está rodando.';
-                document.getElementById('server-status').style.color = '#e53e3e';
+                statusEl.textContent = '❌ Servidor offline - Verifique se o servidor está rodando';
+                statusEl.className = 'server-status offline';
             }
         }
-
-        // Testar rota de login
-        async function testApi() {
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'test', password: 'test' })
-                });
-                
-                document.getElementById('api-status').innerHTML = 
-                    `API Login: ${response.status === 401 ? '✅ Funcionando (401 esperado)' : 
-                    response.ok ? '✅ Funcionando' : '⚠️ Status: ' + response.status}`;
-                    
-            } catch (error) {
-                document.getElementById('api-status').innerHTML = 
-                    '❌ API não acessível';
+        
+        // Alternar entre tabs
+        function showTab(tabName) {
+            // Atualizar botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (tabName === 'login') {
+                document.querySelector('[onclick="showTab(\'login\')"]').classList.add('active');
+                document.getElementById('login-tab').classList.add('active');
+                document.getElementById('register-tab').classList.remove('active');
+            } else {
+                document.querySelector('[onclick="showTab(\'register\')"]').classList.add('active');
+                document.getElementById('register-tab').classList.add('active');
+                document.getElementById('login-tab').classList.remove('active');
             }
+            
+            // Limpar mensagens
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('register-error').style.display = 'none';
+            document.getElementById('register-success').style.display = 'none';
         }
-
-        // Executar testes
-        testConnection();
-        setTimeout(testApi, 1000);
-
-        // Código de login original
-        const loginForm = document.getElementById('login-form');
-        const errorMessage = document.getElementById('error-message');
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-
+        
+        // Login
+        async function login(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const button = document.getElementById('login-btn');
+            const errorEl = document.getElementById('login-error');
+            const successEl = document.getElementById('login-success');
+            
+            // Limpar mensagens
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            
+            // Validar
+            if (!username || !password) {
+                errorEl.textContent = 'Por favor, preencha todos os campos';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
             // Mostrar loading
-            const button = loginForm.querySelector('button');
-            const originalText = button.textContent;
-            button.textContent = 'Entrando...';
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span>⏳</span> Entrando...';
             button.disabled = true;
-
+            
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
-
+                
                 const result = await response.json();
-                console.log('Resposta do servidor:', result);
-
-                if (!response.ok) {
-                    errorMessage.textContent = result.message || 'Erro no login';
-                    errorMessage.style.display = 'block';
-                    return;
+                
+                if (result.success) {
+                    // Salvar usuário no localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    
+                    successEl.textContent = 'Login bem-sucedido! Redirecionando...';
+                    successEl.style.display = 'block';
+                    
+                    // Redirecionar após 1 segundo
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 1000);
+                    
+                } else {
+                    errorEl.textContent = result.message || 'Erro no login';
+                    errorEl.style.display = 'block';
                 }
-
-                // ✅ REDIRECIONAMENTO PELO PERFIL
-                console.log('Redirecionando para:', result.redirect);
-                window.location.href = result.redirect;
-
-            } catch (err) {
-                console.error('Erro na requisição:', err);
-                errorMessage.textContent = 'Servidor offline. Verifique: 1) Servidor rodando 2) Firewall desativado';
-                errorMessage.style.display = 'block';
+                
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+                errorEl.style.display = 'block';
             } finally {
-                button.textContent = originalText;
+                button.innerHTML = originalText;
                 button.disabled = false;
             }
+        }
+        
+        // Registrar nova conta
+        async function register(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('register-name').value.trim();
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value;
+            const companyCode = document.getElementById('register-company').value.trim();
+            const setor = document.getElementById('register-setor').value;
+            
+            const button = document.getElementById('register-btn');
+            const errorEl = document.getElementById('register-error');
+            const successEl = document.getElementById('register-success');
+            
+            // Limpar mensagens
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            
+            // Validar
+            if (!name || !username || !password || !companyCode) {
+                errorEl.textContent = 'Por favor, preencha todos os campos obrigatórios';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(companyCode)) {
+                errorEl.textContent = 'Código da empresa deve ter exatamente 6 números';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 4) {
+                errorEl.textContent = 'A senha deve ter pelo menos 4 caracteres';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            // Mostrar loading
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span>⏳</span> Criando conta...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        name, 
+                        username, 
+                        password, 
+                        companyCode,
+                        setor 
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successEl.textContent = result.message || 'Conta criada com sucesso!';
+                    successEl.style.display = 'block';
+                    
+                    // Limpar formulário
+                    document.getElementById('register-form').reset();
+                    
+                    // Mostrar mensagem e voltar para login após 2 segundos
+                    setTimeout(() => {
+                        showTab('login');
+                        successEl.textContent = 'Conta criada! Agora faça login.';
+                        successEl.style.display = 'block';
+                    }, 2000);
+                    
+                } else {
+                    errorEl.textContent = result.message || 'Erro ao criar conta';
+                    errorEl.style.display = 'block';
+                }
+                
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão com o servidor';
+                errorEl.style.display = 'block';
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Auto-preenchimento para testes
+        function autoFillLogin() {
+            document.getElementById('login-username').value = 'admin';
+            document.getElementById('login-password').value = 'admin123';
+        }
+        
+        function autoFillRegister() {
+            document.getElementById('register-name').value = 'Novo Usuário';
+            document.getElementById('register-username').value = 'usuario' + Math.floor(Math.random() * 1000);
+            document.getElementById('register-password').value = '123456';
+            document.getElementById('register-company').value = Math.floor(100000 + Math.random() * 900000);
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            checkServerStatus();
+            
+            // Verificar se já está logado
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                // Se já está logado, redirecionar
+                try {
+                    const user = JSON.parse(currentUser);
+                    const redirect = user.role === 'ADMIN_GERAL' ? 'index_admin.html' : 
+                                   user.role === 'LIDER_CNC' ? 'index_cnc.html' : 'index_ferramenteiro.html';
+                    window.location.href = redirect;
+                } catch (e) {
+                    localStorage.removeItem('currentUser');
+                }
+            }
+            
+            // Atalhos de teclado
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === '1') {
+                    showTab('login');
+                }
+                if (e.ctrlKey && e.key === '2') {
+                    showTab('register');
+                }
+                if (e.ctrlKey && e.key === 'l') {
+                    autoFillLogin();
+                }
+                if (e.ctrlKey && e.key === 'r') {
+                    autoFillRegister();
+                }
+            });
+            
+            console.log('Sistema de Login carregado!');
+            console.log('Atalhos: Ctrl+1=Login, Ctrl+2=Registro, Ctrl+L=Auto-login, Ctrl+R=Auto-registro');
         });
     </script>
 </body>

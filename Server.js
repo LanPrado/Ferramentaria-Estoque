@@ -1,16 +1,16 @@
-﻿const express = require('express');
+const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const os = require('os');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3004;
 
 // Configurar caminhos
 const dbPath = path.join(__dirname, 'database.json');
 
-// Middleware CORS (IMPORTANTE!)
+// Middleware CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,25 +21,31 @@ app.use((req, res, next) => {
     next();
 });
 
-// Middleware para processar JSON
-app.use(express.json());
-app.use(express.static(__dirname)); // Serve arquivos estáticos
+// Middleware para prevenir cache
+app.use((req, res, next) => {
+    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+    next();
+});
 
-// 1. Rota raiz - redireciona para login
+app.use(express.json());
+app.use(express.static(__dirname));
+
+// Rotas de arquivos estáticos
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// 2. Rota explícita para login.html
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// 3. Inicialização do banco de dados
+// Inicialização do banco COM QUANTIDADE
 function initDatabase() {
     try {
         if (!fs.existsSync(dbPath)) {
-            console.log('Criando database.json inicial...');
+            console.log('Criando database inicial...');
             const salt = bcrypt.genSaltSync(10);
             const hashedPassword = bcrypt.hashSync('admin123', salt);
             const initialData = {
@@ -54,127 +60,193 @@ function initDatabase() {
                     createdAt: new Date().toISOString()
                 }],
                 tools: [
-                    { id: '1', code: 'F001', name: 'Martelo', category: 'Ferramenta Manual', available: true, status: 'disponivel', setor: 'GERAL' },
-                    { id: '2', code: 'F002', name: 'Chave de Fenda', category: 'Ferramenta Manual', available: true, status: 'disponivel', setor: 'GERAL' },
-                    { id: '3', code: 'F003', name: 'Alicate', category: 'Ferramenta Manual', available: true, status: 'disponivel', setor: 'CNC' }
+                    { 
+                        id: '1', 
+                        code: 'F001', 
+                        name: 'Martelo', 
+                        category: 'Ferramenta Manual', 
+                        totalQuantity: 5,
+                        availableQuantity: 5,
+                        status: 'disponivel', 
+                        setor: 'GERAL' 
+                    },
+                    { 
+                        id: '2', 
+                        code: 'F002', 
+                        name: 'Chave de Fenda', 
+                        category: 'Ferramenta Manual', 
+                        totalQuantity: 8,
+                        availableQuantity: 8,
+                        status: 'disponivel', 
+                        setor: 'GERAL' 
+                    },
+                    { 
+                        id: '3', 
+                        code: 'F003', 
+                        name: 'Alicate', 
+                        category: 'Ferramenta Manual', 
+                        totalQuantity: 4,
+                        availableQuantity: 4,
+                        status: 'disponivel', 
+                        setor: 'CNC' 
+                    }
                 ],
                 loans: []
             };
             fs.writeFileSync(dbPath, JSON.stringify(initialData, null, 2));
-            console.log('✅ Database criado com sucesso!');
+            console.log('✅ Database criado!');
         } else {
-            // Verificar se o arquivo é válido
-            const content = fs.readFileSync(dbPath, 'utf8');
-            JSON.parse(content); // Testa se é JSON válido
-            console.log('✅ Database carregado com sucesso!');
+            // Verificar se precisa migrar dados antigos
+            migrateOldDatabase();
         }
     } catch (error) {
-        console.error('❌ ERRO CRÍTICO no database:', error.message);
-        // Criar um novo se o atual estiver corrompido
-        try {
-            fs.unlinkSync(dbPath); // Remove arquivo corrompido
-        } catch {}
-        initDatabase(); // Recria
+        console.error('Erro ao inicializar database:', error);
+    }
+}
+
+// Migrar dados antigos para novo formato com quantidade
+function migrateOldDatabase() {
+    try {
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        let needsMigration = false;
+        
+        // Verificar se há ferramentas sem quantidade
+        data.tools.forEach(tool => {
+            if (tool.totalQuantity === undefined) {
+                tool.totalQuantity = 1;
+                tool.availableQuantity = tool.available ? 1 : 0;
+                needsMigration = true;
+            }
+        });
+        
+        if (needsMigration) {
+            fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+            console.log('✅ Dados migrados para novo formato com quantidade');
+        }
+    } catch (error) {
+        console.error('Erro na migração:', error);
     }
 }
 
 initDatabase();
 
-// 4. ROTA DE LOGIN
+// ========== API ROUTES ==========
+
+// Login
 app.post('/api/login', (req, res) => {
-    console.log('\n=== TENTATIVA DE LOGIN ===');
-    console.log('Usuário recebido:', req.body.username);
-    
-    if (!req.body.username || !req.body.password) {
-        console.log('❌ Dados incompletos');
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Usuário e senha são obrigatórios' 
-        });
-    }
-    
-    const { username, password } = req.body;
-    
     try {
-        console.log('📖 Lendo database.json...');
-        const rawData = fs.readFileSync(dbPath, 'utf8');
-        const data = JSON.parse(rawData);
-        
+        const { username, password } = req.body;
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
         const user = data.users.find(u => u.username === username);
-        
-        if (!user) {
-            console.log('❌ Usuário não encontrado:', username);
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Usuário não encontrado' 
-            });
-        }
-        
-        console.log('✅ Usuário encontrado:', user.username);
-        console.log('🔐 Comparando senha...');
-        
-        const passwordMatch = bcrypt.compareSync(password, user.password);
-        
-        if (passwordMatch) {
-            console.log('✅ SENHA CORRETA!');
-            console.log('👤 Perfil do usuário:', user.role);
-            
-            // Determinar para qual página redirecionar
-            let redirectPage = 'index_ferramenteiro.html'; // padrão
-            
-            if (user.role === 'ADMIN_GERAL') {
-                redirectPage = 'index_admin.html';
-            } else if (user.role === 'LIDER_CNC') {
-                redirectPage = 'index_cnc.html';
-            }
-            
-            console.log('↪️ Redirecionando para:', redirectPage);
-            
+
+        if (user && bcrypt.compareSync(password, user.password)) {
             res.json({ 
                 success: true, 
                 user: { 
                     id: user.id,
-                    username: user.username,
                     name: user.name, 
                     role: user.role,
-                    companyCode: user.companyCode,
-                    isAdmin: user.isAdmin
+                    companyCode: user.companyCode
                 },
-                redirect: redirectPage
+                redirect: user.role === 'ADMIN_GERAL' ? 'index_admin.html' : 
+                         user.role === 'LIDER_CNC' ? 'index_cnc.html' : 'index_ferramenteiro.html'
             });
         } else {
-            console.log('❌ SENHA INCORRETA');
             res.status(401).json({ 
                 success: false, 
-                message: 'Senha incorreta' 
+                message: 'Usuário ou senha incorretos' 
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro no servidor' 
+        });
+    }
+});
+
+// Criar conta
+app.post('/api/register', (req, res) => {
+    try {
+        const { name, username, password, companyCode } = req.body;
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        
+        // Validações
+        if (!name || !username || !password || !companyCode) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Todos os campos são obrigatórios' 
             });
         }
         
-    } catch (error) {
-        console.error('❌ ERRO NO PROCESSO DE LOGIN:', error);
-        console.error('Stack trace:', error.stack);
+        if (data.users.some(u => u.username === username)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nome de usuário já existe' 
+            });
+        }
         
+        if (data.users.some(u => u.companyCode === companyCode)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Código da empresa já existe' 
+            });
+        }
+        
+        if (!/^\d{6}$/.test(companyCode)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Código deve ter 6 números' 
+            });
+        }
+        
+        // Criar usuário
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+        
+        const newUser = {
+            id: Date.now().toString(),
+            username,
+            password: hashedPassword,
+            name,
+            companyCode,
+            role: 'USER',
+            isAdmin: false,
+            createdAt: new Date().toISOString()
+        };
+        
+        data.users.push(newUser);
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+        
+        res.json({ 
+            success: true, 
+            message: 'Conta criada com sucesso! Faça login.',
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                username: newUser.username,
+                companyCode: newUser.companyCode
+            }
+        });
+        
+    } catch (error) {
         res.status(500).json({ 
             success: false, 
-            message: 'Erro interno do servidor',
-            error: error.message
+            message: 'Erro ao criar conta' 
         });
     }
-    
-    console.log('=== FIM DO LOGIN ===\n');
 });
 
-// 5. ROTA: Ler banco de dados completo
+// Database
 app.get('/api/database', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
         res.json(data);
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao ler banco de dados' });
+        res.status(500).json({ error: 'Erro ao ler dados' });
     }
 });
 
-// 6. ROTA: Atualizar banco de dados completo
 app.put('/api/database', (req, res) => {
     try {
         fs.writeFileSync(dbPath, JSON.stringify(req.body, null, 2));
@@ -184,94 +256,50 @@ app.put('/api/database', (req, res) => {
     }
 });
 
-// 7. ROTA: Listar usuários
+// Usuários
 app.get('/api/usuarios', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-        
-        // Remover senhas dos usuários para segurança
         const safeUsers = data.users.map(user => {
-            const { password, ...userWithoutPassword } = user;
-            return userWithoutPassword;
+            const { password, ...rest } = user;
+            return rest;
         });
-        
         res.json(safeUsers);
     } catch (error) {
         res.status(500).json({ error: 'Erro ao ler usuários' });
     }
 });
 
-// 8. ROTA: Adicionar novo usuário
 app.post('/api/usuarios', (req, res) => {
-    console.log('\n=== CADASTRANDO NOVO USUÁRIO ===');
-    
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-        
         const { username, password, name, companyCode, role = 'USER' } = req.body;
         
-        // Validações
-        if (!username || !password || !name || !companyCode) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Todos os campos são obrigatórios' 
-            });
-        }
-        
-        // Verificar se usuário já existe
         if (data.users.some(u => u.username === username)) {
-            console.log('❌ Usuário já existe:', username);
             return res.status(400).json({ 
                 success: false, 
-                message: 'Nome de usuário já existe' 
+                message: 'Usuário já existe' 
             });
         }
         
-        // Verificar se código já existe
-        if (data.users.some(u => u.companyCode === companyCode)) {
-            console.log('❌ Código já existe:', companyCode);
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Código da empresa já existe' 
-            });
-        }
-        
-        // Validar código da empresa (6 dígitos)
-        if (!/^\d{6}$/.test(companyCode)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Código da empresa deve ter exatamente 6 números' 
-            });
-        }
-        
-        console.log('✅ Validações passadas');
-        
-        // Criptografar senha
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
         
         const newUser = {
             id: Date.now().toString(),
-            username: username,
+            username,
             password: hashedPassword,
-            name: name,
-            companyCode: companyCode,
-            role: role,
+            name,
+            companyCode,
+            role,
             isAdmin: role === 'ADMIN_GERAL',
             createdAt: new Date().toISOString()
         };
         
-        console.log('👤 Novo usuário:', newUser.name);
-        console.log('📝 Tipo:', newUser.role);
-        
         data.users.push(newUser);
         fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
         
-        // Não retornar a senha
-        const userResponse = { ...newUser };
-        delete userResponse.password;
-        
-        console.log('✅ Usuário cadastrado com sucesso!');
+        const { password: _, ...userResponse } = newUser;
         
         res.json({ 
             success: true, 
@@ -279,77 +307,38 @@ app.post('/api/usuarios', (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Erro ao cadastrar usuário:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erro interno do servidor: ' + error.message 
-        });
-    }
-    
-    console.log('=== FIM DO CADASTRO ===\n');
-});
-
-// 9. ROTA: Deletar usuário
-app.delete('/api/usuarios/:id', (req, res) => {
-    console.log('\n=== EXCLUINDO USUÁRIO ===');
-    console.log('ID do usuário:', req.params.id);
-    
-    try {
-        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-        
-        // Não permitir deletar o admin principal
-        if (req.params.id === '1') {
-            console.log('❌ Tentativa de excluir admin principal');
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Não é possível excluir o administrador principal' 
-            });
-        }
-        
-        // Verificar se usuário existe
-        const user = data.users.find(u => u.id === req.params.id);
-        if (!user) {
-            console.log('❌ Usuário não encontrado');
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Usuário não encontrado' 
-            });
-        }
-        
-        console.log('👤 Usuário encontrado:', user.name);
-        
-        // Verificar se tem empréstimos ativos
-        const hasActiveLoans = data.loans.some(loan => 
-            loan.userId === req.params.id && loan.status === 'emprestado'
-        );
-        
-        if (hasActiveLoans) {
-            console.log('❌ Usuário tem empréstimos ativos');
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Usuário tem empréstimos ativos' 
-            });
-        }
-        
-        data.users = data.users.filter(user => user.id !== req.params.id);
-        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
-        
-        console.log('✅ Usuário excluído com sucesso!');
-        
-        res.json({ success: true });
-        
-    } catch (error) {
-        console.error('❌ Erro ao excluir usuário:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
         });
     }
-    
-    console.log('=== FIM DA EXCLUSÃO ===\n');
 });
 
-// 10. ROTA: Listar ferramentas
+app.delete('/api/usuarios/:id', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        
+        if (req.params.id === '1') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Não pode excluir admin principal' 
+            });
+        }
+        
+        data.users = data.users.filter(u => u.id !== req.params.id);
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+        
+        res.json({ success: true });
+        
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+});
+
+// Ferramentas (ATUALIZADO COM QUANTIDADE)
 app.get('/api/ferramentas', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
@@ -359,14 +348,13 @@ app.get('/api/ferramentas', (req, res) => {
     }
 });
 
-// 11. ROTA: Adicionar nova ferramenta
 app.post('/api/ferramentas', (req, res) => {
     console.log('\n=== CADASTRANDO NOVA FERRAMENTA ===');
     
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
         
-        const { code, name, category, description } = req.body;
+        const { code, name, totalQuantity = 1, availableQuantity, category, description } = req.body;
         
         // Validações
         if (!code || !name || !category) {
@@ -385,22 +373,33 @@ app.post('/api/ferramentas', (req, res) => {
             });
         }
         
+        const qty = parseInt(totalQuantity) || 1;
+        const availableQty = parseInt(availableQuantity) || qty;
+        
+        if (qty < 1) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Quantidade deve ser maior que 0' 
+            });
+        }
+        
         console.log('✅ Validações passadas');
         
         const newTool = {
             id: Date.now().toString(),
-            code: code,
-            name: name,
-            category: category,
+            code,
+            name,
+            category,
             description: description || '',
-            available: true,
-            status: 'disponivel',
+            totalQuantity: qty,
+            availableQuantity: availableQty,
+            status: availableQty > 0 ? 'disponivel' : 'indisponivel',
             setor: 'GERAL',
             createdAt: new Date().toISOString()
         };
         
         console.log('🛠️ Nova ferramenta:', newTool.name);
-        console.log('📝 Código:', newTool.code);
+        console.log('📦 Quantidade:', newTool.totalQuantity);
         
         data.tools.push(newTool);
         fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
@@ -419,11 +418,8 @@ app.post('/api/ferramentas', (req, res) => {
             message: 'Erro interno do servidor: ' + error.message 
         });
     }
-    
-    console.log('=== FIM DO CADASTRO ===\n');
 });
 
-// 12. ROTA: Atualizar ferramenta
 app.put('/api/ferramentas/:id', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
@@ -434,6 +430,24 @@ app.put('/api/ferramentas/:id', (req, res) => {
                 success: false, 
                 message: 'Ferramenta não encontrada' 
             });
+        }
+        
+        // Atualizar quantidade disponível se fornecida
+        if (req.body.availableQuantity !== undefined) {
+            const newQty = parseInt(req.body.availableQuantity);
+            if (newQty < 0) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Quantidade não pode ser negativa' 
+                });
+            }
+            
+            // Atualizar status baseado na quantidade
+            if (newQty <= 0) {
+                req.body.status = 'indisponivel';
+            } else {
+                req.body.status = 'disponivel';
+            }
         }
         
         data.tools[index] = { ...data.tools[index], ...req.body };
@@ -452,7 +466,6 @@ app.put('/api/ferramentas/:id', (req, res) => {
     }
 });
 
-// 13. ROTA: Deletar ferramenta
 app.delete('/api/ferramentas/:id', (req, res) => {
     console.log('\n=== EXCLUINDO FERRAMENTA ===');
     console.log('ID da ferramenta:', req.params.id);
@@ -472,7 +485,7 @@ app.delete('/api/ferramentas/:id', (req, res) => {
         
         console.log('🛠️ Ferramenta encontrada:', tool.name);
         
-        // Verificar se está emprestada
+        // Verificar se está emprestada (alguma unidade)
         const isBorrowed = data.loans.some(loan => 
             loan.toolId === req.params.id && loan.status === 'emprestado'
         );
@@ -499,11 +512,9 @@ app.delete('/api/ferramentas/:id', (req, res) => {
             message: error.message 
         });
     }
-    
-    console.log('=== FIM DA EXCLUSÃO ===\n');
 });
 
-// 14. ROTA: Listar empréstimos
+// Empréstimos (ATUALIZADO PARA CONTROLE DE QUANTIDADE)
 app.get('/api/emprestimos', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
@@ -513,7 +524,6 @@ app.get('/api/emprestimos', (req, res) => {
     }
 });
 
-// 15. ROTA: Adicionar empréstimo
 app.post('/api/emprestimos', (req, res) => {
     console.log('\n=== REGISTRANDO EMPRÉSTIMO ===');
     
@@ -550,9 +560,10 @@ app.post('/api/emprestimos', (req, res) => {
             });
         }
         
-        // Verificar se ferramenta está disponível
-        if (!tool.available) {
-            console.log('❌ Ferramenta não disponível');
+        // Verificar se há quantidade disponível
+        const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+        if (availableQty <= 0) {
+            console.log('❌ Ferramenta sem estoque');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Esta ferramenta não está disponível no momento' 
@@ -562,6 +573,7 @@ app.post('/api/emprestimos', (req, res) => {
         console.log('✅ Validações passadas');
         console.log('👤 Usuário:', user.name);
         console.log('🛠️ Ferramenta:', tool.name);
+        console.log('📦 Quantidade disponível:', availableQty);
         
         const newLoan = {
             id: Date.now().toString(),
@@ -576,10 +588,21 @@ app.post('/api/emprestimos', (req, res) => {
         
         data.loans.push(newLoan);
         
-        // Atualizar status da ferramenta
+        // Atualizar quantidade da ferramenta
         const toolIndex = data.tools.findIndex(t => t.id === toolId);
-        data.tools[toolIndex].available = false;
-        data.tools[toolIndex].status = 'emprestado';
+        if (toolIndex !== -1) {
+            const newAvailableQty = (data.tools[toolIndex].availableQuantity || 1) - 1;
+            data.tools[toolIndex].availableQuantity = newAvailableQty;
+            
+            // Atualizar status baseado na quantidade
+            if (newAvailableQty <= 0) {
+                data.tools[toolIndex].status = 'indisponivel';
+            } else {
+                data.tools[toolIndex].status = 'disponivel';
+            }
+            
+            console.log('📉 Nova quantidade disponível:', newAvailableQty);
+        }
         
         fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
         
@@ -599,11 +622,8 @@ app.post('/api/emprestimos', (req, res) => {
             message: 'Erro interno do servidor: ' + error.message 
         });
     }
-    
-    console.log('=== FIM DO EMPRÉSTIMO ===\n');
 });
 
-// 16. ROTA: Atualizar empréstimo (devolução)
 app.put('/api/emprestimos/:id', (req, res) => {
     console.log('\n=== ATUALIZANDO EMPRÉSTIMO ===');
     console.log('ID do empréstimo:', req.params.id);
@@ -622,32 +642,42 @@ app.put('/api/emprestimos/:id', (req, res) => {
         }
         
         const oldStatus = data.loans[loanIndex].status;
+        const newStatus = req.body.status;
+        
         data.loans[loanIndex] = { 
             ...data.loans[loanIndex], 
             ...req.body,
-            returnedAt: req.body.status !== 'emprestado' ? new Date().toISOString() : null
+            returnedAt: newStatus !== 'emprestado' ? new Date().toISOString() : null
         };
         
-        console.log('📝 Status alterado:', oldStatus, '→', req.body.status);
+        console.log('📝 Status alterado:', oldStatus, '→', newStatus);
         
-        // Se devolvido, marcar ferramenta como disponível
-        if (req.body.status === 'devolvido') {
+        // Se devolvido, incrementar quantidade da ferramenta
+        if (oldStatus === 'emprestado' && newStatus === 'devolvido') {
             const toolId = data.loans[loanIndex].toolId;
             const toolIndex = data.tools.findIndex(t => t.id === toolId);
             if (toolIndex !== -1) {
-                data.tools[toolIndex].available = true;
-                data.tools[toolIndex].status = 'disponivel';
-                console.log('✅ Ferramenta marcada como disponível');
+                const newAvailableQty = (data.tools[toolIndex].availableQuantity || 0) + 1;
+                data.tools[toolIndex].availableQuantity = newAvailableQty;
+                
+                // Atualizar status baseado na quantidade
+                if (newAvailableQty > 0) {
+                    data.tools[toolIndex].status = 'disponivel';
+                }
+                
+                console.log('✅ Ferramenta devolvida. Nova quantidade:', newAvailableQty);
             }
         }
-        // Se quebrado, marcar ferramenta como indisponível
-        else if (req.body.status === 'quebrado') {
+        // Se quebrado, não devolve ao estoque
+        else if (oldStatus === 'emprestado' && newStatus === 'quebrado') {
             const toolId = data.loans[loanIndex].toolId;
             const toolIndex = data.tools.findIndex(t => t.id === toolId);
             if (toolIndex !== -1) {
-                data.tools[toolIndex].available = false;
-                data.tools[toolIndex].status = 'quebrado';
-                console.log('⚠️ Ferramenta marcada como quebrada');
+                // Reduzir quantidade total (ferramenta quebrada)
+                const newTotalQty = (data.tools[toolIndex].totalQuantity || 1) - 1;
+                data.tools[toolIndex].totalQuantity = Math.max(0, newTotalQty);
+                
+                console.log('⚠️ Ferramenta quebrada. Nova quantidade total:', newTotalQty);
             }
         }
         
@@ -667,86 +697,135 @@ app.put('/api/emprestimos/:id', (req, res) => {
             message: error.message 
         });
     }
-    
-    console.log('=== FIM DA ATUALIZAÇÃO ===\n');
 });
 
-// 17. Rota para testar se o servidor está vivo
+// Nova rota: Ajustar quantidade de ferramenta
+app.put('/api/ferramentas/:id/quantidade', (req, res) => {
+    console.log('\n=== AJUSTANDO QUANTIDADE ===');
+    
+    try {
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        const toolIndex = data.tools.findIndex(t => t.id === req.params.id);
+        
+        if (toolIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Ferramenta não encontrada' 
+            });
+        }
+        
+        const { quantidade, tipo = 'disponivel' } = req.body;
+        const qty = parseInt(quantidade);
+        
+        if (isNaN(qty) || qty < 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Quantidade inválida' 
+            });
+        }
+        
+        if (tipo === 'disponivel') {
+            data.tools[toolIndex].availableQuantity = qty;
+            
+            // Atualizar status
+            if (qty > 0) {
+                data.tools[toolIndex].status = 'disponivel';
+            } else {
+                data.tools[toolIndex].status = 'indisponivel';
+            }
+            
+            console.log(`📦 Quantidade disponível ajustada para: ${qty}`);
+        } else if (tipo === 'total') {
+            data.tools[toolIndex].totalQuantity = qty;
+            
+            // Ajustar quantidade disponível se necessário
+            if (data.tools[toolIndex].availableQuantity > qty) {
+                data.tools[toolIndex].availableQuantity = qty;
+            }
+            
+            console.log(`📊 Quantidade total ajustada para: ${qty}`);
+        }
+        
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+        
+        res.json({ 
+            success: true, 
+            tool: data.tools[toolIndex] 
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao ajustar quantidade:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+});
+
+// Health check
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'online', 
         timestamp: new Date().toISOString(),
-        database: fs.existsSync(dbPath) ? 'OK' : 'MISSING'
+        version: '3.0',
+        features: ['quantidade-ferramentas', 'estoque', 'multi-emprestimos']
     });
 });
 
-// 18. Rota para visualizar o database (apenas para debug)
-app.get('/api/debug/database', (req, res) => {
+// Nova rota: Relatório de estoque
+app.get('/api/relatorio/estoque', (req, res) => {
     try {
-        const rawData = fs.readFileSync(dbPath, 'utf8');
-        const data = JSON.parse(rawData);
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
         
-        // Esconder senhas por segurança
-        const safeData = {
-            ...data,
-            users: data.users.map(user => ({
-                ...user,
-                password: user.password ? '********' : null
-            }))
+        const relatorio = {
+            totalFerramentas: data.tools.length,
+            totalUnidades: data.tools.reduce((sum, tool) => sum + (tool.totalQuantity || 1), 0),
+            unidadesDisponiveis: data.tools.reduce((sum, tool) => sum + (tool.availableQuantity || 0), 0),
+            unidadesEmprestadas: data.tools.reduce((sum, tool) => {
+                const total = tool.totalQuantity || 1;
+                const disponivel = tool.availableQuantity || 0;
+                return sum + (total - disponivel);
+            }, 0),
+            ferramentas: data.tools.map(tool => ({
+                nome: tool.name,
+                codigo: tool.code,
+                total: tool.totalQuantity || 1,
+                disponivel: tool.availableQuantity || 0,
+                emprestado: (tool.totalQuantity || 1) - (tool.availableQuantity || 0),
+                status: tool.status
+            })),
+            geradoEm: new Date().toISOString()
         };
         
-        res.json(safeData);
+        res.json(relatorio);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Erro ao gerar relatório' });
     }
 });
 
-// 19. Servir outras páginas HTML
-app.get('/:page', (req, res) => {
-    const page = req.params.page;
-    const allowedPages = ['index_admin.html', 'index_cnc.html', 'index_ferramenteiro.html'];
-    
-    if (allowedPages.includes(page)) {
-        const filePath = path.join(__dirname, page);
-        if (fs.existsSync(filePath)) {
-            res.sendFile(filePath);
-        } else {
-            res.status(404).send(`Arquivo ${page} não encontrado no servidor`);
+// Servir páginas
+const allowedPages = ['index_admin.html', 'index_cnc.html', 'index_ferramenteiro.html'];
+allowedPages.forEach(page => {
+    app.get(`/${page}`, (req, res) => {
+        res.sendFile(path.join(__dirname, page));
+    });
+});
+
+// Rota para servir shared.js
+app.get('/shared.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'shared.js'), {
+        headers: {
+            'Content-Type': 'application/javascript',
+            'Cache-Control': 'no-cache'
         }
-    } else {
-        res.status(404).send('Página não encontrada');
-    }
+    });
 });
 
-// 20. Rota para servir arquivos CSS, JS, etc
-app.get('/Assets/:type/:file', (req, res) => {
-    const filePath = path.join(__dirname, 'Assets', req.params.type, req.params.file);
-    if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-    } else {
-        res.status(404).send('Arquivo não encontrado');
-    }
-});
-
-// 21. Rota para servir arquivos CSS, JS na raiz
-app.get('/:file', (req, res) => {
-    const file = req.params.file;
-    if (file.endsWith('.css') || file.endsWith('.js')) {
-        const filePath = path.join(__dirname, file);
-        if (fs.existsSync(filePath)) {
-            res.sendFile(filePath);
-        } else {
-            res.status(404).send('Arquivo não encontrado');
-        }
-    }
-});
-
-// 22. Iniciar servidor
+// Iniciar servidor
 app.listen(PORT, '0.0.0.0', () => {
     const networkInterfaces = os.networkInterfaces();
     let localIp = 'localhost';
     
-    // Encontra o IP local
     for (const interfaceName in networkInterfaces) {
         for (const interface of networkInterfaces[interfaceName]) {
             if (interface.family === 'IPv4' && !interface.internal) {
@@ -756,28 +835,18 @@ app.listen(PORT, '0.0.0.0', () => {
         }
     }
     
-    console.log(`╔══════════════════════════════════════════════════════╗`);
-    console.log(`║          SISTEMA FERRAMENTARIA v2.0                ║`);
-    console.log(`╠══════════════════════════════════════════════════════╣`);
-    console.log(`║ 📍 Local:    http://localhost:${PORT}               ║`);
-    console.log(`║ 🌐 Rede:     http://${localIp}:${PORT}              ║`);
-    console.log(`║ 🔐 Credenciais:                                     ║`);
-    console.log(`║    👤 admin                                         ║`);
-    console.log(`║    🔑 admin123                                      ║`);
-    console.log(`╠══════════════════════════════════════════════════════╣`);
-    console.log(`║ 📊 API Endpoints:                                   ║`);
-    console.log(`║   POST   /api/login                                 ║`);
-    console.log(`║   GET    /api/usuarios                              ║`);
-    console.log(`║   POST   /api/usuarios                              ║`);
-    console.log(`║   DELETE /api/usuarios/:id                          ║`);
-    console.log(`║   GET    /api/ferramentas                           ║`);
-    console.log(`║   POST   /api/ferramentas                           ║`);
-    console.log(`║   PUT    /api/ferramentas/:id                       ║`);
-    console.log(`║   DELETE /api/ferramentas/:id                       ║`);
-    console.log(`║   GET    /api/emprestimos                           ║`);
-    console.log(`║   POST   /api/emprestimos                           ║`);
-    console.log(`║   PUT    /api/emprestimos/:id                       ║`);
-    console.log(`╚══════════════════════════════════════════════════════╝`);
-    console.log(`\n📁 Database: ${dbPath}`);
-    console.log(`✅ Servidor rodando! Pressione Ctrl+C para parar.\n`);
+    console.log('\n' + '='.repeat(60));
+    console.log('🚀 SISTEMA FERRAMENTARIA ONLINE v3.0');
+    console.log('='.repeat(60));
+    console.log(`📍 Local:    http://localhost:${PORT}`);
+    console.log(`🌐 Rede:     http://${localIp}:${PORT}`);
+    console.log('👤 Login:    admin');
+    console.log('🔑 Senha:    admin123');
+    console.log('📦 Sistema:  Controle de quantidade por ferramenta');
+    console.log('='.repeat(60));
+    console.log('📊 API Endpoints:');
+    console.log('   POST   /api/ferramentas          (com quantidade)');
+    console.log('   PUT    /api/ferramentas/:id/quantidade');
+    console.log('   GET    /api/relatorio/estoque');
+    console.log('='.repeat(60) + '\n');
 });

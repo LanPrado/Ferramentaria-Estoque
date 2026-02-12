@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const os = require('os');
 
 const app = express();
-const PORT = 3004;
+const PORT = 3000;
 
 // Configurar caminhos
 const dbPath = path.join(__dirname, 'database.json');

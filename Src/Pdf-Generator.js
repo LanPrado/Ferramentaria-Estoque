@@ -75,7 +75,6 @@ function generateUserReportPDF(userLoans, user, allTools, settings, filePath) {
       const totalLoans = userLoans.length;
       const returnedLoans = userLoans.filter(l => l.status === 'devolvido').length;
       const pendingLoans = userLoans.filter(l => l.status === 'emprestado').length;
-      const brokenTools = userLoans.filter(l => l.status === 'quebrado').length;
       
       doc.setFontSize(12);
       doc.setTextColor(30, 60, 114);
@@ -86,7 +85,6 @@ function generateUserReportPDF(userLoans, user, allTools, settings, filePath) {
       doc.text(`Total de empréstimos: ${totalLoans}`, 20, finalY + 8);
       doc.text(`Devolvidos: ${returnedLoans}`, 20, finalY + 16);
       doc.text(`Pendentes: ${pendingLoans}`, 20, finalY + 24);
-      doc.text(`Quebrados: ${brokenTools}`, 20, finalY + 32);
       
       // Rodapé
       const pageCount = doc.internal.getNumberOfPages();
@@ -182,7 +180,6 @@ function generateShiftReportPDF(shiftLoans, shift, shiftUsers, allTools, setting
       const finalY = doc.lastAutoTable.finalY + 10;
       const activeLoans = shiftLoans.filter(l => l.status === 'emprestado').length;
       const returnedLoans = shiftLoans.filter(l => l.status === 'devolvido').length;
-      const brokenTools = shiftLoans.filter(l => l.status === 'quebrado').length;
       
       doc.setFontSize(12);
       doc.setTextColor(30, 60, 114);
@@ -192,7 +189,6 @@ function generateShiftReportPDF(shiftLoans, shift, shiftUsers, allTools, setting
       doc.setTextColor(40, 40, 40);
       doc.text(`Empréstimos ativos: ${activeLoans}`, 20, finalY + 8);
       doc.text(`Devolvidos: ${returnedLoans}`, 20, finalY + 16);
-      doc.text(`Quebrados: ${brokenTools}`, 20, finalY + 24);
       
       // Rodapé
       const pageCount = doc.internal.getNumberOfPages();
@@ -273,7 +269,6 @@ function generateAllLoansPDF(allLoans, allUsers, allTools, settings, filePath) {
       const finalY = doc.lastAutoTable.finalY + 10;
       const activeLoans = allLoans.filter(l => l.status === 'emprestado').length;
       const returnedLoans = allLoans.filter(l => l.status === 'devolvido').length;
-      const brokenTools = allLoans.filter(l => l.status === 'quebrado').length;
       const notDelivered = allLoans.filter(l => l.status === 'nao-entregue').length;
       
       doc.setFontSize(12);
@@ -285,7 +280,6 @@ function generateAllLoansPDF(allLoans, allUsers, allTools, settings, filePath) {
       doc.text(`Total de registros: ${allLoans.length}`, 20, finalY + 8);
       doc.text(`Empréstimos ativos: ${activeLoans}`, 20, finalY + 16);
       doc.text(`Devolvidos: ${returnedLoans}`, 20, finalY + 24);
-      doc.text(`Quebrados: ${brokenTools}`, 20, finalY + 32);
       doc.text(`Não entregues: ${notDelivered}`, 20, finalY + 40);
       
       // Rodapé
@@ -311,7 +305,6 @@ function formatStatus(status) {
     'emprestado': 'EMPRESTADO',
     'devolvido': 'DEVOLVIDO',
     'nao-entregue': 'NÃO ENTREGUE',
-    'quebrado': 'QUEBRADO',
     'disponivel': 'DISPONÍVEL'
   };
   return statusMap[status] || status;

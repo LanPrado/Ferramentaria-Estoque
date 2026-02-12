@@ -611,7 +611,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" onclick="showView('new-loan')">
-                        <span>➕</span> Novo Empréstimo
+                        <span>➕</span> Saida de Ferramentas
                     </a>
                 </li>
                 <li class="nav-item">
@@ -685,7 +685,7 @@
                 <div class="header">
                     <h2>Empréstimos Ativos</h2>
                     <button class="btn btn-primary" onclick="showView('new-loan')">
-                        <span>➕</span> Novo Empréstimo
+                        <span>➕</span> Saida de ferramentas    
                     </button>
                 </div>
                 
@@ -712,10 +712,10 @@
                 </div>
             </div>
             
-            <!-- Novo Empréstimo -->
+            <!-- Saida de Ferramentas   -->
             <div id="new-loan" class="view" style="display: none;">
                 <div class="header">
-                    <h2>Novo Empréstimo</h2>
+                    <h2>Saidas de Ferramentas</h2>
                     <button class="btn" onclick="showView('dashboard')">
                         <span>←</span> Voltar
                     </button>
@@ -1286,7 +1286,7 @@
             updateReturnTable();
             updateUsersTable();
             
-            // Atualizar opções de empréstimo se na view de novo empréstimo
+            // Atualizar opções de empréstimo se na view de saida de ferramentas 
             if (currentView === 'new-loan') {
                 loadLoanOptions();
             }
@@ -1924,7 +1924,7 @@
         // FUNÇÃO DE RELATÓRIO DE ESTOQUE
         // ============================================
         async function generateStockReport() {
-            try {
+            try {x
                 const response = await fetch('/api/relatorio/estoque');
                 if (response.ok) {
                     const report = await response.json();

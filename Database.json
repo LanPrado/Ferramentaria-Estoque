@@ -59,6 +59,16 @@
       "role": "USER",
       "isAdmin": false,
       "createdAt": "2026-02-06T15:35:18.767Z"
+    },
+    {
+      "id": "1770898334849",
+      "username": "Aluizio1",
+      "password": "$2a$10$4vsoEZFN7GW3gj0BwwReuu6Q3CstmrU7eS/T6oo9zhrNIR1d1rlVO",
+      "name": "Aluizio Santana jr",
+      "companyCode": "020392",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-12T12:12:14.850Z"
     }
   ],
   "tools": [
@@ -81,7 +91,7 @@
       "category": "Ferramenta Manual",
       "description": "",
       "totalQuantity": 6,
-      "availableQuantity": 5,
+      "availableQuantity": 6,
       "status": "disponivel",
       "setor": "GERAL",
       "createdAt": "2026-02-06T15:26:01.913Z"
@@ -180,8 +190,8 @@
       "userId": "1770377813870",
       "toolId": "1770391561913",
       "borrowedAt": "2026-02-06T15:26:14.205Z",
-      "returnedAt": null,
-      "status": "emprestado",
+      "returnedAt": "2026-02-12T12:28:19.311Z",
+      "status": "devolvido",
       "notes": "",
       "returnedBy": null
     },
@@ -191,6 +201,16 @@
       "toolId": "1770391833547",
       "borrowedAt": "2026-02-06T15:30:56.178Z",
       "returnedAt": "2026-02-06T15:31:23.119Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    },
+    {
+      "id": "1770898527893",
+      "userId": "1770384027966",
+      "toolId": "1770391833547",
+      "borrowedAt": "2026-02-12T12:15:27.893Z",
+      "returnedAt": "2026-02-12T12:28:22.903Z",
       "status": "devolvido",
       "notes": "",
       "returnedBy": null

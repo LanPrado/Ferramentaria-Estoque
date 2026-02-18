@@ -214,6 +214,26 @@
       "status": "devolvido",
       "notes": "",
       "returnedBy": null
+    },
+    {
+      "id": "1770938729117",
+      "userId": "1770384296371",
+      "toolId": "1770391833547",
+      "borrowedAt": "2026-02-12T23:25:29.117Z",
+      "returnedAt": "2026-02-12T23:25:32.137Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    },
+    {
+      "id": "1770939291152",
+      "userId": "1770384027966",
+      "toolId": "1770385116685",
+      "borrowedAt": "2026-02-12T23:34:51.152Z",
+      "returnedAt": "2026-02-12T23:35:34.829Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
     }
   ]
 }

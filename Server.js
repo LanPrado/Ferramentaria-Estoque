@@ -7,8 +7,31 @@ const os = require('os');
 const app = express();
 const PORT = 3000;
 
+const os = require('os');
+const { generateAllLoansPDF } = require('./Pdf-Generator');
+
 // Configurar caminhos
 const dbPath = path.join(__dirname, 'database.json');
+
+// Rota para gerar PDF de empréstimos
+app.get('/api/relatorio/emprestimos/pdf', async (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+
+    const filePath = path.join(os.tmpdir(), `relatorio_emprestimos_${Date.now()}.pdf`);
+    const settings = { companyName: 'Ferramentaria' };
+
+    await generateAllLoansPDF(data.loans || [], data.users || [], data.tools || [], settings, filePath);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.download(filePath, 'relatorio_emprestimos.pdf', () => {
+      try { fs.unlinkSync(filePath); } catch (e) {}
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
 
 // Middleware CORS
 app.use((req, res, next) => {
@@ -58,6 +81,15 @@ function initDatabase() {
                     role: 'ADMIN_GERAL',
                     isAdmin: true,
                     createdAt: new Date().toISOString()
+                }, {
+                    id: "2",
+                    username: "cnc",
+                    password: bcrypt.hashSync("cnc123", bcrypt.genSaltSync(10)),
+                    name: "Lider CNC",
+                    companyCode: "111111",
+                    role: "LIDER_CNC",
+                    isAdmin: false,
+                    createdAt: new Date().toISOString()
                 }],
                 tools: [
                     { 
@@ -91,7 +123,8 @@ function initDatabase() {
                         setor: 'CNC' 
                     }
                 ],
-                loans: []
+                loans: [],
+                materialRequests: []
             };
             fs.writeFileSync(dbPath, JSON.stringify(initialData, null, 2));
             console.log('✅ Database criado!');
@@ -119,7 +152,14 @@ function migrateOldDatabase() {
             }
         });
         
-        if (needsMigration) {
+        
+        // Garantir estrutura para requisições de material
+        if (!Array.isArray(data.materialRequests)) {
+            data.materialRequests = [];
+            needsMigration = true;
+        }
+
+if (needsMigration) {
             fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
             console.log('✅ Dados migrados para novo formato com quantidade');
         }
@@ -698,6 +738,93 @@ app.put('/api/emprestimos/:id', (req, res) => {
         });
     }
 });
+
+
+// ==================================================
+// REQUISIÇÕES DE MATERIAL (Ferramenteiro -> ADM)
+// ==================================================
+
+// Criar requisição (Ferramenteiro)
+app.post('/api/requisicoes-material', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        if (!Array.isArray(data.materialRequests)) data.materialRequests = [];
+
+        const { solicitanteNome, solicitanteCodigo, quantidade, unidade, codigoMaterial, material, aplicacao } = req.body;
+
+        if (!solicitanteNome || !material) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nome do solicitante e material são obrigatórios'
+            });
+        }
+
+        const newReq = {
+            id: Date.now().toString(),
+            solicitanteNome: String(solicitanteNome).trim(),
+            solicitanteCodigo: solicitanteCodigo ? String(solicitanteCodigo).trim() : '',
+            quantidade: quantidade ? String(quantidade).trim() : '1',
+            unidade: unidade ? String(unidade).trim() : 'UN',
+            codigoMaterial: codigoMaterial ? String(codigoMaterial).trim() : '',
+            material: String(material).trim(),
+            aplicacao: aplicacao ? String(aplicacao).trim() : '',
+            status: 'pendente',
+            criadoEm: new Date().toISOString(),
+
+            // Campos que o ADM completa:
+            aprovadoPor: '',
+            dataLiberacao: '',
+            observacaoAlmox: '',
+            atualizadoEm: null
+        };
+
+        data.materialRequests.push(newReq);
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+
+        res.json({ success: true, request: newReq });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Listar requisições (ADM)
+app.get('/api/requisicoes-material', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        const list = Array.isArray(data.materialRequests) ? data.materialRequests : [];
+        const { status } = req.query;
+
+        const filtered = status ? list.filter(r => r.status === status) : list;
+        res.json(filtered);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao ler requisições de material' });
+    }
+});
+
+// Atualizar requisição (ADM valida/completa)
+app.put('/api/requisicoes-material/:id', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        if (!Array.isArray(data.materialRequests)) data.materialRequests = [];
+
+        const idx = data.materialRequests.findIndex(r => r.id === req.params.id);
+        if (idx === -1) {
+            return res.status(404).json({ success: false, message: 'Requisição não encontrada' });
+        }
+
+        data.materialRequests[idx] = {
+            ...data.materialRequests[idx],
+            ...req.body,
+            atualizadoEm: new Date().toISOString()
+        };
+
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+        res.json({ success: true, request: data.materialRequests[idx] });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 
 // Nova rota: Ajustar quantidade de ferramenta
 app.put('/api/ferramentas/:id/quantidade', (req, res) => {

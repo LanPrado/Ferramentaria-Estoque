@@ -8,6 +8,12 @@ try {
 } catch (error) {
   console.error('Erro ao carregar bibliotecas PDF:', error);
 }
+const fs = require('fs');
+
+function savePdfToFile(doc, filePath) {
+  const arrayBuffer = doc.output('arraybuffer');
+  fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
+}
 
 function generateUserReportPDF(userLoans, user, allTools, settings, filePath) {
   return new Promise((resolve, reject) => {
@@ -96,7 +102,7 @@ function generateUserReportPDF(userLoans, user, allTools, settings, filePath) {
         doc.text(`Sistema de Controle de Ferramentas - ${settings.companyName || 'Empresa'}`, 105, 290, { align: 'center' });
       }
       
-      doc.save(filePath);
+      savePdfToFile(doc, filePath);
       resolve(true);
     } catch (error) {
       reject(error);

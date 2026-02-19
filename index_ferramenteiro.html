@@ -122,6 +122,23 @@
             color: white;
         }
         
+        /* NOVO CSS PARA QUANTIDADE */
+        .quantity-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .quantity-available {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .quantity-unavailable {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
         /* CONTEÚDO PRINCIPAL */
         .main-content {
             flex: 1;
@@ -442,6 +459,13 @@
                         <span>➕</span> Solicitar Ferramenta
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showView('requisicao-material')">
+                        <span>📋</span> Requisição de Material
+                    </a>
+                </li>
+
             </ul>
         </nav>
         
@@ -504,11 +528,12 @@
                                 <th>Data Retirada</th>
                                 <th>Data Devolução</th>
                                 <th>Status</th>
+                                <th>Quantidade</th>
                             </tr>
                         </thead>
                         <tbody id="all-my-loans">
                             <tr>
-                                <td colspan="5" class="loading">
+                                <td colspan="6" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -533,6 +558,9 @@
                             <select class="form-control" id="tool-select" required>
                                 <option value="">Selecione uma ferramenta...</option>
                             </select>
+                            <div class="quantity-info" id="tool-quantity-info" style="display: none;">
+                                Disponível: <span id="tool-available-quantity" class="quantity-available">0</span> unidades
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -560,12 +588,13 @@
                                 <th>Código</th>
                                 <th>Nome</th>
                                 <th>Categoria</th>
+                                <th>Quantidade</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="available-tools">
                             <tr>
-                                <td colspan="4" class="loading">
+                                <td colspan="5" class="loading">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -573,10 +602,72 @@
                     </table>
                 </div>
             </div>
+        
+            <!-- Requisição de Material -->
+            <div id="requisicao-material" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Requisição de Material</h2>
+                    <button class="btn" onclick="showView('dashboard')">
+                        <span>←</span> Voltar
+                    </button>
+                </div>
+
+                <div class="card">
+                    <form id="material-request-form" onsubmit="submitMaterialRequest(event)">
+                        <div class="form-group">
+                            <label class="form-label">Seu nome *</label>
+                            <input type="text" class="form-control" id="mr-nome" placeholder="Digite seu nome" required>
+                            <small style="color:#666;">(O ADM vai validar e completar o restante)</small>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">Quantidade *</label>
+                                <input type="number" class="form-control" id="mr-qtd" min="1" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Unidade *</label>
+                                <select class="form-control" id="mr-un" required>
+                                    <option value="UN">UN</option>
+                                    <option value="PC">PC</option>
+                                    <option value="CX">CX</option>
+                                    <option value="MT">MT</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Código (opcional)</label>
+                                <input type="text" class="form-control" id="mr-codigo" placeholder="Ex: F101">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Material (1 item) *</label>
+                            <input type="text" class="form-control" id="mr-material" placeholder="Ex: Parafuso M8" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Aplicação (opcional)</label>
+                            <textarea class="form-control" id="mr-aplicacao" rows="3" placeholder="Ex: Manutenção do molde X..."></textarea>
+                        </div>
+
+                        <div style="display:flex; gap: 15px; margin-top: 30px;">
+                            <button type="button" class="btn" onclick="showView('dashboard')">Cancelar</button>
+                            <button type="submit" class="btn btn-success">
+                                <span>📤</span> Enviar Requisição
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="info-footer" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; color: #856404; font-size: 0.85rem; border-left: 4px solid #ffc107;">
+                    <strong>ⓘ Importante:</strong> Após enviar, o Administrador (almoxarifado) vai validar, completar os dados e imprimir o PDF.
+                </div>
+            </div>
+
         </main>
     </div>
     
-    <!-- Script principal -->
+    <!-- Script principal ATUALIZADO -->
     <script>
         // Variáveis globais
         let currentUser = null;
@@ -593,6 +684,33 @@
             
             // Carregar ferramentas disponíveis
             loadAvailableTools();
+            
+            // Configurar evento para mostrar quantidade ao selecionar ferramenta
+            setupToolQuantityDisplay();
+        }
+        
+        // Configurar exibição de quantidade
+        function setupToolQuantityDisplay() {
+            const toolSelect = document.getElementById('tool-select');
+            if (toolSelect) {
+                toolSelect.addEventListener('change', function() {
+                    const toolId = this.value;
+                    if (toolId) {
+                        const tool = database.tools.find(t => t.id === toolId);
+                        if (tool) {
+                            const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+                            const totalQty = tool.totalQuantity || 1;
+                            
+                            document.getElementById('tool-quantity-info').style.display = 'block';
+                            document.getElementById('tool-available-quantity').textContent = availableQty;
+                            document.getElementById('tool-available-quantity').className = 
+                                availableQty > 0 ? 'quantity-available' : 'quantity-unavailable';
+                        }
+                    } else {
+                        document.getElementById('tool-quantity-info').style.display = 'none';
+                    }
+                });
+            }
         }
         
         // Carregar dados do usuário
@@ -614,12 +732,13 @@
                 const response = await fetch('/api/database?_=' + Date.now());
                 if (response.ok) {
                     database = await response.json();
+                    console.log('✅ Database carregado com sucesso para ferramenteiro');
                 } else {
-                    console.error('Erro ao carregar database');
+                    console.error('❌ Erro ao carregar database');
                     showMessage('Erro ao carregar dados do sistema', 'error');
                 }
             } catch (error) {
-                console.error('Erro de conexão:', error);
+                console.error('❌ Erro de conexão:', error);
                 showMessage('Servidor offline. Verifique a conexão.', 'error');
             }
         }
@@ -632,7 +751,18 @@
             const myLoans = database.loans.filter(loan => loan.userId === currentUser.id);
             const activeLoans = myLoans.filter(loan => loan.status === 'emprestado').length;
             const returnedLoans = myLoans.filter(loan => loan.status === 'devolvido').length;
-            const availableTools = database.tools.filter(tool => tool.available).length;
+            
+            // Calcular ferramentas disponíveis baseado em quantidade > 0
+            const availableTools = database.tools.filter(tool => {
+                const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+                return availableQty > 0 && tool.status !== 'indisponivel';
+            }).length;
+            
+            // Calcular total de unidades disponíveis
+            const totalAvailableUnits = database.tools.reduce((total, tool) => {
+                const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+                return total + availableQty;
+            }, 0);
             
             // Atualizar cards
             document.getElementById('stats-cards').innerHTML = `
@@ -670,6 +800,15 @@
                     </div>
                     <div class="card-value">${availableTools}</div>
                     <div class="card-label">Ferramentas livres</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Unidades Livres</h3>
+                        <div class="card-icon">📦</div>
+                    </div>
+                    <div class="card-value">${totalAvailableUnits}</div>
+                    <div class="card-label">Unidades disponíveis</div>
                 </div>
             `;
             
@@ -716,7 +855,7 @@
             }
         }
         
-        // Carregar ferramentas disponíveis
+        // Carregar ferramentas disponíveis (CORRIGIDO para usar quantidade)
         function loadAvailableTools() {
             const select = document.getElementById('tool-select');
             const tbody = document.getElementById('available-tools');
@@ -725,30 +864,43 @@
             select.innerHTML = '<option value="">Selecione uma ferramenta...</option>';
             tbody.innerHTML = '';
             
-            const availableTools = database.tools.filter(tool => tool.available);
+            // Filtrar ferramentas com quantidade disponível > 0
+            const availableTools = database.tools.filter(tool => {
+                const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+                return availableQty > 0 && tool.status !== 'indisponivel';
+            });
             
             if (availableTools.length === 0) {
+                select.innerHTML = '<option value="">Nenhuma ferramenta disponível no momento</option>';
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="empty-message">
+                        <td colspan="5" class="empty-message">
                             Nenhuma ferramenta disponível no momento
                         </td>
                     </tr>
                 `;
             } else {
                 availableTools.forEach(tool => {
+                    const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+                    const totalQty = tool.totalQuantity || 1;
+                    
                     // Adicionar ao select
                     select.innerHTML += `
-                        <option value="${tool.id}">${tool.code} - ${tool.name} (${tool.category})</option>
+                        <option value="${tool.id}" data-quantity="${availableQty}">
+                            ${tool.code} - ${tool.name} (${availableQty}/${totalQty} disponíveis)
+                        </option>
                     `;
                     
                     // Adicionar à tabela
                     const statusBadge = getStatusBadge(tool.status);
+                    const quantityClass = availableQty > 0 ? 'quantity-available' : 'quantity-unavailable';
+                    
                     tbody.innerHTML += `
                         <tr>
                             <td><code>${tool.code}</code></td>
                             <td>${tool.name}</td>
                             <td>${tool.category}</td>
+                            <td><span class="${quantityClass}">${availableQty}/${totalQty}</span></td>
                             <td>${statusBadge}</td>
                         </tr>
                     `;
@@ -756,7 +908,7 @@
             }
         }
         
-        // Solicitar ferramenta
+        // Solicitar ferramenta (CORRIGIDO para verificar quantidade)
         async function requestTool(event) {
             event.preventDefault();
             
@@ -769,8 +921,21 @@
             }
             
             const tool = database.tools.find(t => t.id === toolId);
-            if (!tool || !tool.available) {
-                showMessage('Esta ferramenta não está mais disponível', 'error');
+            if (!tool) {
+                showMessage('Ferramenta não encontrada', 'error');
+                return;
+            }
+            
+            // Verificar quantidade disponível
+            const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
+            if (availableQty <= 0) {
+                showMessage('Esta ferramenta não está disponível no momento!', 'error');
+                loadAvailableTools(); // Recarregar lista
+                return;
+            }
+            
+            if (tool.status === 'indisponivel') {
+                showMessage('Esta ferramenta está marcada como indisponível!', 'error');
                 return;
             }
             
@@ -791,6 +956,7 @@
                     
                     // Limpar formulário
                     document.getElementById('request-tool-form').reset();
+                    document.getElementById('tool-quantity-info').style.display = 'none';
                     
                     // Atualizar dados
                     await loadDatabase();
@@ -821,7 +987,7 @@
             if (sortedLoans.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="empty-message">
+                        <td colspan="6" class="empty-message">
                             Você ainda não realizou nenhum empréstimo
                         </td>
                     </tr>
@@ -844,6 +1010,7 @@
                                 </td>
                                 <td>${returnedDate ? returnedDate.toLocaleDateString('pt-BR') : '-'}</td>
                                 <td>${statusBadge}</td>
+                                <td>1 unidade</td>
                             </tr>
                         `;
                     }
@@ -854,11 +1021,12 @@
         // Helper functions
         function getStatusBadge(status) {
             const statusMap = {
-                'emprestado': { class: 'badge-warning', text: 'EMPRESTADO' },
+                'emprestado': { class: 'badge-warning', text: 'EM USO' },
                 'devolvido': { class: 'badge-success', text: 'DEVOLVIDO' },
                 'nao-entregue': { class: 'badge-danger', text: 'NÃO ENTREGUE' },
                 'quebrado': { class: 'badge-danger', text: 'QUEBRADO' },
                 'disponivel': { class: 'badge-success', text: 'DISPONÍVEL' },
+                'indisponivel': { class: 'badge-danger', text: 'INDISPONÍVEL' },
                 'manutencao': { class: 'badge-info', text: 'MANUTENÇÃO' }
             };
             
@@ -933,7 +1101,67 @@
         }
         
         // Navegação entre views
-        function showView(viewName) {
+        
+        // ============================================
+        // REQUISIÇÃO DE MATERIAL (Ferramenteiro)
+        // ============================================
+        function prepareMaterialRequestForm() {
+            // Prefill: nome do usuário logado, se existir
+            const nomeEl = document.getElementById('mr-nome');
+            const codEl = document.getElementById('mr-codigo');
+
+            if (nomeEl && currentUser?.name) nomeEl.value = currentUser.name;
+            if (codEl && currentUser?.companyCode) codEl.value = currentUser.companyCode;
+        }
+
+        async function submitMaterialRequest(event) {
+            event.preventDefault();
+
+            const solicitanteNome = document.getElementById('mr-nome').value.trim();
+            const solicitanteCodigo = document.getElementById('mr-codigo').value.trim();
+            const quantidade = document.getElementById('mr-qtd').value;
+            const unidade = document.getElementById('mr-un').value;
+            const material = document.getElementById('mr-material').value.trim();
+            const aplicacao = document.getElementById('mr-aplicacao').value.trim();
+
+            if (!solicitanteNome || !material) {
+                showMessage('Preencha seu nome e o material', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/requisicoes-material', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        solicitanteNome,
+                        solicitanteCodigo,
+                        quantidade,
+                        unidade,
+                        material,
+                        aplicacao
+                    })
+                });
+
+                if (response.ok) {
+                    showMessage('Requisição enviada! Aguardando validação do ADM.', 'success');
+
+                    // Limpar, mas manter nome/código se veio do login
+                    document.getElementById('material-request-form').reset();
+                    prepareMaterialRequestForm();
+
+                    // Voltar ao dashboard
+                    setTimeout(() => showView('dashboard'), 1200);
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showMessage(err.message || 'Erro ao enviar requisição', 'error');
+                }
+            } catch (error) {
+                showMessage('Erro de conexão com o servidor', 'error');
+            }
+        }
+
+function showView(viewName) {
             // Esconder todas as views
             document.querySelectorAll('.view').forEach(view => {
                 view.style.display = 'none';
@@ -961,6 +1189,10 @@
                     activeSelector = '[onclick="showView(\'solicitar-ferramenta\')"]';
                     loadAvailableTools();
                     break;
+                case 'requisicao-material':
+                    activeSelector = '[onclick="showView(\'requisicao-material\')"]';
+                    prepareMaterialRequestForm();
+                    break;
             }
             
             if (activeSelector) {
@@ -987,6 +1219,20 @@
                 localStorage.removeItem('currentUser');
                 window.location.href = '/';
             }
+        }
+        
+        // Teste de API para debug
+        async function debugTools() {
+            console.log('=== DEBUG FERRAMENTEIRO ===');
+            console.log('Usuário:', currentUser);
+            
+            const response = await fetch('/api/ferramentas');
+            const tools = await response.json();
+            console.log('Total de ferramentas:', tools.length);
+            
+            tools.forEach(tool => {
+                console.log(`${tool.code} - ${tool.name}: ${tool.availableQuantity || 0}/${tool.totalQuantity || 1} - Status: ${tool.status}`);
+            });
         }
         
         // Inicializar quando a página carregar

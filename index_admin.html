@@ -634,6 +634,11 @@
                         <span>🛠️</span> Gerenciar Ferramentas
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showView('material-requests')">
+                        <span>📋</span> Requisições de Material
+                    </a>
+                </li>
             </ul>
         </nav>
         
@@ -873,7 +878,7 @@
                         <button class="btn btn-primary" onclick="showAddToolModal()">
                             <span>➕</span> Sair de Ferramentas
                         </button>
-                        <button class="btn btn-info" onclick="generateStockReport()">
+                        <button class="btn btn-info" onclick="downloadLoansPDF()"></button>
                             <span>📊</span> Saida de Ferramentas
                         </button>
                     </div>
@@ -892,6 +897,41 @@
                             </tr>
                         </thead>
                         <tbody id="tools-list">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        
+            <!-- Requisições de Material -->
+            <div id="material-requests" class="view" style="display: none;">
+                <div class="header">
+                    <h2>Requisições de Material</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="refreshMaterialRequests()">
+                            <span>🔄</span> Atualizar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3>Pendentes</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solicitante</th>
+                                <th>Material</th>
+                                <th>Qtd/UN</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="material-requests-body">
                             <tr>
                                 <td colspan="6" class="loading">
                                     <div class="spinner"></div>
@@ -1024,15 +1064,97 @@
         </div>
     </div>
     
+    <!-- Modal Requisição de Material -->
+    <div id="material-request-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Validar Requisição de Material</h3>
+                <button onclick="closeModal('material-request-modal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="material-request-form" onsubmit="approveAndPrintMaterialRequest(event)">
+                    <input type="hidden" id="mr-id">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Solicitante</label>
+                            <input type="text" class="form-control" id="mr-solicitante" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Código (se houver)</label>
+                            <input type="text" class="form-control" id="mr-codigo" disabled>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Quantidade</label>
+                            <input type="text" class="form-control" id="mr-quantidade" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Unidade</label>
+                            <input type="text" class="form-control" id="mr-unidade" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Código Material</label>
+                            <input type="text" class="form-control" id="mr-codigo-material">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Material</label>
+                        <input type="text" class="form-control" id="mr-material" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Aplicação (informada pelo solicitante)</label>
+                        <textarea class="form-control" id="mr-aplicacao" rows="3" disabled></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Data da Solicitação</label>
+                            <input type="text" class="form-control" id="mr-data-solicitacao" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Data de Liberação (ADM)</label>
+                            <input type="date" class="form-control" id="mr-data-liberacao">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Observação do Almoxarifado (opcional)</label>
+                        <textarea class="form-control" id="mr-observacao" rows="3" placeholder="Ex: liberado parcial, substituir por equivalente..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="rejectMaterialRequest()">
+                    Rejeitar
+                </button>
+                <button type="button" class="btn" onclick="closeModal('material-request-modal')">
+                    Fechar
+                </button>
+                <button type="submit" form="material-request-form" class="btn btn-success">
+                    Aprovar e Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Script Principal -->
     <script>
         // ============================================
         // VARIÁVEIS GLOBAIS
         // ============================================
         let currentUser = null;
-        let database = { users: [], tools: [], loans: [] };
+        let database = { users: [], tools: [], loans: [], materialRequests: [] };
         let currentView = 'dashboard';
-        
+        async function downloadLoansPDF() {
+  // abre em nova aba e já baixa/mostra o PDF
+  window.open('/api/relatorio/emprestimos/pdf', '_blank');
+}
+
         // ============================================
         // FUNÇÃO PRINCIPAL DE INICIALIZAÇÃO
         // ============================================
@@ -1127,6 +1249,7 @@
                 const response = await fetch('/api/database?_=' + Date.now());
                 if (response.ok) {
                     database = await response.json();
+                    if (!Array.isArray(database.materialRequests)) database.materialRequests = [];
                     console.log('✅ Database carregado com sucesso');
                     
                     // Atualizar todas as views após carregar dados
@@ -1285,6 +1408,7 @@
             updateAllLoansTable();
             updateReturnTable();
             updateUsersTable();
+            updateMaterialRequestsTable();
             
             // Atualizar opções de empréstimo se na view de saida de ferramentas 
             if (currentView === 'new-loan') {
@@ -1777,6 +1901,280 @@
             }, 3000);
         }
         
+        
+        // ============================================
+        // REQUISIÇÕES DE MATERIAL
+        // ============================================
+        let selectedMaterialRequestId = null;
+
+        async function refreshMaterialRequests() {
+            // Recarrega database para garantir que a lista está atualizada
+            await loadDatabase();
+            updateMaterialRequestsTable();
+        }
+
+        function updateMaterialRequestsTable() {
+            const tbody = document.getElementById('material-requests-body');
+            if (!tbody) return;
+
+            const list = Array.isArray(database.materialRequests) ? database.materialRequests : [];
+            const sorted = [...list].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+            if (sorted.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-message">Nenhuma requisição encontrada</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            sorted.forEach(req => {
+                const status = req.status || 'pendente';
+                const statusBadge = status === 'pendente'
+                    ? '<span class="badge badge-warning">PENDENTE</span>'
+                    : status === 'aprovado'
+                        ? '<span class="badge badge-success">APROVADO</span>'
+                        : '<span class="badge badge-danger">REJEITADO</span>';
+
+                const dt = req.criadoEm ? new Date(req.criadoEm) : null;
+                const dtText = dt ? `${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR').slice(0,5)}` : '-';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${(req.solicitanteNome || '-')}<br><small>${req.solicitanteCodigo || ''}</small></td>
+                        <td>${req.material || '-'}</td>
+                        <td>${req.quantidade || '1'} ${req.unidade || 'UN'}</td>
+                        <td>${dtText}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openMaterialRequest('${req.id}')">
+                                Abrir
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openMaterialRequest(id) {
+            const list = Array.isArray(database.materialRequests) ? database.materialRequests : [];
+            const req = list.find(r => r.id === id);
+            if (!req) {
+                showMessage('Requisição não encontrada', 'error');
+                return;
+            }
+
+            selectedMaterialRequestId = id;
+
+            document.getElementById('mr-id').value = req.id;
+            document.getElementById('mr-solicitante').value = req.solicitanteNome || '';
+            document.getElementById('mr-codigo').value = req.solicitanteCodigo || '';
+            document.getElementById('mr-quantidade').value = req.quantidade || '1';
+            document.getElementById('mr-unidade').value = req.unidade || 'UN';
+            document.getElementById('mr-codigo-material').value = req.codigoMaterial || '';
+            document.getElementById('mr-material').value = req.material || '';
+            document.getElementById('mr-aplicacao').value = req.aplicacao || '';
+
+            const dt = req.criadoEm ? new Date(req.criadoEm) : null;
+            document.getElementById('mr-data-solicitacao').value = dt
+                ? `${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR').slice(0,5)}`
+                : '';
+
+            // Default: hoje
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('mr-data-liberacao').value = req.dataLiberacao || hoje;
+
+            document.getElementById('mr-observacao').value = req.observacaoAlmox || '';
+
+            showModal('material-request-modal');
+        }
+
+        async function approveAndPrintMaterialRequest(event) {
+            event.preventDefault();
+
+            if (!selectedMaterialRequestId) {
+                showMessage('Nenhuma requisição selecionada', 'error');
+                return;
+            }
+
+            const payload = {
+                status: 'aprovado',
+                codigoMaterial: document.getElementById('mr-codigo-material').value || '',
+                dataLiberacao: document.getElementById('mr-data-liberacao').value || '',
+                observacaoAlmox: document.getElementById('mr-observacao').value || '',
+                aprovadoPor: currentUser?.name || 'ADMIN'
+            };
+
+            try {
+                const response = await fetch('/api/requisicoes-material/' + selectedMaterialRequestId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    showMessage(err.message || 'Erro ao aprovar requisição', 'error');
+                    return;
+                }
+
+                const result = await response.json();
+                showMessage('Requisição aprovada! Abrindo impressão...', 'success');
+
+                // Atualiza dados locais e tela
+                await loadDatabase();
+                updateMaterialRequestsTable();
+
+                // Imprimir
+                printMaterialRequest(result.request);
+
+                closeModal('material-request-modal');
+            } catch (error) {
+                showMessage('Erro de conexão', 'error');
+            }
+        }
+
+        async function rejectMaterialRequest() {
+            if (!selectedMaterialRequestId) {
+                showMessage('Nenhuma requisição selecionada', 'error');
+                return;
+            }
+
+            if (!confirm('Deseja REJEITAR esta requisição?')) return;
+
+            try {
+                const response = await fetch('/api/requisicoes-material/' + selectedMaterialRequestId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'rejeitado',
+                        aprovadoPor: currentUser?.name || 'ADMIN',
+                        observacaoAlmox: document.getElementById('mr-observacao').value || ''
+                    })
+                });
+
+                if (response.ok) {
+                    showMessage('Requisição rejeitada', 'warning');
+                    closeModal('material-request-modal');
+                    await loadDatabase();
+                    updateMaterialRequestsTable();
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showMessage(err.message || 'Erro ao rejeitar', 'error');
+                }
+            } catch (error) {
+                showMessage('Erro de conexão', 'error');
+            }
+        }
+
+        function printMaterialRequest(req) {
+            const dtSolic = req.criadoEm ? new Date(req.criadoEm) : null;
+            const solicitacaoTxt = dtSolic
+                ? `${dtSolic.toLocaleDateString('pt-BR')} ${dtSolic.toLocaleTimeString('pt-BR').slice(0,5)}`
+                : '';
+
+            const html = `
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Requisição de Material</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 24px; }
+    .box { border: 2px solid #000; padding: 16px; }
+    h1 { font-size: 18px; margin: 0 0 12px; text-align:center; }
+    .row { display:flex; gap:16px; margin-bottom: 10px; }
+    .col { flex:1; }
+    .label { font-weight: 700; font-size: 12px; }
+    .value { border: 1px solid #000; padding: 8px; min-height: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #000; padding: 8px; font-size: 12px; }
+    th { background: #f2f2f2; }
+    .assin { margin-top: 24px; display:flex; gap:24px; }
+    .linha { flex:1; border-top: 1px solid #000; padding-top: 6px; text-align:center; font-size: 12px; }
+    @media print { button { display:none; } }
+</style>
+</head>
+<body>
+    <div class="box">
+        <h1>REQUISIÇÃO DE MATERIAL</h1>
+
+        <div class="row">
+            <div class="col">
+                <div class="label">Solicitante</div>
+                <div class="value">${req.solicitanteNome || ''} ${req.solicitanteCodigo ? ('- ' + req.solicitanteCodigo) : ''}</div>
+            </div>
+            <div class="col">
+                <div class="label">Data da solicitação</div>
+                <div class="value">${solicitacaoTxt}</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="label">Data de liberação (ADM)</div>
+                <div class="value">${req.dataLiberacao || ''}</div>
+            </div>
+            <div class="col">
+                <div class="label">Aprovado por</div>
+                <div class="value">${req.aprovadoPor || ''}</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:80px;">QTD</th>
+                    <th style="width:80px;">UN</th>
+                    <th style="width:120px;">CÓDIGO</th>
+                    <th>MATERIAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${req.quantidade || '1'}</td>
+                    <td>${req.unidade || 'UN'}</td>
+                    <td>${req.codigoMaterial || ''}</td>
+                    <td>${req.material || ''}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 12px;">
+            <div class="label">Aplicação</div>
+            <div class="value" style="min-height: 40px;">${(req.aplicacao || '').replaceAll('<','&lt;').replaceAll('>','&gt;')}</div>
+        </div>
+
+        <div style="margin-top: 12px;">
+            <div class="label">Observação do Almoxarifado</div>
+            <div class="value" style="min-height: 40px;">${(req.observacaoAlmox || '').replaceAll('<','&lt;').replaceAll('>','&gt;')}</div>
+        </div>
+
+        <div class="assin">
+            <div class="linha">Solicitante</div>
+            <div class="linha">Almoxarifado / ADM</div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => window.print();
+    <\/script>
+</body>
+</html>
+            `;
+
+            const w = window.open('', '_blank');
+            w.document.open();
+            w.document.write(html);
+            w.document.close();
+        }
+
+        // ============================================
+        // FUNÇÃO DE NAVEGAÇÃO - VIEWS
+        // ============================================
         function showView(viewName) {
             // Esconder todas as views
             document.querySelectorAll('.view').forEach(view => {
@@ -1819,6 +2217,10 @@
                 case 'tools': 
                     activeSelector = '[onclick="showView(\'tools\')"]';
                     updateToolsTable();
+                    break;
+                case 'material-requests':
+                    activeSelector = '[onclick="showView(\'material-requests\')"]';
+                    updateMaterialRequestsTable();
                     break;
             }
             
@@ -1924,7 +2326,7 @@
         // FUNÇÃO DE RELATÓRIO DE ESTOQUE
         // ============================================
         async function generateStockReport() {
-            try {x
+            try {
                 const response = await fetch('/api/relatorio/estoque');
                 if (response.ok) {
                     const report = await response.json();

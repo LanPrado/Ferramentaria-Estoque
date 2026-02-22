@@ -1,0 +1,95 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "$2a$10$tVLC50kIpVkHOBXTqV2nTOZAON7p3GleKFCFS1a2TdRnonYBMk04K",
+      "name": "Administrador",
+      "companyCode": "000000",
+      "role": "ADMIN_GERAL",
+      "isAdmin": true,
+      "createdAt": "2026-02-21T23:38:15.605Z"
+    },
+    {
+      "id": "2",
+      "username": "cnc",
+      "password": "$2a$10$LYcf4yDn3pp6Q.ZicGH9XeWjVfI7kqISPhWhwDuj04DsA7pS4x4hO",
+      "name": "Lider CNC",
+      "companyCode": "111111",
+      "role": "LIDER_CNC",
+      "isAdmin": false,
+      "createdAt": "2026-02-21T23:38:15.659Z"
+    },
+    {
+      "id": "1771717176498",
+      "username": "Luan Prado",
+      "password": "$2a$10$ge.vdpeWhRAj3dx/YfO.gumFTZTqOcbitna4EmCMVhqvE4LifQcX6",
+      "name": "Luan Henrique Prado",
+      "companyCode": "800326",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-21T23:39:36.498Z"
+    },
+    {
+      "id": "1771720414843",
+      "username": "Luan Henrique",
+      "password": "$2a$10$exqp.ucedrdUnYOvlXrHquCvvhcQiXI2gKM7TTDVVh8O.3NKOKU6C",
+      "name": "Luan Henrique Coelho Prado",
+      "companyCode": "282382",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-02-22T00:33:34.843Z"
+    }
+  ],
+  "tools": [
+    {
+      "id": "1",
+      "code": "F001",
+      "name": "Martelo",
+      "category": "Ferramenta Manual",
+      "totalQuantity": 5,
+      "availableQuantity": 5,
+      "status": "disponivel",
+      "setor": "GERAL"
+    },
+    {
+      "id": "2",
+      "code": "F002",
+      "name": "Chave de Fenda",
+      "category": "Ferramenta Manual",
+      "totalQuantity": 8,
+      "availableQuantity": 8,
+      "status": "disponivel",
+      "setor": "GERAL"
+    },
+    {
+      "id": "3",
+      "code": "F003",
+      "name": "Alicate",
+      "category": "Ferramenta Manual",
+      "totalQuantity": 4,
+      "availableQuantity": 4,
+      "status": "disponivel",
+      "setor": "CNC"
+    }
+  ],
+  "loans": [],
+  "materialRequests": [
+    {
+      "id": "1771717231280",
+      "solicitanteNome": "Luan Henrique Prado",
+      "solicitanteCodigo": "",
+      "quantidade": "2",
+      "unidade": "MT",
+      "codigoMaterial": "dsd21ed1d2dd12d1",
+      "material": "thinner",
+      "aplicacao": "",
+      "status": "aprovado",
+      "criadoEm": "2026-02-21T23:40:31.280Z",
+      "aprovadoPor": "Administrador",
+      "dataLiberacao": "2026-02-21",
+      "observacaoAlmox": "",
+      "atualizadoEm": "2026-02-22T00:30:30.549Z"
+    }
+  ]
+}

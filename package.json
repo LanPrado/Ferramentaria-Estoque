@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "sistema-ferramentaria",
   "version": "1.0.0",
   "description": "Sistema de Controle de Empréstimo de Ferramentas",
@@ -9,7 +9,9 @@
   "author": "Empresa",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
-    "bcryptjs": "^2.4.3"
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7"
   }
 }

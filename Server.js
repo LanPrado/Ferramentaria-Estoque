@@ -7,9 +7,7 @@ const os = require('os');
 const app = express();
 const PORT = 3000;
 
-const os = require('os');
-const { generateAllLoansPDF } = require('./Pdf-Generator');
-
+const { generateAllLoansPDF } = require('./Src/Pdf-Generator.js');
 // Configurar caminhos
 const dbPath = path.join(__dirname, 'database.json');
 

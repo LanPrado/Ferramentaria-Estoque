@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Ferramentaria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+:root {
+  --bg:#0a0e1a; --surface:#111827; --surface2:#1a2236; --surface3:#1f2d45;
+  --border:#1e3a5f; --border2:#2a4a70;
+  --accent:#00d4ff; --accent2:#0099cc; --accent-glow:rgba(0,212,255,0.15);
+  --yellow:#f59e0b; --green:#10b981; --red:#ef4444; --orange:#f97316;
+  --purple:#8b5cf6;
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
+  --font-head:'Rajdhani',sans-serif; --font-mono:'IBM Plex Mono',monospace; --font-body:'Inter',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);display:flex;height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.logo-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:6px;padding:6px 12px;font-family:var(--font-mono);font-size:.7rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.logo-badge::before{content:'⬡';font-size:1rem}
+.sidebar-logo h1{font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:#fff;line-height:1}
+.sidebar-logo span{color:var(--accent)}
+.user-card{margin:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.user-avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--bg);margin-bottom:8px;font-family:var(--font-head)}
+.user-name{font-size:.85rem;font-weight:600;color:var(--text)}
+.user-role{font-family:var(--font-mono);font-size:.65rem;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+nav{flex:1;padding:8px 12px}
+.nav-section-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:16px 8px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;text-decoration:none;color:var(--text2);font-size:.85rem;font-weight:500;transition:all .2s;margin-bottom:2px;border:1px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text);border-color:var(--border)}
+.nav-item.active{background:var(--accent-glow);color:var(--accent);border-color:var(--border2)}
+.nav-icon{font-size:1rem;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px;font-family:var(--font-mono)}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
+.logout-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fc8181;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.logout-btn:hover{background:rgba(239,68,68,.2);border-color:var(--red);color:#fff}
+
+/* MAIN */
+.main-content{margin-left:240px;flex:1;padding:28px;overflow-y:auto;height:100vh;background:var(--bg);width:calc(100vw - 240px)}
+.view{display:none;width:100%}
+.view.active{display:block}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.page-title{font-family:var(--font-head);font-size:2rem;font-weight:700;color:#fff;line-height:1}
+.page-title span{color:var(--accent)}
+.page-subtitle{font-size:.8rem;color:var(--text3);font-family:var(--font-mono);letter-spacing:1px;margin-top:4px}
+.header-actions{display:flex;gap:10px;align-items:center}
+.current-time{font-family:var(--font-mono);font-size:.75rem;color:var(--text3);letter-spacing:1px}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--accent),transparent)}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),transparent)}
+.stat-card.yellow::before{background:linear-gradient(90deg,var(--yellow),transparent)}
+.stat-card.red::before{background:linear-gradient(90deg,var(--red),transparent)}
+.stat-card.orange::before{background:linear-gradient(90deg,var(--orange),transparent)}
+.stat-card.purple::before{background:linear-gradient(90deg,var(--purple),transparent)}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.stat-icon{font-size:1.6rem;margin-bottom:12px}
+.stat-value{font-family:var(--font-head);font-size:2.4rem;font-weight:700;color:#fff;line-height:1}
+.stat-label{font-size:.75rem;color:var(--text3);font-family:var(--font-mono);letter-spacing:1px;text-transform:uppercase;margin-top:6px}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.table-title{font-family:var(--font-head);font-size:1rem;font-weight:600;color:var(--text)}
+.section-label{font-family:var(--font-mono);font-size:.72rem;color:var(--text3);letter-spacing:1px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table thead th{background:var(--surface2);padding:11px 16px;text-align:left;font-size:.68rem;font-family:var(--font-mono);color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.data-table tbody tr:last-child{border-bottom:none}
+.data-table tbody tr:hover{background:var(--surface2)}
+.data-table td{padding:11px 16px;font-size:.82rem;color:var(--text2);vertical-align:middle}
+.td-name{font-weight:500;color:var(--text)}
+.td-mono{font-family:var(--font-mono);font-size:.78rem;color:var(--text3)}
+.td-num{font-family:var(--font-mono);font-size:.85rem;font-weight:600;text-align:center}
+.td-num.ok{color:var(--green)}
+.td-num.low{color:var(--yellow)}
+.td-num.zero{color:var(--red)}
+
+/* STATUS PILLS */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:5px;font-size:.68rem;font-weight:700;font-family:var(--font-mono);letter-spacing:.5px;white-space:nowrap}
+.pill-ok{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.pill-warn{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+.pill-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.pill-info{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.3)}
+.pill-maint{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.pill-admin{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.3)}
+.pill-user{background:rgba(100,116,139,.12);color:var(--text3);border:1px solid rgba(100,116,139,.3)}
+.pill-posse{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.pill-perdida{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.pill-danificada{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+.pill-devolvida{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-family:var(--font-mono);font-size:.75rem;font-weight:600;letter-spacing:.5px;cursor:pointer;border:1px solid transparent;transition:all .2s;text-transform:uppercase}
+.btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:var(--bg);border:none}
+.btn-primary:hover{opacity:.9;box-shadow:0 4px 16px rgba(0,212,255,.3)}
+.btn-success{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:var(--green)}
+.btn-success:hover{background:rgba(16,185,129,.22);border-color:var(--green)}
+.btn-danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(239,68,68,.2);border-color:var(--red)}
+.btn-warning{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--yellow)}
+.btn-warning:hover{background:rgba(245,158,11,.2);border-color:var(--yellow)}
+.btn-purple{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.3);color:var(--purple)}
+.btn-purple:hover{background:rgba(139,92,246,.2);border-color:var(--purple)}
+.btn-ghost{background:var(--surface2);border-color:var(--border2);color:var(--text2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-sm{padding:5px 10px;font-size:.65rem}
+
+/* SEARCH */
+.search-box{position:relative;flex:1;min-width:220px}
+.search-box input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 16px 9px 38px;color:var(--text);font-size:.85rem;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.search-box input:focus{border-color:var(--accent)}
+.search-box input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.9rem}
+.controls-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+
+/* LOADING */
+.loading-state{display:flex;align-items:center;justify-content:center;gap:12px;padding:40px;color:var(--text3);font-family:var(--font-mono);font-size:.8rem}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-message{text-align:center;padding:40px;color:var(--text3);font-family:var(--font-mono);font-size:.8rem}
+
+/* SECTION TITLE */
+.section-title{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* FORM CARD */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:20px}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row{margin-bottom:16px}
+label{display:block;font-size:.72rem;font-family:var(--font-mono);color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.form-control{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:.85rem;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.form-control:focus{border-color:var(--accent)}
+.form-control::placeholder{color:var(--text3)}
+select.form-control option{background:var(--surface2);color:var(--text)}
+textarea.form-control{resize:vertical;min-height:80px}
+.form-hint{font-size:.65rem;color:var(--text3);font-family:var(--font-mono);margin-top:4px}
+.form-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modal-overlay.show .modal{transform:translateY(0) scale(1)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:22px 24px 18px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:#fff}
+.modal-subtitle{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:1px;margin-top:2px}
+.modal-close{width:32px;height:32px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.modal-close:hover{background:var(--red);border-color:var(--red);color:#fff}
+.modal-body{padding:22px 24px}
+.modal-footer{display:flex;gap:10px;padding:16px 24px 22px;border-top:1px solid var(--border)}
+.btn-modal-secondary{flex:1;padding:11px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:var(--font-head);font-size:.95rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-modal-secondary:hover{border-color:var(--text2);color:var(--text)}
+.btn-modal-primary{flex:2;padding:11px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:8px;color:var(--bg);font-family:var(--font-head);font-size:.95rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-modal-primary:hover{opacity:.9;box-shadow:0 4px 16px rgba(0,212,255,.3)}
+.btn-modal-danger{flex:1;padding:11px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);border-radius:8px;color:var(--red);font-family:var(--font-head);font-size:.95rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-modal-danger:hover{background:rgba(239,68,68,.22);border-color:var(--red)}
+
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--text);z-index:9999;transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 24px rgba(0,0,0,.4);min-width:280px;max-width:400px}
+.toast.show{transform:translateX(0)}
+.toast.success{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.08)}
+.toast.error{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.08)}
+.toast.warning{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.08)}
+.toast-msg{flex:1;font-family:var(--font-mono);font-size:.78rem}
+
+/* FULLSCREEN BTN */
+.fullscreen-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border2);color:var(--accent);border-radius:8px;width:40px;height:40px;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .2s}
+.fullscreen-btn:hover{background:var(--accent-glow);border-color:var(--accent)}
+
+/* QUANTITY */
+.quantity-available{color:var(--green)}
+.quantity-low{color:var(--yellow)}
+.quantity-zero{color:var(--red)}
+
+/* MATERIAL REQUEST */
+.req-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:8px}
+.req-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.req-material{font-weight:500;color:var(--text);font-size:.9rem}
+.req-meta{font-size:.72rem;color:var(--text3);font-family:var(--font-mono)}
+.req-status-pill{font-family:var(--font-mono);font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:.5px}
+.rpill-pendente{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+.rpill-aprovado{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.rpill-negado{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+
+/* FERRAMENTAL PESSOAL — cards de usuário */
+.fp-user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:24px}
+.fp-user-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.fp-user-card:hover{border-color:var(--border2)}
+.fp-user-card-header{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);cursor:pointer}
+.fp-user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--purple),#6d28d9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:.9rem;color:#fff;flex-shrink:0}
+.fp-user-info{flex:1;min-width:0}
+.fp-user-name{font-weight:600;font-size:.88rem;color:var(--text)}
+.fp-user-code{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:1px}
+.fp-user-stats{display:flex;gap:8px;margin-left:auto;flex-shrink:0}
+.fp-stat-badge{font-family:var(--font-mono);font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:5px;letter-spacing:.5px}
+.fp-stat-posse{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.fp-stat-alert{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.fp-tool-list{padding:12px 18px}
+.fp-tool-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.fp-tool-item:last-child{border-bottom:none}
+.fp-tool-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+.fp-tool-info{flex:1;min-width:0}
+.fp-tool-name{font-size:.82rem;font-weight:500;color:var(--text)}
+.fp-tool-meta{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);margin-top:1px}
+.fp-tool-actions{display:flex;gap:6px;flex-shrink:0}
+.fp-empty{padding:16px;text-align:center;font-family:var(--font-mono);font-size:.72rem;color:var(--text3)}
+
+/* ALERTA DE CONFORMIDADE */
+.conformidade-bar{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.conf-card{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.conf-value{font-family:var(--font-head);font-size:2rem;font-weight:700;line-height:1}
+.conf-label{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.conf-ok .conf-value{color:var(--green)}
+.conf-warn .conf-value{color:var(--yellow)}
+.conf-danger .conf-value{color:var(--red)}
+.conf-purple .conf-value{color:var(--purple)}
+
+/* HISTÓRICO TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);position:relative}
+.timeline-item:last-child{border-bottom:none}
+.timeline-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.tl-entrega .timeline-dot{background:var(--green)}
+.tl-devolucao .timeline-dot{background:var(--accent)}
+.tl-perda .timeline-dot{background:var(--red)}
+.tl-dano .timeline-dot{background:var(--yellow)}
+.timeline-content{flex:1}
+.timeline-title{font-size:.82rem;font-weight:500;color:var(--text)}
+.timeline-meta{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);margin-top:2px}
+
+/* CHECKLIST DE ITENS NO MODAL */
+.checklist-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+.checklist-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.checklist-item label{font-size:.82rem;color:var(--text);cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-family:var(--font-body)}
+.checklist-qty{margin-left:auto;font-family:var(--font-mono);font-size:.7rem;color:var(--text3);flex-shrink:0}
+
+/* ABAS DO MODAL DETALHE */
+.fp-det-tab{flex:1;padding:13px 10px;background:none;border:none;font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;transition:all .2s;position:relative;border-bottom:2px solid transparent}
+.fp-det-tab:hover{color:var(--text2);background:rgba(255,255,255,.02)}
+.fp-det-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ITEM DE POSSE NO MODAL */
+.fp-posse-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:border-color .2s}
+.fp-posse-item:hover{border-color:var(--border2)}
+.fp-posse-icon{width:36px;height:36px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.fp-posse-info{flex:1;min-width:0}
+.fp-posse-name{font-weight:600;font-size:.88rem;color:var(--text);margin-bottom:3px}
+.fp-posse-meta{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:.5px}
+.fp-posse-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.fp-cond-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+
+/* LINHA DA TABELA DE USUÁRIOS */
+.fp-user-row-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--purple),#6d28d9);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0}
+    </style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">ADMIN</div>
+    <h1>Ferra<span>mentaria</span></h1>
+  </div>
+  <div class="user-card">
+    <div class="user-avatar" id="avatarInitial">A</div>
+    <div class="user-name" id="current-user-name">Carregando...</div>
+    <div class="user-role" id="current-user-company">Código: ---</div>
+  </div>
+  <nav>
+    <div class="nav-section-label">Sistema</div>
+    <a class="nav-item active" onclick="showView('dashboard')"><span class="nav-icon">📊</span> Dashboard</a>
+    <a class="nav-item" onclick="showView('loans')"><span class="nav-icon">🔧</span> Empréstimos Ativos</a>
+    <a class="nav-item" onclick="showView('new-loan')"><span class="nav-icon">➕</span> Saída de Ferramentas</a>
+    <a class="nav-item" onclick="showView('return-tool')"><span class="nav-icon">↩️</span> Devolução</a>
+    <a class="nav-item" onclick="showView('search-user')"><span class="nav-icon">🔍</span> Buscar Usuário</a>
+    <div class="nav-section-label">Admin</div>
+    <a class="nav-item" id="admin-users-nav" onclick="showView('users')" style="display:none"><span class="nav-icon">👥</span> Gerenciar Usuários</a>
+    <a class="nav-item" id="admin-tools-nav" onclick="showView('tools')" style="display:none"><span class="nav-icon">🛠️</span> Gerenciar Ferramentas</a>
+    <a class="nav-item" onclick="showView('ferramental-pessoal')"><span class="nav-icon">🧰</span> Ferramental Pessoal</a>
+    <a class="nav-item" onclick="showView('compras')"><span class="nav-icon">📋</span> Requisições de Material</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">🚪 Sair do Sistema</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="view active">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dash<span>board</span></div>
+        <div class="page-subtitle">// VISÃO GERAL DO SISTEMA</div>
+      </div>
+      <div class="header-actions">
+        <div class="current-time" id="current-time"></div>
+      </div>
+    </div>
+    <div class="stats-grid" id="stats-cards">
+      <div class="loading-state"><div class="spinner"></div> Carregando...</div>
+    </div>
+    <div class="section-title">Empréstimos Ativos</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Usuário</th><th>Ferramenta</th><th>Data/Hora</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody id="active-loans-body">
+          <tr><td colspan="5" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EMPRÉSTIMOS ATIVOS -->
+  <div id="loans" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Empréstimos <span>Ativos</span></div>
+        <div class="page-subtitle">// FERRAMENTAS ATUALMENTE EM USO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="showView('new-loan')">➕ Saída de Ferramentas</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Usuário</th><th>Código</th><th>Ferramenta</th><th>Data Retirada</th><th>Hora</th><th>Status</th></tr></thead>
+        <tbody id="all-loans-body">
+          <tr><td colspan="6" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SAÍDA DE FERRAMENTAS -->
+  <div id="new-loan" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Saída de <span>Ferramentas</span></div>
+        <div class="page-subtitle">// REGISTRAR NOVO EMPRÉSTIMO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showView('dashboard')">← Voltar</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <form id="new-loan-form" onsubmit="registerLoan(event)">
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label>Usuário *</label>
+            <select class="form-control" id="loan-user" required>
+              <option value="">Selecione o usuário...</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Ferramenta *</label>
+            <select class="form-control" id="loan-tool" required>
+              <option value="">Selecione a ferramenta...</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Observações</label>
+          <textarea class="form-control" id="loan-notes" rows="3" placeholder="Observações sobre o empréstimo..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="showView('dashboard')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">📝 Registrar Empréstimo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DEVOLUÇÃO -->
+  <div id="return-tool" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Devolu<span>ção</span></div>
+        <div class="page-subtitle">// REGISTRAR RETORNO DE FERRAMENTA</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showView('dashboard')">← Voltar</button>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-loan" placeholder="Buscar por usuário, ferramenta ou código...">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Usuário</th><th>Ferramenta</th><th>Data Retirada</th><th>Status</th><th>Devolução</th></tr></thead>
+        <tbody id="loans-for-return">
+          <tr><td colspan="5" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BUSCAR USUÁRIO -->
+  <div id="search-user" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Buscar <span>Usuário</span></div>
+        <div class="page-subtitle">// HISTÓRICO POR FUNCIONÁRIO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showView('dashboard')">← Voltar</button>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-user-input" placeholder="Digite o nome ou código do usuário..." onkeyup="searchUserHistory()">
+      </div>
+    </div>
+    <div class="section-title" id="user-history-title">Histórico do Usuário</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Ferramenta</th><th>Data Retirada</th><th>Data Devolução</th><th>Status</th></tr></thead>
+        <tbody id="user-history-body">
+          <tr><td colspan="4" class="empty-message">Digite um nome ou código para buscar</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GERENCIAR USUÁRIOS -->
+  <div id="users" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Gerenciar <span>Usuários</span></div>
+        <div class="page-subtitle">// CADASTROS DO SISTEMA</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="showAddUserModal()">➕ Novo Usuário</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Nome</th><th>Usuário</th><th>Código</th><th>Tipo</th><th>Cadastrado em</th><th>Ações</th></tr></thead>
+        <tbody id="users-list">
+          <tr><td colspan="6" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GERENCIAR FERRAMENTAS -->
+  <div id="tools" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Gerenciar <span>Ferramentas</span></div>
+        <div class="page-subtitle">// INVENTÁRIO E CONTROLE</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="showAddToolModal()">➕ Nova Ferramenta</button>
+        <button class="btn btn-ghost" onclick="downloadLoansPDF()">🖨️ Imprimir Relatório</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Código</th><th>Nome</th><th>Categoria</th><th>Qtd Disp/Total</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tools-list">
+          <tr><td colspan="6" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FERRAMENTAL PESSOAL
+  ══════════════════════════════════════════════════ -->
+  <div id="ferramental-pessoal" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Ferramental <span>Pessoal</span></div>
+        <div class="page-subtitle">// FERRAMENTAS SOB RESPONSABILIDADE DO FUNCIONÁRIO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="printRelatorioFP()">🖨️ Relatório Geral</button>
+        <button class="btn btn-ghost" onclick="loadFerramentalPessoal()">🔄 Atualizar</button>
+      </div>
+    </div>
+
+    <!-- Cards de conformidade -->
+    <div class="conformidade-bar" id="fp-conformidade-bar">
+      <div class="conf-card conf-purple"><div class="conf-value" id="fp-conf-total">—</div><div class="conf-label">Funcionários</div></div>
+      <div class="conf-card conf-ok"><div class="conf-value" id="fp-conf-ok">—</div><div class="conf-label">Com ferramental</div></div>
+      <div class="conf-card conf-danger"><div class="conf-value" id="fp-conf-pendencias">—</div><div class="conf-label">Com pendências</div></div>
+      <div class="conf-card conf-warn"><div class="conf-value" id="fp-conf-itens">—</div><div class="conf-label">Itens em posse</div></div>
+    </div>
+
+    <!-- Alerta de pendências -->
+    <div id="fp-alertas" style="margin-bottom:4px"></div>
+
+    <!-- Barra de busca de funcionário -->
+    <div class="controls-row" style="margin-bottom:16px">
+      <div class="search-box" style="max-width:420px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="fp-search-input" placeholder="Buscar funcionário por nome ou código..." oninput="fpFiltrarUsuarios()">
+      </div>
+      <span id="fp-search-count" style="font-family:var(--font-mono);font-size:.72rem;color:var(--text3);letter-spacing:1px"></span>
+    </div>
+
+    <!-- Lista de usuários -->
+    <div class="section-title">Funcionários</div>
+    <div class="table-wrap">
+      <table class="data-table" id="fp-users-table">
+        <thead><tr>
+          <th>Funcionário</th>
+          <th>Código</th>
+          <th>Itens em Posse</th>
+          <th>Pendências</th>
+          <th>Último Registro</th>
+          <th>Conformidade</th>
+          <th>Termo</th>
+          <th>Ação</th>
+        </tr></thead>
+        <tbody id="fp-users-body">
+          <tr><td colspan="7" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Histórico geral de movimentações -->
+    <div class="section-title">Histórico Recente de Movimentações</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Data</th><th>Funcionário</th><th>Ferramenta</th><th>Ação</th><th>Observação</th><th>Por</th>
+        </tr></thead>
+        <tbody id="fp-historico-body">
+          <tr><td colspan="6" class="empty-message">Nenhuma movimentação registrada</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REQUISIÇÕES DE MATERIAL -->
+  <div id="compras" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Requisi<span>ções</span></div>
+        <div class="page-subtitle">// SOLICITAÇÕES DE MATERIAL AO ALMOXARIFADO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="refreshMaterialRequests()">🔄 Atualizar</button>
+      </div>
+    </div>
+    <div class="section-title">Pendentes</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Solicitante</th><th>Material</th><th>Qtd/UN</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody id="material-requests-body">
+          <tr><td colspan="6" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- FULLSCREEN BTN -->
+<button class="fullscreen-btn" onclick="toggleFullscreen()" title="Tela Cheia">⛶</button>
+
+<!-- MODAL ADICIONAR USUÁRIO -->
+<div id="add-user-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Cadastrar Usuário</div><div class="modal-subtitle">// NOVO ACESSO AO SISTEMA</div></div>
+      <button class="modal-close" onclick="closeModal('add-user-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="add-user-form" onsubmit="addNewUser(event)">
+        <div class="form-row"><label>Nome Completo *</label><input type="text" class="form-control" id="user-name" required></div>
+        <div class="form-row"><label>Nome de Usuário *</label><input type="text" class="form-control" id="user-username" required></div>
+        <div class="form-row"><label>Senha *</label><input type="password" class="form-control" id="user-password" required></div>
+        <div class="form-row">
+          <label>Código da Empresa *</label>
+          <input type="text" class="form-control" id="user-company-code" pattern="[0-9]{6}" title="Digite exatamente 6 números" required>
+          <div class="form-hint">// 6 números (ex: 123456)</div>
+        </div>
+        <div class="form-row">
+          <label>Tipo de Usuário</label>
+          <select class="form-control" id="user-type">
+            <option value="user">Usuário Normal</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-secondary" onclick="closeModal('add-user-modal')">Cancelar</button>
+      <button class="btn-modal-primary" type="submit" form="add-user-form">Cadastrar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADICIONAR FERRAMENTA -->
+<div id="add-tool-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Cadastrar Ferramenta</div><div class="modal-subtitle">// NOVO ITEM NO INVENTÁRIO</div></div>
+      <button class="modal-close" onclick="closeModal('add-tool-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="add-tool-form" onsubmit="addNewTool(event)">
+        <div class="form-grid-2">
+          <div class="form-row"><label>Código *</label><input type="text" class="form-control" id="tool-code" required></div>
+          <div class="form-row"><label>Nome *</label><input type="text" class="form-control" id="tool-name" required></div>
+        </div>
+        <div class="form-row">
+          <label>Categoria *</label>
+          <select class="form-control" id="tool-category" required>
+            <option value="">Selecione...</option>
+            <option value="Ferramenta Manual">Ferramenta Manual</option>
+            <option value="Ferramenta Elétrica">Ferramenta Elétrica</option>
+            <option value="Equipamento">Equipamento</option>
+            <option value="Consumível">Consumível</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Quantidade Total *</label><input type="number" class="form-control" id="tool-total-quantity" min="1" max="100" value="1" required></div>
+          <div class="form-row"><label>Quantidade Disponível *</label><input type="number" class="form-control" id="tool-available-quantity" min="0" max="100" value="1" required></div>
+        </div>
+        <div class="form-row"><label>Descrição</label><textarea class="form-control" id="tool-description" rows="3"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-secondary" onclick="closeModal('add-tool-modal')">Cancelar</button>
+      <button class="btn-modal-primary" type="submit" form="add-tool-form">Cadastrar Ferramenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REQUISIÇÃO DE MATERIAL -->
+<div id="material-request-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title">Validar Requisição</div><div class="modal-subtitle">// APROVAÇÃO DE MATERIAL</div></div>
+      <button class="modal-close" onclick="closeModal('material-request-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="material-request-form" onsubmit="approveAndPrintMaterialRequest(event)">
+        <input type="hidden" id="mr-id">
+        <div class="form-grid-2">
+          <div class="form-row"><label>Solicitante</label><input type="text" class="form-control" id="mr-solicitante" readonly></div>
+          <div class="form-row"><label>Código</label><input type="text" class="form-control" id="mr-codigo" readonly></div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Quantidade</label><input type="text" class="form-control" id="mr-quantidade" readonly></div>
+          <div class="form-row"><label>Unidade</label><input type="text" class="form-control" id="mr-unidade" readonly></div>
+        </div>
+        <div class="form-row"><label>Material</label><input type="text" class="form-control" id="mr-material" readonly></div>
+        <div class="form-row"><label>Aplicação</label><textarea class="form-control" id="mr-aplicacao" rows="2" readonly></textarea></div>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Data Solicitação</label><input type="text" class="form-control" id="mr-data-solicitacao" readonly></div>
+          <div class="form-row"><label>Data Liberação</label><input type="date" class="form-control" id="mr-data-liberacao"></div>
+        </div>
+        <div class="form-row"><label>Código do Material</label><input type="text" class="form-control" id="mr-codigo-material" placeholder="Preencha ao aprovar..."></div>
+        <div class="form-row"><label>Observação Almox</label><textarea class="form-control" id="mr-observacao" rows="2" placeholder="Observação para o solicitante..."></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-danger" type="button" onclick="rejectMaterialRequest()">✕ Rejeitar</button>
+      <button class="btn-modal-secondary" onclick="closeModal('material-request-modal')">Fechar</button>
+      <button class="btn-modal-primary" type="submit" form="material-request-form">✅ Aprovar & Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OCORRÊNCIA (perda / dano / devolução) -->
+<div id="fp-ocorrencia-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="fp-oc-title">Registrar Ocorrência</div><div class="modal-subtitle">// ATUALIZAR SITUAÇÃO DO ITEM</div></div>
+      <button class="modal-close" onclick="closeModal('fp-ocorrencia-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fp-oc-item-id">
+      <div id="fp-oc-info" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:.82rem">
+        <!-- preenchido por JS -->
+      </div>
+      <div class="form-row">
+        <label>Tipo de Ocorrência *</label>
+        <select class="form-control" id="fp-oc-tipo" onchange="fpOcTipoChange()">
+          <option value="devolvida">✅ Devolução — funcionário devolveu</option>
+          <option value="perdida">❌ Perda — item não foi encontrado</option>
+          <option value="danificada">⚠️ Dano — item danificado ou quebrado</option>
+          <option value="transferida">🔄 Transferência — passou para outro funcionário</option>
+        </select>
+      </div>
+      <div class="form-row" id="fp-oc-transfere-row" style="display:none">
+        <label>Transferir para *</label>
+        <select class="form-control" id="fp-oc-transfere-user">
+          <option value="">Selecione o destinatário...</option>
+        </select>
+      </div>
+      <div class="form-row" id="fp-oc-qty-row">
+        <label>Quantidade</label>
+        <input type="number" class="form-control" id="fp-oc-qty" min="1" value="1">
+        <div class="form-hint" id="fp-oc-qty-hint">// Qtd em posse: —</div>
+      </div>
+      <div class="form-row">
+        <label>Observação</label>
+        <textarea class="form-control" id="fp-oc-obs" rows="2" placeholder="Detalhes da ocorrência..."></textarea>
+      </div>
+      <div id="fp-oc-desconto-aviso" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;font-family:var(--font-mono);font-size:.72rem;color:var(--red);margin-top:4px">
+        ❌ Perda ou dano: o item <strong>não retorna ao estoque</strong>. Será registrado no histórico do funcionário.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-secondary" onclick="closeModal('fp-ocorrencia-modal')">Cancelar</button>
+      <button class="btn-modal-primary" onclick="confirmarOcorrenciaFP()">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE DO FUNCIONÁRIO — COMPLETO -->
+<div id="fp-detalhe-modal" class="modal-overlay">
+  <div class="modal" style="width:700px;max-width:96vw">
+    <div class="modal-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="fp-det-avatar" style="width:40px;height:40px;background:linear-gradient(135deg,var(--purple),#6d28d9);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:1rem;color:#fff;flex-shrink:0">?</div>
+          <div>
+            <div class="modal-title" id="fp-det-titulo">Funcionário</div>
+            <div class="modal-subtitle" id="fp-det-codigo">// CÓD: —</div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('fp-detalhe-modal')">✕</button>
+    </div>
+
+    <!-- ABAS -->
+    <div style="display:flex;border-bottom:1px solid var(--border)">
+      <button class="fp-det-tab active" id="fp-tab-posse" onclick="fpDetTab('posse')">🔧 Itens em Posse</button>
+      <button class="fp-det-tab" id="fp-tab-entregar" onclick="fpDetTab('entregar')">➕ Entregar Ferramenta</button>
+      <button class="fp-det-tab" id="fp-tab-historico" onclick="fpDetTab('historico')">🕐 Histórico</button>
+    </div>
+
+    <div class="modal-body" style="max-height:60vh;overflow-y:auto">
+
+      <!-- ABA: ITENS EM POSSE -->
+      <div id="fp-det-pane-posse">
+        <div id="fp-det-itens-posse-count" style="font-family:var(--font-mono);font-size:.7rem;color:var(--text3);letter-spacing:1px;margin-bottom:14px"></div>
+        <div id="fp-det-itens"></div>
+      </div>
+
+      <!-- ABA: ENTREGAR FERRAMENTA -->
+      <div id="fp-det-pane-entregar" style="display:none">
+        <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:14px 16px;margin-bottom:18px;font-family:var(--font-mono);font-size:.72rem;color:var(--text3)">
+          🧰 Ferramentas entregues aqui ficam sob responsabilidade do funcionário <strong style="color:var(--accent)" id="fp-det-nome-inline">—</strong> sem prazo de devolução definido.
+        </div>
+
+        <div class="form-row">
+          <label>Ferramenta *</label>
+          <select class="form-control" id="fp-det-sel-tool" onchange="fpDetToolChange()">
+            <option value="">Selecione uma ferramenta...</option>
+          </select>
+          <div class="form-hint" id="fp-det-tool-hint">// Selecione para ver disponibilidade</div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label>Quantidade *</label>
+            <input type="number" class="form-control" id="fp-det-qty" min="1" value="1" oninput="fpDetQtyChange()">
+            <div class="form-hint" id="fp-det-qty-hint">// Disponível: —</div>
+          </div>
+          <div class="form-row">
+            <label>Condição</label>
+            <select class="form-control" id="fp-det-condicao">
+              <option value="nova">🟢 Nova</option>
+              <option value="boa" selected>🔵 Boa</option>
+              <option value="regular">🟡 Regular</option>
+              <option value="desgastada">🔴 Desgastada</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Nº de Série / Patrimônio</label>
+          <input type="text" class="form-control" id="fp-det-serie" placeholder="Opcional — identificação individual da peça">
+        </div>
+
+        <div class="form-row">
+          <label>Observação</label>
+          <textarea class="form-control" id="fp-det-obs-entrega" rows="2" placeholder="Ex: Entregue no início do contrato, kit padrão..."></textarea>
+        </div>
+
+        <div id="fp-det-ja-possui" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;font-family:var(--font-mono);font-size:.72rem;color:var(--yellow);margin-bottom:12px">
+          ⚠️ Este funcionário já possui unidades desta ferramenta em posse.
+        </div>
+        <div id="fp-det-sem-estoque" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;font-family:var(--font-mono);font-size:.72rem;color:var(--red);margin-bottom:12px">
+          ❌ Estoque insuficiente para a quantidade selecionada.
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:.9rem" onclick="confirmarEntregaDetalheFP()">
+          🧰 Confirmar Entrega
+        </button>
+      </div>
+
+      <!-- ABA: HISTÓRICO -->
+      <div id="fp-det-pane-historico" style="display:none">
+        <div class="timeline" id="fp-det-timeline"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-secondary" onclick="closeModal('fp-detalhe-modal')">Fechar</button>
+      <button class="btn-modal-primary" onclick="printTermoResponsabilidade(fpDetalheUserId)">🖨️ Termo de Responsabilidade</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"><span id="toastMsg" class="toast-msg"></span></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════════════
+let database = null;
+let currentUser = null;
+let currentView = 'dashboard';
+let selectedMaterialRequestId = null;
+let fpDetalheUserId = null;
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+    loadUser();
+    await loadDatabase();
+    updateTime();
+    setInterval(updateTime, 30000);
+}
+
+function loadUser() {
+    try {
+        const userData = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+        if (!userData) { window.location.href='/login.html'; return; }
+        currentUser = JSON.parse(userData);
+        document.getElementById('current-user-name').textContent = currentUser.name;
+        document.getElementById('current-user-company').textContent = `Código: ${currentUser.companyCode}`;
+        const initials = currentUser.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        document.getElementById('avatarInitial').textContent = initials;
+        if (currentUser.role !== 'ADMIN_GERAL') { alert('Acesso não autorizado!'); window.location.href='/login.html'; return; }
+        document.getElementById('admin-users-nav').style.display = 'flex';
+        document.getElementById('admin-tools-nav').style.display = 'flex';
+    } catch(e) { window.location.href='/login.html'; }
+}
+
+async function loadDatabase() {
+    try {
+        const response = await fetch('/api/database?_=' + Date.now());
+        if (response.ok) {
+            database = await response.json();
+            if (!Array.isArray(database.materialRequests)) database.materialRequests = [];
+            if (!Array.isArray(database.ferramentalPessoal)) database.ferramentalPessoal = [];
+            if (!Array.isArray(database.fpHistorico)) database.fpHistorico = [];
+            updateAllViews();
+        } else { showToast('error', '❌ Erro ao carregar dados.'); }
+    } catch(e) { showToast('error', '❌ Servidor offline.'); }
+}
+
+function updateAllViews() {
+    if (!database) return;
+    updateDashboard();
+    updateToolsTable();
+    updateAllLoansTable();
+    updateReturnTable();
+    updateUsersTable();
+    updateMaterialRequestsTable();
+    if (currentView === 'new-loan') loadLoanOptions();
+    if (currentView === 'ferramental-pessoal') loadFerramentalPessoal();
+}
+
+// ══════════════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════════════
+function showView(viewName) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewName).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const selMap = {
+        'dashboard':'[onclick="showView(\'dashboard\')"]',
+        'loans':'[onclick="showView(\'loans\')"]',
+        'new-loan':'[onclick="showView(\'new-loan\')"]',
+        'return-tool':'[onclick="showView(\'return-tool\')"]',
+        'search-user':'[onclick="showView(\'search-user\')"]',
+        'users':'[onclick="showView(\'users\')"]',
+        'tools':'[onclick="showView(\'tools\')"]',
+        'ferramental-pessoal':'[onclick="showView(\'ferramental-pessoal\')"]',
+        'compras':'[onclick="showView(\'compras\')"]'
+    };
+    if (selMap[viewName]) { const el=document.querySelector(selMap[viewName]); if(el) el.classList.add('active'); }
+    currentView = viewName;
+    if (viewName === 'new-loan') loadLoanOptions();
+    if (viewName === 'return-tool') updateReturnTable();
+    if (viewName === 'ferramental-pessoal') loadFerramentalPessoal();
+}
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function updateDashboard() {
+    if (!database) return;
+    const totalUsers = database.users.length;
+    const totalTools = database.tools.length;
+    let totalUnits=0, availableUnits=0, borrowedUnits=0;
+    database.tools.forEach(t => {
+        const tq = t.totalQuantity||1, aq = t.availableQuantity||(t.available?1:0);
+        totalUnits+=tq; availableUnits+=aq; borrowedUnits+=(tq-aq);
+    });
+    const activeLoans = database.loans.filter(l=>l.status==='emprestado').length;
+    const fpAtivos = (database.ferramentalPessoal||[]).filter(i=>i.status==='posse').length;
+    document.getElementById('stats-cards').innerHTML = `
+        <div class="stat-card blue"><div class="stat-icon">👥</div><div class="stat-value">${totalUsers}</div><div class="stat-label">Usuários</div></div>
+        <div class="stat-card green"><div class="stat-icon">🛠️</div><div class="stat-value">${totalTools}</div><div class="stat-label">Tipos Ferram.</div></div>
+        <div class="stat-card yellow"><div class="stat-icon">📦</div><div class="stat-value">${totalUnits}</div><div class="stat-label">Unidades Total</div></div>
+        <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value">${availableUnits}</div><div class="stat-label">Disponíveis</div></div>
+        <div class="stat-card red"><div class="stat-icon">🔧</div><div class="stat-value">${borrowedUnits}</div><div class="stat-label">Em Uso</div></div>
+        <div class="stat-card purple"><div class="stat-icon">🧰</div><div class="stat-value">${fpAtivos}</div><div class="stat-label">Ferramental Pessoal</div></div>
+    `;
+    updateActiveLoansTable();
+}
+
+function updateActiveLoansTable() {
+    const tbody = document.getElementById('active-loans-body');
+    if (!database) return;
+    const activeLoans = database.loans.filter(l=>l.status==='emprestado');
+    if (!activeLoans.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-message">Nenhum empréstimo ativo no momento</td></tr>'; return; }
+    tbody.innerHTML = '';
+    activeLoans.forEach(loan => {
+        const user = database.users.find(u=>u.id===loan.userId);
+        const tool = database.tools.find(t=>t.id===loan.toolId);
+        if (user && tool) {
+            const d = new Date(loan.borrowedAt);
+            tbody.innerHTML += `<tr>
+                <td class="td-name">${user.name}</td>
+                <td>${tool.name}</td>
+                <td class="td-mono">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                <td>${getStatusPill(loan.status)}</td>
+                <td><button class="btn btn-warning btn-sm" onclick="returnTool('${loan.id}')">Devolver</button></td>
+            </tr>`;
+        }
+    });
+}
+
+function updateAllLoansTable() {
+    const tbody = document.getElementById('all-loans-body');
+    if (!database) return;
+    const loans = database.loans.filter(l=>l.status==='emprestado');
+    if (!loans.length) { tbody.innerHTML='<tr><td colspan="6" class="empty-message">Nenhum empréstimo ativo</td></tr>'; return; }
+    tbody.innerHTML = '';
+    loans.forEach(loan => {
+        const user = database.users.find(u=>u.id===loan.userId);
+        const tool = database.tools.find(t=>t.id===loan.toolId);
+        if (user && tool) {
+            const d = new Date(loan.borrowedAt);
+            tbody.innerHTML += `<tr>
+                <td class="td-name">${user.name}</td>
+                <td class="td-mono">${user.companyCode}</td>
+                <td>${tool.name}</td>
+                <td class="td-mono">${d.toLocaleDateString('pt-BR')}</td>
+                <td class="td-mono">${d.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                <td>${getStatusPill(loan.status)}</td>
+            </tr>`;
+        }
+    });
+}
+
+function updateReturnTable() {
+    const tbody = document.getElementById('loans-for-return');
+    if (!database) return;
+    const loans = database.loans.filter(l=>l.status==='emprestado');
+    if (!loans.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-message">Nenhum empréstimo para devolver</td></tr>'; return; }
+    tbody.innerHTML = '';
+    loans.forEach(loan => {
+        const user = database.users.find(u=>u.id===loan.userId);
+        const tool = database.tools.find(t=>t.id===loan.toolId);
+        if (user && tool) {
+            const d = new Date(loan.borrowedAt);
+            tbody.innerHTML += `<tr>
+                <td class="td-name">${user.name}</td>
+                <td>${tool.name}</td>
+                <td class="td-mono">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                <td>${getStatusPill(loan.status)}</td>
+                <td><button class="btn btn-success btn-sm" onclick="returnTool('${loan.id}')">Devolver</button></td>
+            </tr>`;
+        }
+    });
+}
+
+function searchUserHistory() {
+    const term = document.getElementById('search-user-input').value.toLowerCase();
+    const tbody = document.getElementById('user-history-body');
+    if (!term) { tbody.innerHTML='<tr><td colspan="4" class="empty-message">Digite um nome ou código para buscar</td></tr>'; return; }
+    const user = database.users.find(u=>u.name.toLowerCase().includes(term)||u.companyCode.includes(term));
+    if (!user) { tbody.innerHTML='<tr><td colspan="4" class="empty-message">Usuário não encontrado</td></tr>'; return; }
+    document.getElementById('user-history-title').textContent = `Histórico de ${user.name}`;
+    const loans = database.loans.filter(l=>l.userId===user.id);
+    if (!loans.length) { tbody.innerHTML='<tr><td colspan="4" class="empty-message">Nenhum empréstimo registrado</td></tr>'; return; }
+    tbody.innerHTML = '';
+    loans.forEach(loan => {
+        const tool = database.tools.find(t=>t.id===loan.toolId);
+        if (tool) {
+            const bd=new Date(loan.borrowedAt), rd=loan.returnedAt?new Date(loan.returnedAt):null;
+            tbody.innerHTML += `<tr>
+                <td class="td-name">${tool.name}</td>
+                <td class="td-mono">${bd.toLocaleDateString('pt-BR')} ${bd.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                <td class="td-mono">${rd?rd.toLocaleDateString('pt-BR')+' '+rd.toLocaleTimeString('pt-BR').slice(0,5):'-'}</td>
+                <td>${getStatusPill(loan.status)}</td>
+            </tr>`;
+        }
+    });
+}
+
+async function returnTool(loanId) {
+    const loan = database.loans.find(l=>l.id===loanId);
+    if (!loan) { showToast('error','Empréstimo não encontrado'); return; }
+    const user = database.users.find(u=>u.id===loan.userId);
+    const tool = database.tools.find(t=>t.id===loan.toolId);
+    if (!user||!tool) { showToast('error','Dados incompletos'); return; }
+    if (!confirm(`Confirmar devolução de "${tool.name}"?\nUsuário: ${user.name}`)) return;
+    try {
+        const res = await fetch(`/api/emprestimos/${loanId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'devolvido',returnedAt:new Date().toISOString()})});
+        if (res.ok) { showToast('success',`✅ "${tool.name}" devolvida!`); await new Promise(r=>setTimeout(r,300)); await loadDatabase(); }
+        else { const e=await res.json(); showToast('error','❌ '+e.message); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+function loadLoanOptions() {
+    const us=document.getElementById('loan-user'), ts=document.getElementById('loan-tool');
+    if (!database) return;
+    us.innerHTML='<option value="">Selecione o usuário...</option>';
+    ts.innerHTML='<option value="">Selecione a ferramenta...</option>';
+    database.users.forEach(u=>{ us.innerHTML+=`<option value="${u.id}">${u.name} (${u.companyCode})</option>`; });
+    database.tools.filter(t=>{const aq=t.availableQuantity||(t.available?1:0);return aq>0&&t.status!=='indisponivel';}).forEach(t=>{
+        const aq=t.availableQuantity||(t.available?1:0), tq=t.totalQuantity||1;
+        ts.innerHTML+=`<option value="${t.id}">${t.code} - ${t.name} (${aq}/${tq})</option>`;
+    });
+}
+
+async function registerLoan(event) {
+    event.preventDefault();
+    const userId=document.getElementById('loan-user').value, toolId=document.getElementById('loan-tool').value, notes=document.getElementById('loan-notes').value;
+    const user=database.users.find(u=>u.id===userId), tool=database.tools.find(t=>t.id===toolId);
+    if (!user||!tool) { showToast('error','Selecione usuário e ferramenta!'); return; }
+    const aq=tool.availableQuantity||(tool.available?1:0);
+    if (aq<=0||tool.status==='indisponivel') { showToast('error','Ferramenta indisponível!'); return; }
+    try {
+        const res=await fetch('/api/emprestimos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,toolId,notes})});
+        if (res.ok) { showToast('success','✅ Empréstimo registrado!'); event.target.reset(); await loadDatabase(); showView('dashboard'); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+// ══════════════════════════════════════════════════
+// USUÁRIOS
+// ══════════════════════════════════════════════════
+function updateUsersTable() {
+    const tbody = document.getElementById('users-list');
+    if (!database) return;
+    tbody.innerHTML = '';
+    database.users.forEach(u => {
+        const badge = u.isAdmin?'<span class="status-pill pill-admin">ADMIN</span>':'<span class="status-pill pill-user">USER</span>';
+        const d = new Date(u.createdAt);
+        tbody.innerHTML += `<tr>
+            <td class="td-name">${u.name}</td>
+            <td class="td-mono">${u.username}</td>
+            <td class="td-mono">${u.companyCode}</td>
+            <td>${badge}</td>
+            <td class="td-mono">${d.toLocaleDateString('pt-BR')}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">Excluir</button></td>
+        </tr>`;
+    });
+}
+
+function showAddUserModal() { showModal('add-user-modal'); }
+
+async function addNewUser(event) {
+    event.preventDefault();
+    const name=document.getElementById('user-name').value, username=document.getElementById('user-username').value;
+    const password=document.getElementById('user-password').value, companyCode=document.getElementById('user-company-code').value;
+    const isAdmin=document.getElementById('user-type').value==='admin';
+    if (!/^\d{6}$/.test(companyCode)) { showToast('error','⚠️ Código deve ter 6 números.'); return; }
+    try {
+        const res=await fetch('/api/usuarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,username,password,companyCode,role:isAdmin?'ADMIN_GERAL':'USER'})});
+        if (res.ok) { showToast('success','✅ Usuário cadastrado!'); closeModal('add-user-modal'); event.target.reset(); await loadDatabase(); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+async function deleteUser(userId) {
+    if (userId==='1') { showToast('error','Não é possível excluir o admin principal!'); return; }
+    if (!confirm('Excluir este usuário?')) return;
+    try {
+        const res=await fetch(`/api/usuarios/${userId}`,{method:'DELETE'});
+        if (res.ok) { showToast('success','✅ Usuário excluído!'); await loadDatabase(); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+// ══════════════════════════════════════════════════
+// FERRAMENTAS
+// ══════════════════════════════════════════════════
+function updateToolsTable() {
+    const tbody = document.getElementById('tools-list');
+    if (!database) return;
+    tbody.innerHTML = '';
+    database.tools.forEach(t => {
+        const tq=t.totalQuantity||1, aq=t.availableQuantity||(t.available?1:0);
+        const correctStatus=aq>0?'disponivel':'indisponivel';
+        if (t.status!==correctStatus) t.status=correctStatus;
+        let cls='ok'; if(aq<=0) cls='zero'; else if(aq<=tq*0.2) cls='low';
+        tbody.innerHTML += `<tr>
+            <td class="td-mono">${t.code}</td>
+            <td class="td-name">${t.name}</td>
+            <td class="td-mono">${t.category}</td>
+            <td class="td-num ${cls}">${aq}/${tq} <button class="btn btn-warning btn-sm" style="margin-left:8px" onclick="adjustQuantity('${t.id}')">✏️</button></td>
+            <td>${getStatusPill(t.status)}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteTool('${t.id}')">Excluir</button></td>
+        </tr>`;
+    });
+}
+
+function showAddToolModal() { showModal('add-tool-modal'); }
+
+async function addNewTool(event) {
+    event.preventDefault();
+    const code=document.getElementById('tool-code').value, name=document.getElementById('tool-name').value;
+    const category=document.getElementById('tool-category').value, description=document.getElementById('tool-description').value;
+    const tq=parseInt(document.getElementById('tool-total-quantity').value)||1;
+    const aq=parseInt(document.getElementById('tool-available-quantity').value)||tq;
+    if (aq>tq) { showToast('error','⚠️ Disponível não pode ser maior que total!'); return; }
+    try {
+        const res=await fetch('/api/ferramentas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,name,category,description,totalQuantity:tq,availableQuantity:aq})});
+        if (res.ok) { showToast('success','✅ Ferramenta cadastrada!'); closeModal('add-tool-modal'); event.target.reset(); document.getElementById('tool-total-quantity').value=1; document.getElementById('tool-available-quantity').value=1; await loadDatabase(); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+async function deleteTool(toolId) {
+    if (!confirm('Excluir esta ferramenta?')) return;
+    try {
+        const res=await fetch(`/api/ferramentas/${toolId}`,{method:'DELETE'});
+        if (res.ok) { showToast('success','✅ Ferramenta excluída!'); await loadDatabase(); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+async function adjustQuantity(toolId) {
+    const t=database.tools.find(t=>t.id===toolId); if(!t) return;
+    const tq=t.totalQuantity||1, ca=t.availableQuantity||(t.available?1:0);
+    const nv=prompt(`Ajustar qtd disponível para "${t.name}"\nTotal: ${tq} | Atual: ${ca}\n\nDigite a nova quantidade (0 a ${tq}):`,ca);
+    if (nv===null) return;
+    const aq=parseInt(nv);
+    if (isNaN(aq)||aq<0||aq>tq) { showToast('error',`⚠️ Valor inválido (0–${tq})`); return; }
+    try {
+        const res=await fetch(`/api/ferramentas/${toolId}/quantidade`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({quantidade:aq,tipo:'disponivel'})});
+        if (res.ok) { showToast('success','✅ Quantidade atualizada!'); await loadDatabase(); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+// ══════════════════════════════════════════════════
+// FERRAMENTAL PESSOAL — LÓGICA PRINCIPAL
+// ══════════════════════════════════════════════════
+let fpUsersFiltrados = [];
+
+function loadFerramentalPessoal() {
+    if (!database) return;
+    const fp = database.ferramentalPessoal || [];
+    const hist = database.fpHistorico || [];
+    const users = database.users.filter(u => !u.isAdmin);
+    fpUsersFiltrados = users;
+
+    // ── Conformidade ──
+    const comFP = users.filter(u => fp.some(i => i.userId===u.id && i.status==='posse'));
+    const comPendencia = users.filter(u => fp.some(i => i.userId===u.id && (i.status==='perdida'||i.status==='danificada')));
+    const totalItens = fp.filter(i=>i.status==='posse').reduce((s,i)=>s+(i.quantidade||1),0);
+    document.getElementById('fp-conf-total').textContent = users.length;
+    document.getElementById('fp-conf-ok').textContent = comFP.length;
+    document.getElementById('fp-conf-pendencias').textContent = comPendencia.length;
+    document.getElementById('fp-conf-itens').textContent = totalItens;
+
+    // ── Alertas ──
+    const alertDiv = document.getElementById('fp-alertas');
+    const pendentes = fp.filter(i=>i.status==='perdida'||i.status==='danificada');
+
+    // Verificar termos pendentes e reassinaturas
+    const usersSemTermo = users.filter(u => {
+        const emPosse = fp.filter(i=>i.userId===u.id&&i.status==='posse');
+        return emPosse.length && !u.termoAssinado;
+    });
+    const usersReassinar = users.filter(u => {
+        const emPosse = fp.filter(i=>i.userId===u.id&&i.status==='posse');
+        const assinados = u.termoItensAssinados || [];
+        return u.termoAssinado && emPosse.some(i=>!assinados.includes(i.id));
+    });
+
+    let alertHTML = '';
+    if (pendentes.length) {
+        const msgs = pendentes.map(i=>{ const u=database.users.find(u=>u.id===i.userId); const t=database.tools.find(t=>t.id===i.toolId); return `${u?.name||'?'} — ${t?.name||'?'} (${i.status})`; }).join(' &nbsp;·&nbsp; ');
+        alertHTML += `<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 18px;font-family:var(--font-mono);font-size:.72rem;color:var(--red);margin-bottom:10px">⚠️ <strong>${pendentes.length} pendência(s) de ferramenta:</strong> ${msgs}</div>`;
+    }
+    if (usersSemTermo.length) {
+        alertHTML += `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 18px;font-family:var(--font-mono);font-size:.72rem;color:var(--yellow);margin-bottom:10px">📝 <strong>${usersSemTermo.length} funcionário(s) com termo pendente de assinatura:</strong> ${usersSemTermo.map(u=>u.name).join(', ')}</div>`;
+    }
+    if (usersReassinar.length) {
+        alertHTML += `<div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px 18px;font-family:var(--font-mono);font-size:.72rem;color:var(--accent);margin-bottom:10px">🔄 <strong>${usersReassinar.length} funcionário(s) com novos itens — precisam reassinar:</strong> ${usersReassinar.map(u=>u.name).join(', ')}</div>`;
+    }
+    alertDiv.innerHTML = alertHTML;
+
+    fpRenderUsersTable(users);
+
+    // ── Histórico geral ──
+    const tbody = document.getElementById('fp-historico-body');
+    const sorted = [...hist].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,30);
+    if (!sorted.length) { tbody.innerHTML='<tr><td colspan="6" class="empty-message">Nenhuma movimentação registrada</td></tr>'; return; }
+    tbody.innerHTML = '';
+    sorted.forEach(h => {
+        const u=database.users.find(u=>u.id===h.userId);
+        const t=database.tools.find(t=>t.id===h.toolId);
+        const d=new Date(h.data);
+        const acaoMap={entrega:'<span class="status-pill pill-ok">✅ ENTREGA</span>',devolucao:'<span class="status-pill pill-info">↩️ DEVOLUÇÃO</span>',perda:'<span class="status-pill pill-danger">❌ PERDA</span>',dano:'<span class="status-pill pill-warn">⚠️ DANO</span>',transferencia:'<span class="status-pill pill-maint">🔄 TRANSFER.</span>'};
+        tbody.innerHTML += `<tr>
+            <td class="td-mono">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+            <td class="td-name">${u?.name||'—'}</td>
+            <td>${t?.name||'—'} <span class="td-mono">${h.quantidade>1?'x'+h.quantidade:''}</span></td>
+            <td>${acaoMap[h.acao]||h.acao}</td>
+            <td style="font-size:.75rem;color:var(--text3)">${h.obs||'—'}</td>
+            <td class="td-mono">${h.por||'—'}</td>
+        </tr>`;
+    });
+}
+
+function fpRenderUsersTable(users) {
+    const fp = database.ferramentalPessoal || [];
+    const hist = database.fpHistorico || [];
+    const tbody = document.getElementById('fp-users-body');
+    const countEl = document.getElementById('fp-search-count');
+    if (countEl) countEl.textContent = users.length ? `${users.length} funcionário(s)` : '';
+
+    if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-message">Nenhum funcionário encontrado</td></tr>';
+        return;
+    }
+    tbody.innerHTML = '';
+    users.forEach(u => {
+        const itens = fp.filter(i=>i.userId===u.id);
+        const emPosse = itens.filter(i=>i.status==='posse');
+        const comProblema = itens.filter(i=>i.status==='perdida'||i.status==='danificada');
+        const totalQty = emPosse.reduce((s,i)=>s+(i.quantidade||1),0);
+        const histUser = hist.filter(h=>h.userId===u.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+        const ultimoReg = histUser.length ? new Date(histUser[0].data).toLocaleDateString('pt-BR') : '—';
+        const initials = u.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+        // Status conformidade
+        let conformPill = '';
+        if (comProblema.length) {
+            conformPill = `<span class="status-pill pill-danger">⚠️ ${comProblema.length} PENDÊNCIA</span>`;
+        } else if (emPosse.length) {
+            conformPill = `<span class="status-pill pill-ok">✅ REGULAR</span>`;
+        } else {
+            conformPill = `<span class="status-pill pill-user">SEM ITENS</span>`;
+        }
+
+        // Status do termo
+        const termoAssinado = u.termoAssinado || false;
+        const itensAssinados = u.termoItensAssinados || [];
+        const novosItens = emPosse.filter(i=>!itensAssinados.includes(i.id));
+        const precisaReassinatura = termoAssinado && novosItens.length > 0;
+
+        let termoPill = '';
+        let termoActions = '';
+        if (!emPosse.length) {
+            termoPill = `<span class="status-pill pill-user" style="opacity:.5">N/A</span>`;
+        } else if (!termoAssinado) {
+            termoPill = `<span class="status-pill pill-warn">⏳ PENDENTE</span>`;
+        } else if (precisaReassinatura) {
+            termoPill = `<span class="status-pill pill-warn">🔄 REASSINATURA</span>`;
+            termoActions = `<button class="btn btn-warning btn-sm" title="Novos itens entregues — solicitar reassinatura" onclick="event.stopPropagation();resetarTermo('${u.id}','${u.name}')">Resetar</button>`;
+        } else {
+            const dataAssn = u.termoAssinadoEm ? new Date(u.termoAssinadoEm).toLocaleDateString('pt-BR') : '';
+            termoPill = `<span class="status-pill pill-ok" title="Assinado em ${dataAssn}">✅ ASSINADO</span>`;
+            termoActions = `<button class="btn btn-ghost btn-sm" title="Reimprimir termo" onclick="event.stopPropagation();imprimirTermoAdmin('${u.id}')">🖨️</button>`;
+        }
+
+        tbody.innerHTML += `<tr style="cursor:pointer" onclick="openDetalheModal('${u.id}')">
+            <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <div class="fp-user-row-avatar">${initials}</div>
+                    <div>
+                        <div class="td-name">${u.name}</div>
+                        <div class="td-mono">${u.username}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="td-mono">${u.companyCode}</td>
+            <td>
+                ${totalQty ? `<span style="font-family:var(--font-mono);font-weight:700;color:var(--accent);font-size:.9rem">${totalQty}</span> <span class="td-mono">item${totalQty>1?'s':''}</span>` : '<span class="td-mono" style="color:var(--text3)">—</span>'}
+            </td>
+            <td>${comProblema.length ? `<span style="color:var(--red);font-family:var(--font-mono);font-weight:700">${comProblema.length}</span>` : '<span class="td-mono" style="color:var(--text3)">0</span>'}</td>
+            <td class="td-mono">${ultimoReg}</td>
+            <td>${conformPill}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                    ${termoPill}
+                    ${termoActions}
+                </div>
+            </td>
+            <td onclick="event.stopPropagation()">
+                <button class="btn btn-primary btn-sm" onclick="openDetalheModal('${u.id}')">Ver detalhes</button>
+            </td>
+        </tr>`;
+    });
+}
+
+function fpFiltrarUsuarios() {
+    if (!database) return;
+    const termo = (document.getElementById('fp-search-input')?.value || '').toLowerCase().trim();
+    const users = database.users.filter(u => !u.isAdmin);
+    const filtrados = termo
+        ? users.filter(u => u.name.toLowerCase().includes(termo) || u.companyCode.includes(termo) || u.username.toLowerCase().includes(termo))
+        : users;
+    fpUsersFiltrados = filtrados;
+    fpRenderUsersTable(filtrados);
+}
+
+// ── Modal: Detalhe do funcionário ──
+function fpDetTab(tab) {
+    ['posse','entregar','historico'].forEach(t => {
+        document.getElementById(`fp-det-pane-${t}`).style.display = t===tab ? 'block' : 'none';
+        document.getElementById(`fp-tab-${t}`).classList.toggle('active', t===tab);
+    });
+}
+
+function openDetalheModal(userId) {
+    fpDetalheUserId = userId;
+    const user = database.users.find(u=>u.id===userId);
+    if (!user) return;
+
+    // Cabeçalho
+    const initials = user.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('fp-det-avatar').textContent = initials;
+    document.getElementById('fp-det-titulo').textContent = user.name;
+    document.getElementById('fp-det-codigo').textContent = `// CÓD: ${user.companyCode} · ${user.username}`;
+    document.getElementById('fp-det-nome-inline').textContent = user.name.split(' ')[0];
+
+    // Badge do termo no header
+    const termoAssinado = user.termoAssinado || false;
+    const itensAssinados = user.termoItensAssinados || [];
+    const fpUser = (database.ferramentalPessoal||[]).filter(i=>i.userId===userId&&i.status==='posse');
+    const novosItens = fpUser.filter(i=>!itensAssinados.includes(i.id));
+    const precisaReassinar = termoAssinado && novosItens.length > 0;
+    const codigoEl = document.getElementById('fp-det-codigo');
+    let termoBadge = '';
+    if (!fpUser.length) termoBadge = '';
+    else if (!termoAssinado) termoBadge = ' &nbsp;<span class="status-pill pill-warn" style="font-size:.6rem">⏳ TERMO PENDENTE</span>';
+    else if (precisaReassinar) termoBadge = ' &nbsp;<span class="status-pill pill-warn" style="font-size:.6rem">🔄 REASSINATURA</span>';
+    else { const d=user.termoAssinadoEm?new Date(user.termoAssinadoEm).toLocaleDateString('pt-BR'):''; termoBadge = ` &nbsp;<span class="status-pill pill-ok" style="font-size:.6rem">✅ TERMO ${d}</span>`; }
+    codigoEl.innerHTML = `// CÓD: ${user.companyCode} · ${user.username}${termoBadge}`;
+
+    // Resetar para aba "posse"
+    fpDetTab('posse');
+
+    // Popular aba POSSE
+    fpRenderPosseTab(userId);
+
+    // Popular select de ferramentas na aba ENTREGAR
+    const toolSel = document.getElementById('fp-det-sel-tool');
+    toolSel.innerHTML = '<option value="">Selecione uma ferramenta...</option>';
+    database.tools.forEach(t => {
+        const aq = t.availableQuantity || 0;
+        toolSel.innerHTML += `<option value="${t.id}" data-avail="${aq}">${t.code} — ${t.name} &nbsp;(disp: ${aq})</option>`;
+    });
+    document.getElementById('fp-det-qty').value = 1;
+    document.getElementById('fp-det-serie').value = '';
+    document.getElementById('fp-det-obs-entrega').value = '';
+    document.getElementById('fp-det-tool-hint').textContent = '// Selecione para ver disponibilidade';
+    document.getElementById('fp-det-qty-hint').textContent = '// Disponível: —';
+    document.getElementById('fp-det-ja-possui').style.display = 'none';
+    document.getElementById('fp-det-sem-estoque').style.display = 'none';
+
+    // Popular aba HISTÓRICO
+    const hist = (database.fpHistorico||[]).filter(h=>h.userId===userId).sort((a,b)=>new Date(b.data)-new Date(a.data));
+    const tlDiv = document.getElementById('fp-det-timeline');
+    if (!hist.length) {
+        tlDiv.innerHTML = '<div class="empty-message">Nenhuma movimentação registrada para este funcionário</div>';
+    } else {
+        const tlClassMap={entrega:'tl-entrega',devolucao:'tl-devolucao',perda:'tl-perda',dano:'tl-dano'};
+        const tlIconMap={entrega:'🧰',devolucao:'↩️',perda:'❌',dano:'⚠️',transferencia:'🔄'};
+        tlDiv.innerHTML = hist.map(h => {
+            const t = database.tools.find(t=>t.id===h.toolId);
+            const d = new Date(h.data);
+            return `<div class="timeline-item ${tlClassMap[h.acao]||''}">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-title">${tlIconMap[h.acao]||''} ${h.acao.charAt(0).toUpperCase()+h.acao.slice(1)} — ${t?.name||'?'} (${h.quantidade}x)</div>
+                    <div class="timeline-meta">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR').slice(0,5)} · Por: ${h.por||'—'}${h.obs?' · '+h.obs:''}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    showModal('fp-detalhe-modal');
+}
+
+function fpRenderPosseTab(userId) {
+    const fp = (database.ferramentalPessoal||[]).filter(i=>i.userId===userId);
+    const emPosse = fp.filter(i=>i.status==='posse');
+    const outros = fp.filter(i=>i.status!=='posse');
+    const itensDiv = document.getElementById('fp-det-itens');
+    const countEl = document.getElementById('fp-det-itens-posse-count');
+    const total = emPosse.reduce((s,i)=>s+(i.quantidade||1),0);
+    if (countEl) countEl.textContent = emPosse.length ? `${emPosse.length} tipo(s) de ferramenta · ${total} unidade(s) em posse` : '';
+
+    let html = '';
+    if (emPosse.length) {
+        emPosse.forEach(item => {
+            const t = database.tools.find(t=>t.id===item.toolId);
+            const d = new Date(item.entregueEm);
+            const condColors = {nova:'var(--green)',boa:'var(--accent)',regular:'var(--yellow)',desgastada:'var(--red)'};
+            const condColor = condColors[item.condicao]||'var(--text3)';
+            html += `<div class="fp-posse-item">
+                <div class="fp-posse-icon">🔧</div>
+                <div class="fp-posse-info">
+                    <div class="fp-posse-name">${t?.name||'Ferramenta removida'}</div>
+                    <div class="fp-posse-meta">
+                        <span style="color:var(--text2)">${item.quantidade||1}x</span>
+                        &nbsp;·&nbsp; ${t?.code||'—'}
+                        &nbsp;·&nbsp; <span class="fp-cond-dot" style="background:${condColor}"></span><span style="color:${condColor}">${item.condicao||'—'}</span>
+                        ${item.serie?`&nbsp;·&nbsp; Série: <span style="color:var(--text2)">${item.serie}</span>`:''}
+                        &nbsp;·&nbsp; Entregue em ${d.toLocaleDateString('pt-BR')}
+                        &nbsp;·&nbsp; Por: ${item.entregueBy||'—'}
+                    </div>
+                </div>
+                <div class="fp-posse-actions">
+                    <button class="btn btn-sm btn-warning" title="Registrar devolução/perda/dano" onclick="openOcorrenciaModalFromDetalhe('${item.id}')">⚡ Ocorrência</button>
+                </div>
+            </div>`;
+        });
+    } else {
+        html += '<div class="empty-message" style="padding:24px">Nenhuma ferramenta em posse — use a aba <strong>Entregar Ferramenta</strong> para registrar.</div>';
+    }
+
+    if (outros.length) {
+        html += `<div style="margin-top:16px;font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:1px;margin-bottom:8px">HISTÓRICO DE ITENS</div>`;
+        outros.forEach(item => {
+            const t = database.tools.find(t=>t.id===item.toolId);
+            const pillMap = {perdida:'pill-perdida',danificada:'pill-danificada',devolvida:'pill-devolvida'};
+            const txtMap = {perdida:'PERDIDA',danificada:'DANIFICADA',devolvida:'DEVOLVIDA'};
+            html += `<div class="fp-posse-item" style="opacity:.5">
+                <div class="fp-posse-icon" style="opacity:.5">🔧</div>
+                <div class="fp-posse-info">
+                    <div class="fp-posse-name" style="color:var(--text2)">${t?.name||'?'} — ${item.quantidade||1}x</div>
+                </div>
+                <span class="status-pill ${pillMap[item.status]||'pill-info'}">${txtMap[item.status]||item.status}</span>
+            </div>`;
+        });
+    }
+
+    itensDiv.innerHTML = html;
+}
+
+// Funções da aba ENTREGAR dentro do modal de detalhe
+function fpDetToolChange() {
+    const sel = document.getElementById('fp-det-sel-tool');
+    const toolId = sel.value;
+    const tool = database.tools.find(t=>t.id===toolId);
+    const avail = tool ? (tool.availableQuantity||0) : 0;
+    document.getElementById('fp-det-tool-hint').textContent = tool ? `// Disponível no estoque: ${avail}` : '// Selecione para ver disponibilidade';
+    document.getElementById('fp-det-qty').max = avail;
+    fpDetCheckValidation();
+}
+
+function fpDetQtyChange() { fpDetCheckValidation(); }
+
+function fpDetCheckValidation() {
+    const toolId = document.getElementById('fp-det-sel-tool').value;
+    const qty = parseInt(document.getElementById('fp-det-qty').value)||1;
+    const tool = database.tools.find(t=>t.id===toolId);
+    const avail = tool ? (tool.availableQuantity||0) : 0;
+    const jatem = toolId && fpDetalheUserId && (database.ferramentalPessoal||[]).some(i=>i.userId===fpDetalheUserId&&i.toolId===toolId&&i.status==='posse');
+    document.getElementById('fp-det-qty-hint').textContent = tool ? `// Disponível: ${avail}` : '// Disponível: —';
+    document.getElementById('fp-det-ja-possui').style.display = jatem ? 'block' : 'none';
+    document.getElementById('fp-det-sem-estoque').style.display = (tool && qty > avail) ? 'block' : 'none';
+}
+
+async function confirmarEntregaDetalheFP() {
+    const userId = fpDetalheUserId;
+    const toolId = document.getElementById('fp-det-sel-tool').value;
+    const qty = parseInt(document.getElementById('fp-det-qty').value)||1;
+    const condicao = document.getElementById('fp-det-condicao').value;
+    const serie = document.getElementById('fp-det-serie').value.trim();
+    const obs = document.getElementById('fp-det-obs-entrega').value.trim();
+    if (!userId || !toolId) { showToast('error','Selecione uma ferramenta!'); return; }
+    const tool = database.tools.find(t=>t.id===toolId);
+    if (!tool || (tool.availableQuantity||0) < qty) { showToast('error','Estoque insuficiente!'); return; }
+    const btn = document.querySelector('#fp-det-pane-entregar .btn-primary');
+    if (btn) { btn.disabled=true; btn.textContent='⟳ Salvando...'; }
+    try {
+        const res = await fetch('/api/ferramental-pessoal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId,toolId,quantidade:qty,condicao,serie,obs,entregueBy:currentUser?.name||'ADMIN'})});
+        if (res.ok) {
+            showToast('success',`✅ ${tool.name} entregue!`);
+            await loadDatabase();
+            // Atualizar aba posse sem fechar o modal
+            fpRenderPosseTab(userId);
+            fpDetTab('posse');
+            loadFerramentalPessoal();
+            // Limpar form
+            document.getElementById('fp-det-sel-tool').value='';
+            document.getElementById('fp-det-qty').value=1;
+            document.getElementById('fp-det-serie').value='';
+            document.getElementById('fp-det-obs-entrega').value='';
+            document.getElementById('fp-det-tool-hint').textContent='// Selecione para ver disponibilidade';
+            document.getElementById('fp-det-qty-hint').textContent='// Disponível: —';
+            document.getElementById('fp-det-ja-possui').style.display='none';
+            document.getElementById('fp-det-sem-estoque').style.display='none';
+        } else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+    finally { if(btn){btn.disabled=false;btn.textContent='🧰 Confirmar Entrega';} }
+}
+
+function openOcorrenciaModalFromDetalhe(itemId) {
+    // Fecha detalhe, abre ocorrência (retorna ao detalhe depois)
+    openOcorrenciaModal(itemId);
+}
+
+// ── Modal: Ocorrência (perda/dano/devolução/transferência) ──
+function openOcorrenciaModal(itemId) {
+    const item=(database.ferramentalPessoal||[]).find(i=>i.id===itemId);
+    if (!item) return;
+    const user=database.users.find(u=>u.id===item.userId);
+    const tool=database.tools.find(t=>t.id===item.toolId);
+    document.getElementById('fp-oc-item-id').value=itemId;
+    document.getElementById('fp-oc-title').textContent='Ocorrência — '+( tool?.name||'item');
+    document.getElementById('fp-oc-info').innerHTML=`
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div><div style="font-family:var(--font-mono);font-size:.62rem;color:var(--text3);letter-spacing:1px">FUNCIONÁRIO</div><div style="font-weight:600;color:var(--text)">${user?.name||'—'}</div></div>
+            <div><div style="font-family:var(--font-mono);font-size:.62rem;color:var(--text3);letter-spacing:1px">FERRAMENTA</div><div style="font-weight:600;color:var(--text)">${tool?.name||'—'}</div></div>
+            <div><div style="font-family:var(--font-mono);font-size:.62rem;color:var(--text3);letter-spacing:1px">EM POSSE</div><div style="font-weight:600;color:var(--text)">${item.quantidade||1} unid.</div></div>
+            <div><div style="font-family:var(--font-mono);font-size:.62rem;color:var(--text3);letter-spacing:1px">CONDIÇÃO</div><div style="font-weight:600;color:var(--text)">${item.condicao||'—'}</div></div>
+        </div>`;
+    document.getElementById('fp-oc-tipo').value='devolvida';
+    document.getElementById('fp-oc-qty').value=item.quantidade||1;
+    document.getElementById('fp-oc-qty-hint').textContent=`// Qtd em posse: ${item.quantidade||1}`;
+    document.getElementById('fp-oc-obs').value='';
+    document.getElementById('fp-oc-desconto-aviso').style.display='none';
+    document.getElementById('fp-oc-transfere-row').style.display='none';
+    // Popular select de transferência
+    const ts=document.getElementById('fp-oc-transfere-user');
+    ts.innerHTML='<option value="">Selecione o destinatário...</option>';
+    database.users.filter(u=>!u.isAdmin&&u.id!==item.userId).forEach(u=>{ ts.innerHTML+=`<option value="${u.id}">${u.name}</option>`; });
+    fpOcTipoChange();
+    showModal('fp-ocorrencia-modal');
+}
+
+function fpOcTipoChange() {
+    const tipo=document.getElementById('fp-oc-tipo').value;
+    document.getElementById('fp-oc-desconto-aviso').style.display=(tipo==='perdida'||tipo==='danificada')?'block':'none';
+    document.getElementById('fp-oc-transfere-row').style.display=tipo==='transferida'?'block':'none';
+}
+
+async function confirmarOcorrenciaFP() {
+    const itemId=document.getElementById('fp-oc-item-id').value;
+    const tipo=document.getElementById('fp-oc-tipo').value;
+    const qty=parseInt(document.getElementById('fp-oc-qty').value)||1;
+    const obs=document.getElementById('fp-oc-obs').value.trim();
+    const transfereUserId=document.getElementById('fp-oc-transfere-user').value;
+    if (tipo==='transferida'&&!transfereUserId) { showToast('error','Selecione o destinatário!'); return; }
+    try {
+        const res=await fetch(`/api/ferramental-pessoal/${itemId}/ocorrencia`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo,quantidade:qty,obs,transfereUserId,registradoPor:currentUser?.name||'ADMIN'})});
+        if (res.ok) {
+            showToast('success','✅ Ocorrência registrada!');
+            closeModal('fp-ocorrencia-modal');
+            await loadDatabase();
+            loadFerramentalPessoal();
+            // Re-renderizar aba posse se o modal de detalhe estiver aberto
+            if (fpDetalheUserId) fpRenderPosseTab(fpDetalheUserId);
+        }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+// ── Termo de Responsabilidade ──
+function printTermoResponsabilidade(userId) {
+    const user=database.users.find(u=>u.id===userId);
+    const fp=(database.ferramentalPessoal||[]).filter(i=>i.userId===userId&&i.status==='posse');
+    if (!user) return;
+    const rows=fp.map(item=>{
+        const t=database.tools.find(t=>t.id===item.toolId);
+        const d=new Date(item.entregueEm);
+        return `<tr>
+            <td>${t?.code||'—'}</td>
+            <td>${t?.name||'—'}</td>
+            <td style="text-align:center">${item.quantidade||1}</td>
+            <td>${item.condicao||'—'}</td>
+            <td>${item.serie||'—'}</td>
+            <td>${d.toLocaleDateString('pt-BR')}</td>
+        </tr>`;
+    }).join('');
+    const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Termo de Responsabilidade</title>
+<style>body{font-family:Arial,sans-serif;padding:32px;font-size:13px}h1{font-size:18px;text-align:center;margin-bottom:4px}h2{font-size:14px;text-align:center;color:#555;margin-bottom:24px}
+.info{display:flex;gap:32px;margin-bottom:24px}.info-block{flex:1}.label{font-weight:700;font-size:11px;text-transform:uppercase;color:#888;margin-bottom:2px}.value{font-size:14px;font-weight:600;border-bottom:1px solid #000;padding-bottom:4px}
+table{width:100%;border-collapse:collapse;margin-bottom:32px}th,td{border:1px solid #aaa;padding:7px 10px;font-size:12px}th{background:#f0f0f0;text-align:left}
+.clausulas{font-size:11px;color:#555;line-height:1.6;margin-bottom:32px}
+.assin{display:flex;gap:40px;margin-top:48px}.linha{flex:1;border-top:1px solid #000;padding-top:6px;text-align:center;font-size:12px}
+</style></head><body>
+<h1>TERMO DE RESPONSABILIDADE — FERRAMENTAL PESSOAL</h1>
+<h2>Ferramentaria Industrial</h2>
+<div class="info">
+  <div class="info-block"><div class="label">Funcionário</div><div class="value">${user.name}</div></div>
+  <div class="info-block"><div class="label">Código da Empresa</div><div class="value">${user.companyCode}</div></div>
+  <div class="info-block"><div class="label">Data de Emissão</div><div class="value">${new Date().toLocaleDateString('pt-BR')}</div></div>
+</div>
+<table><thead><tr><th>Código</th><th>Ferramenta</th><th>Qtd</th><th>Condição</th><th>Nº Série/Patrimônio</th><th>Data Entrega</th></tr></thead><tbody>${rows||'<tr><td colspan="6" style="text-align:center">Nenhum item em posse</td></tr>'}</tbody></table>
+<div class="clausulas"><strong>Cláusulas de Responsabilidade:</strong><br>
+1. O funcionário acima identificado declara ter recebido as ferramentas listadas em perfeito estado e nas condições descritas.<br>
+2. O funcionário compromete-se a zelar pela conservação, uso adequado e guarda segura de todos os itens recebidos.<br>
+3. Em caso de perda, extravio ou dano por mau uso, o funcionário poderá ser responsabilizado pelos custos de reposição.<br>
+4. As ferramentas deverão ser devolvidas ao setor de Ferramentaria no ato do desligamento ou quando solicitado pelo responsável.<br>
+5. Qualquer irregularidade verificada deverá ser comunicada imediatamente ao responsável pelo setor.
+</div>
+<div class="assin">
+  <div class="linha">Assinatura do Funcionário</div>
+  <div class="linha">Responsável pela Ferramentaria</div>
+  <div class="linha">Testemunha</div>
+</div>
+<script>window.onload=function(){window.print();}<\/script></body></html>`;
+    const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+// ── Relatório Ferramental Pessoal ──
+function printRelatorioFP() {
+    if (!database) return;
+    const fp=database.ferramentalPessoal||[];
+    const users=database.users.filter(u=>!u.isAdmin);
+    const rows=users.map(u=>{
+        const itens=fp.filter(i=>i.userId===u.id&&i.status==='posse');
+        const probs=fp.filter(i=>i.userId===u.id&&(i.status==='perdida'||i.status==='danificada'));
+        return `<tr>
+            <td>${u.name}</td><td>${u.companyCode}</td>
+            <td style="text-align:center">${itens.reduce((s,i)=>s+(i.quantidade||1),0)}</td>
+            <td style="text-align:center;color:${probs.length?'#dc3545':'#28a745'}">${probs.length?'⚠️ '+probs.length+' pendência(s)':'✅ OK'}</td>
+        </tr>`;
+    }).join('');
+    const html=`<!doctype html><html><head><meta charset="utf-8"><title>Relatório Ferramental Pessoal</title>
+<style>body{font-family:Arial,sans-serif;padding:24px}h1{color:#1a2236;font-size:18px}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ddd;padding:8px;font-size:13px}th{background:#f0f0f0}</style>
+</head><body><h1>Relatório — Ferramental Pessoal</h1><p>Gerado em ${new Date().toLocaleString('pt-BR')}</p>
+<table><thead><tr><th>Funcionário</th><th>Código</th><th>Itens em Posse</th><th>Conformidade</th></tr></thead><tbody>${rows}</tbody></table>
+<br><button onclick="window.print()" style="padding:8px 16px;background:#0a0e1a;color:#fff;border:none;border-radius:4px;cursor:pointer">🖨️ Imprimir</button>
+<script>window.onload=function(){window.print();}<\/script></body></html>`;
+    const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+// ── Resetar termo (Admin) ──
+async function resetarTermo(userId, userName) {
+    if (!confirm(`Resetar o termo de "${userName}"?\n\nIsso solicitará que o funcionário assine novamente no próximo acesso.`)) return;
+    try {
+        const res = await fetch(`/api/ferramental-pessoal/resetar-termo/${userId}`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ resetadoPor: currentUser?.name||'ADMIN' })
+        });
+        if (res.ok) { showToast('success','✅ Termo resetado — funcionário precisará reassinar.'); await loadDatabase(); loadFerramentalPessoal(); }
+        else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+// ── Imprimir termo pelo Admin ──
+function imprimirTermoAdmin(userId) {
+    const user = database.users.find(u=>u.id===userId);
+    if (!user) return;
+    const fp = (database.ferramentalPessoal||[]).filter(i=>i.userId===userId&&i.status==='posse');
+    const termoAssinado = user.termoAssinado || false;
+    const dataAssinatura = user.termoAssinadoEm ? new Date(user.termoAssinadoEm).toLocaleString('pt-BR') : null;
+
+    const rows = fp.map(item=>{
+        const t = database.tools.find(t=>t.id===item.toolId);
+        const d = new Date(item.entregueEm);
+        return `<tr><td>${t?.code||'—'}</td><td>${t?.name||'—'}</td><td style="text-align:center">${item.quantidade||1}</td><td>${item.condicao||'—'}</td><td>${item.serie||'—'}</td><td>${d.toLocaleDateString('pt-BR')}</td></tr>`;
+    }).join('');
+
+    const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Termo — ${user.name}</title>
+<style>body{font-family:Arial,sans-serif;padding:32px;font-size:13px}h1{font-size:18px;text-align:center;margin-bottom:4px}h2{font-size:13px;color:#555;text-align:center;margin-bottom:24px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;border:1px solid #ddd;border-radius:6px;padding:12px}
+.label{font-size:10px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:1px}
+.value{font-size:14px;font-weight:600;border-bottom:1px solid #000;padding-bottom:3px;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #aaa;padding:7px 10px;font-size:12px}th{background:#f0f0f0;text-align:left}
+.clausulas{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:14px;margin-bottom:20px;font-size:11px;color:#444;line-height:1.6}
+.assin-grid{display:flex;gap:32px;margin-top:48px}.assin-linha{flex:1;border-top:1px solid #000;padding-top:6px;text-align:center;font-size:11px;color:#666}
+.stamp{display:block;text-align:center;margin-top:16px;font-weight:700;font-size:11px;letter-spacing:1px;border:2px solid;border-radius:6px;padding:8px 16px;width:fit-content;margin:16px auto}
+.stamp-ok{border-color:#10b981;color:#10b981}.stamp-pend{border-color:#dc3545;color:#dc3545}
+@media print{.no-print{display:none}}</style></head><body>
+<h1>TERMO DE RESPONSABILIDADE — FERRAMENTAL PESSOAL</h1>
+<h2>Ferramentaria Industrial</h2>
+<div class="info-grid">
+  <div><div class="label">Funcionário</div><div class="value">${user.name}</div></div>
+  <div><div class="label">Código</div><div class="value">${user.companyCode}</div></div>
+  <div><div class="label">Data de Emissão</div><div class="value">${new Date().toLocaleDateString('pt-BR')}</div></div>
+</div>
+<div class="clausulas"><strong>Cláusulas de Responsabilidade:</strong><br>
+1. Declaro ter recebido os itens listados em perfeito estado e nas condições descritas.<br>
+2. Comprometo-me a zelar pela conservação, uso adequado e guarda segura de todos os itens.<br>
+3. Em caso de perda, extravio ou dano por mau uso, poderei ser responsabilizado pelos custos de reposição.<br>
+4. Os itens deverão ser devolvidos no ato do desligamento ou quando solicitado pelo responsável.<br>
+5. Qualquer irregularidade deverá ser comunicada imediatamente ao responsável pelo setor.
+</div>
+<table><thead><tr><th>Código</th><th>Ferramenta</th><th>Qtd</th><th>Condição</th><th>Nº Série / Patrimônio</th><th>Data Entrega</th></tr></thead>
+<tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:#999">Nenhum item registrado</td></tr>'}</tbody></table>
+<div style="font-size:12px;color:#555;margin-bottom:8px">
+${termoAssinado ? `<strong>✅ Assinado digitalmente</strong> por <strong>${user.name}</strong> em <strong>${dataAssinatura}</strong>` : `<strong style="color:#dc3545">⚠️ PENDENTE DE ASSINATURA</strong> — Este documento ainda não foi assinado pelo funcionário.`}
+</div>
+<div class="assin-grid">
+  <div class="assin-linha">Assinatura do Funcionário<br><small>${user.name} · ${user.companyCode}</small></div>
+  <div class="assin-linha">Responsável pela Ferramentaria</div>
+  <div class="assin-linha">Testemunha</div>
+</div>
+<span class="stamp ${termoAssinado?'stamp-ok':'stamp-pend'}">${termoAssinado?`ASSINADO DIGITALMENTE · ${dataAssinatura}`:'AGUARDANDO ASSINATURA DIGITAL'}</span>
+<br><div class="no-print" style="text-align:center;margin-top:20px">
+<button onclick="window.print()" style="padding:10px 24px;background:#0099cc;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨️ Imprimir</button>
+<button onclick="window.close()" style="padding:10px 24px;background:#555;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:10px">✕ Fechar</button>
+</div>
+<script>window.onload=function(){window.print();}<\/script></body></html>`;
+    const w = window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+// ══════════════════════════════════════════════════
+// REQUISIÇÕES DE MATERIAL
+// ══════════════════════════════════════════════════
+async function refreshMaterialRequests() { await loadDatabase(); updateMaterialRequestsTable(); }
+
+function updateMaterialRequestsTable() {
+    const tbody=document.getElementById('material-requests-body'); if(!tbody) return;
+    const list=Array.isArray(database.materialRequests)?database.materialRequests:[];
+    const sorted=[...list].sort((a,b)=>new Date(b.criadoEm)-new Date(a.criadoEm));
+    if (!sorted.length) { tbody.innerHTML='<tr><td colspan="6" class="empty-message">Nenhuma requisição encontrada</td></tr>'; return; }
+    tbody.innerHTML='';
+    sorted.forEach(req => {
+        const s=req.status||'pendente';
+        const pill=s==='pendente'?'<span class="status-pill rpill-pendente">⏳ PENDENTE</span>':s==='aprovado'?'<span class="status-pill pill-ok">✅ APROVADO</span>':'<span class="status-pill pill-danger">❌ REJEITADO</span>';
+        const dt=req.criadoEm?new Date(req.criadoEm):null;
+        const dtTxt=dt?`${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR').slice(0,5)}`:'-';
+        tbody.innerHTML+=`<tr>
+            <td><div class="td-name">${req.solicitanteNome||'-'}</div><div class="td-mono">${req.solicitanteCodigo||''}</div></td>
+            <td>${req.material||'-'}</td>
+            <td class="td-mono">${req.quantidade||'1'} ${req.unidade||'UN'}</td>
+            <td class="td-mono">${dtTxt}</td>
+            <td>${pill}</td>
+            <td><button class="btn btn-primary btn-sm" onclick="openMaterialRequest('${req.id}')">Abrir</button></td>
+        </tr>`;
+    });
+}
+
+function openMaterialRequest(id) {
+    const list=Array.isArray(database.materialRequests)?database.materialRequests:[];
+    const req=list.find(r=>r.id===id); if(!req) { showToast('error','Requisição não encontrada'); return; }
+    selectedMaterialRequestId=id;
+    document.getElementById('mr-id').value=req.id;
+    document.getElementById('mr-solicitante').value=req.solicitanteNome||'';
+    document.getElementById('mr-codigo').value=req.solicitanteCodigo||'';
+    document.getElementById('mr-quantidade').value=req.quantidade||'1';
+    document.getElementById('mr-unidade').value=req.unidade||'UN';
+    document.getElementById('mr-codigo-material').value=req.codigoMaterial||'';
+    document.getElementById('mr-material').value=req.material||'';
+    document.getElementById('mr-aplicacao').value=req.aplicacao||'';
+    const dt=req.criadoEm?new Date(req.criadoEm):null;
+    document.getElementById('mr-data-solicitacao').value=dt?`${dt.toLocaleDateString('pt-BR')} ${dt.toLocaleTimeString('pt-BR').slice(0,5)}`:'';
+    document.getElementById('mr-data-liberacao').value=req.dataLiberacao||new Date().toISOString().split('T')[0];
+    document.getElementById('mr-observacao').value=req.observacaoAlmox||'';
+    showModal('material-request-modal');
+}
+
+async function approveAndPrintMaterialRequest(event) {
+    event.preventDefault();
+    if (!selectedMaterialRequestId) { showToast('error','Nenhuma requisição selecionada'); return; }
+    const payload={status:'aprovado',codigoMaterial:document.getElementById('mr-codigo-material').value||'',dataLiberacao:document.getElementById('mr-data-liberacao').value||'',observacaoAlmox:document.getElementById('mr-observacao').value||'',aprovadoPor:currentUser?.name||'ADMIN'};
+    try {
+        const res=await fetch('/api/requisicoes-material/'+selectedMaterialRequestId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if (!res.ok) { const e=await res.json().catch(()=>({})); showToast('error',e.message||'Erro ao aprovar'); return; }
+        const result=await res.json();
+        showToast('success','✅ Requisição aprovada!');
+        await loadDatabase(); updateMaterialRequestsTable();
+        printMaterialRequest(result.request);
+        closeModal('material-request-modal');
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+async function rejectMaterialRequest() {
+    if (!selectedMaterialRequestId) { showToast('error','Nenhuma requisição selecionada'); return; }
+    if (!confirm('Deseja REJEITAR esta requisição?')) return;
+    try {
+        const res=await fetch('/api/requisicoes-material/'+selectedMaterialRequestId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'rejeitado',aprovadoPor:currentUser?.name||'ADMIN',observacaoAlmox:document.getElementById('mr-observacao').value||''})});
+        if (res.ok) { showToast('warning','⚠️ Requisição rejeitada'); closeModal('material-request-modal'); await loadDatabase(); updateMaterialRequestsTable(); }
+        else { const e=await res.json().catch(()=>({})); showToast('error',e.message||'Erro'); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+function printMaterialRequest(req) {
+    const dtS=req.criadoEm?new Date(req.criadoEm):null;
+    const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Requisição de Material</title>
+<style>body{font-family:Arial,sans-serif;padding:24px}.box{border:2px solid #000;padding:16px}h1{font-size:18px;margin:0 0 12px;text-align:center}.row{display:flex;gap:16px;margin-bottom:10px}.col{flex:1}.label{font-weight:700;font-size:12px}.value{border:1px solid #000;padding:8px;min-height:18px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #000;padding:8px;font-size:12px}th{background:#f2f2f2}.assin{margin-top:24px;display:flex;gap:24px}.linha{flex:1;border-top:1px solid #000;padding-top:6px;text-align:center;font-size:12px}</style>
+</head><body><div class="box"><h1>REQUISIÇÃO DE MATERIAL</h1>
+<div class="row"><div class="col"><div class="label">Solicitante</div><div class="value">${req.solicitanteNome||''}</div></div><div class="col"><div class="label">Código</div><div class="value">${req.solicitanteCodigo||''}</div></div></div>
+<div class="row"><div class="col"><div class="label">Material</div><div class="value">${req.material||''}</div></div><div class="col"><div class="label">Código Material</div><div class="value">${req.codigoMaterial||''}</div></div></div>
+<div class="row"><div class="col"><div class="label">Quantidade</div><div class="value">${req.quantidade||1} ${req.unidade||'UN'}</div></div><div class="col"><div class="label">Data Solicitação</div><div class="value">${dtS?dtS.toLocaleDateString('pt-BR'):''}</div></div><div class="col"><div class="label">Data Liberação</div><div class="value">${req.dataLiberacao||''}</div></div></div>
+<div class="row"><div class="col"><div class="label">Aplicação</div><div class="value">${req.aplicacao||''}</div></div></div>
+<div class="row"><div class="col"><div class="label">Observação Almox</div><div class="value">${req.observacaoAlmox||''}</div></div></div>
+<div class="assin"><div class="linha">Solicitante</div><div class="linha">Almoxarife / Admin</div><div class="linha">Responsável</div></div>
+</div><br><button onclick="window.print()" style="padding:8px 16px;background:#1e3c72;color:#fff;border:none;border-radius:4px;cursor:pointer">🖨️ Imprimir</button>
+<script>window.onload=function(){window.print();}<\/script></body></html>`;
+    const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+async function downloadLoansPDF() {
+    try {
+        const res=await fetch('/api/relatorio-ferramentas');
+        if (!res.ok) { showToast('error','❌ Erro ao gerar relatório'); return; }
+        const report=await res.json();
+        let html=`<!doctype html><html><head><meta charset="utf-8"><title>Relatório</title>
+<style>body{font-family:Arial,sans-serif;padding:24px}h1{color:#1e3c72}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f5f5f5}
+.sa{background:#d4edda;color:#155724;padding:2px 8px;border-radius:4px;font-size:.8rem}.su{background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:4px;font-size:.8rem}
+</style></head><body><h1>Relatório de Ferramentas</h1><p>Gerado em: ${new Date().toLocaleString('pt-BR')}</p><table>
+<thead><tr><th>Nome</th><th>Código</th><th>Total</th><th>Disponível</th><th>Emprestado</th><th>Status</th></tr></thead><tbody>`;
+        report.ferramentas.forEach(f=>{
+            const sc=f.disponivel>0?'sa':'su', st=f.disponivel>0?'DISPONÍVEL':'INDISPONÍVEL';
+            html+=`<tr><td>${f.nome}</td><td>${f.codigo}</td><td style="text-align:center">${f.total}</td><td style="text-align:center">${f.disponivel}</td><td style="text-align:center">${f.emprestado}</td><td><span class="${sc}">${st}</span></td></tr>`;
+        });
+        html+=`</tbody></table><br><button onclick="window.print()" style="padding:8px 16px;background:#1e3c72;color:#fff;border:none;border-radius:4px;cursor:pointer">🖨️ Imprimir</button></body></html>`;
+        const w=window.open('','_blank'); w.document.write(html); w.document.close();
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+}
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function getStatusPill(status) {
+    const map={'emprestado':['pill-warn','EMPRESTADO'],'devolvido':['pill-ok','DEVOLVIDO'],'nao-entregue':['pill-danger','NÃO ENTREGUE'],'quebrado':['pill-danger','QUEBRADO'],'disponivel':['pill-ok','DISPONÍVEL'],'indisponivel':['pill-danger','INDISPONÍVEL'],'manutencao':['pill-maint','MANUTENÇÃO']};
+    const [cls,txt]=map[status]||['pill-info',status];
+    return `<span class="status-pill ${cls}">${txt}</span>`;
+}
+
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+let toastTimer;
+function showToast(type,msg) {
+    const t=document.getElementById('toast');
+    document.getElementById('toastMsg').textContent=msg;
+    t.className=`toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function showMessage(msg,type) { showToast(type==='success'?'success':type==='error'?'error':'warning',msg); }
+
+function updateTime() {
+    const el=document.getElementById('current-time');
+    const now=new Date();
+    if (el) el.textContent=`${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen();
+}
+
+function logout() {
+    if (confirm('Deseja sair do sistema?')) {
+        sessionStorage.removeItem('currentUser'); localStorage.removeItem('currentUser');
+        window.location.href='/login.html';
+    }
+}
+</script>
+</body>
+</html>

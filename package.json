@@ -1,30 +1,17 @@
-﻿{
+{
   "name": "sistema-ferramentaria",
   "version": "1.0.0",
   "description": "Sistema de Controle de Empréstimo de Ferramentas",
-  "main": "main.js",
+  "main": "Server.js",
+  "scripts": {
+    "start": "node Server.js"
+  },
   "author": "Empresa",
   "license": "MIT",
-  "scripts": {
-    "start": "electron .",
-    "build": "electron-builder"
-  },
   "dependencies": {
-    "electron": "^28.0.0",
-    "bcryptjs": "^2.4.3"
-  },
-  "devDependencies": {
-    "electron-builder": "^24.0.0"
-  },
-  "build": {
-    "appId": "com.ferramentaria.controle",
-    "productName": "Controle de Ferramentas",
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "target": "nsis",
-      "icon": "assets/icon.ico"
-    }
+    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7"
   }
 }

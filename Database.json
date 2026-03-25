@@ -1,0 +1,187 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "$2a$10$hDkZNcq7Ru5LN03FrZl3sefx5zYDH.rGWDZRdL19zyUNn1NBFPT5y",
+      "name": "Administrador",
+      "companyCode": "000000",
+      "role": "ADMIN_GERAL",
+      "isAdmin": true,
+      "createdAt": "2026-03-17T11:17:20.966Z"
+    },
+    {
+      "id": "2",
+      "username": "cnc",
+      "password": "$2a$10$skoUWaGSR4xerd0Z0Tl/2eCGF7QXWy.36mSaj.y7wSXguSu8IoaBK",
+      "name": "Lider CNC",
+      "companyCode": "111111",
+      "role": "LIDER_CNC",
+      "isAdmin": false,
+      "createdAt": "2026-03-17T11:17:21.060Z"
+    },
+    {
+      "id": "1773931616695",
+      "username": "Luan Prado",
+      "password": "$2a$10$DON.PX8zf6XfR1srL0KqVOLzhZgB1aoksQ5IEw04HLMOv1SODxMSq",
+      "name": "Luan Henrique Coelho Prado",
+      "companyCode": "800286",
+      "role": "USER",
+      "isAdmin": false,
+      "createdAt": "2026-03-19T14:46:56.696Z",
+      "termoAssinado": true,
+      "termoAssinadoEm": "2026-03-20T14:03:35.524Z",
+      "termoItensAssinados": [
+        "1774015390203"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "1",
+      "code": "F001",
+      "name": "Martelo",
+      "category": "Ferramenta Manual",
+      "totalQuantity": 5,
+      "availableQuantity": 4,
+      "status": "disponivel",
+      "setor": "GERAL"
+    },
+    {
+      "id": "2",
+      "code": "F002",
+      "name": "Chave de Fenda",
+      "category": "Ferramenta Manual",
+      "totalQuantity": 8,
+      "availableQuantity": 7,
+      "status": "disponivel",
+      "setor": "GERAL"
+    },
+    {
+      "id": "3",
+      "code": "F003",
+      "name": "Alicate",
+      "category": "Ferramenta Manual",
+      "totalQuantity": 4,
+      "availableQuantity": 4,
+      "status": "disponivel",
+      "setor": "CNC"
+    }
+  ],
+  "loans": [
+    {
+      "id": "1773943140979",
+      "userId": "1773931616695",
+      "toolId": "1",
+      "borrowedAt": "2026-03-19T17:59:00.980Z",
+      "returnedAt": "2026-03-20T12:31:39.666Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    },
+    {
+      "id": "1774009958841",
+      "userId": "1773931616695",
+      "toolId": "1",
+      "borrowedAt": "2026-03-20T12:32:38.842Z",
+      "returnedAt": "2026-03-20T12:35:48.250Z",
+      "status": "devolvido",
+      "notes": "",
+      "returnedBy": null
+    }
+  ],
+  "materialRequests": [
+    {
+      "id": "1773959568116",
+      "solicitanteNome": "Luan Henrique Coelho Prado",
+      "solicitanteCodigo": "800286",
+      "quantidade": "1",
+      "unidade": "UN",
+      "codigoMaterial": "",
+      "material": "thinner",
+      "aplicacao": "",
+      "status": "pendente",
+      "criadoEm": "2026-03-19T22:32:48.117Z",
+      "aprovadoPor": "",
+      "dataLiberacao": "",
+      "observacaoAlmox": "",
+      "atualizadoEm": null
+    },
+    {
+      "id": "1774010008401",
+      "solicitanteNome": "Luan Henrique Coelho Prado",
+      "solicitanteCodigo": "",
+      "quantidade": "1",
+      "unidade": "UN",
+      "codigoMaterial": "",
+      "material": "thinner",
+      "aplicacao": "",
+      "status": "rejeitado",
+      "criadoEm": "2026-03-20T12:33:28.401Z",
+      "aprovadoPor": "Administrador",
+      "dataLiberacao": "2026-03-20",
+      "observacaoAlmox": "",
+      "atualizadoEm": "2026-03-20T12:34:34.381Z"
+    }
+  ],
+  "ferramentalPessoal": [
+    {
+      "id": "1774015148662",
+      "userId": "2",
+      "toolId": "1",
+      "quantidade": 1,
+      "condicao": "nova",
+      "serie": "",
+      "obs": "",
+      "status": "posse",
+      "entregueEm": "2026-03-20T13:59:08.662Z",
+      "entregueBy": "Administrador",
+      "atualizadoEm": "2026-03-20T13:59:08.662Z"
+    },
+    {
+      "id": "1774015390203",
+      "userId": "1773931616695",
+      "toolId": "2",
+      "quantidade": 1,
+      "condicao": "nova",
+      "serie": "",
+      "obs": "",
+      "status": "posse",
+      "entregueEm": "2026-03-20T14:03:10.203Z",
+      "entregueBy": "Administrador",
+      "atualizadoEm": "2026-03-20T14:03:10.203Z"
+    }
+  ],
+  "fpHistorico": [
+    {
+      "id": "1774015148662_h",
+      "userId": "2",
+      "toolId": "1",
+      "acao": "entrega",
+      "quantidade": 1,
+      "obs": "Entrega inicial — condição: nova",
+      "por": "Administrador",
+      "data": "2026-03-20T13:59:08.662Z"
+    },
+    {
+      "id": "1774015390203_h",
+      "userId": "1773931616695",
+      "toolId": "2",
+      "acao": "entrega",
+      "quantidade": 1,
+      "obs": "Entrega inicial — condição: nova",
+      "por": "Administrador",
+      "data": "2026-03-20T14:03:10.203Z"
+    },
+    {
+      "id": "1774015415524_assn",
+      "userId": "1773931616695",
+      "toolId": null,
+      "acao": "assinatura",
+      "quantidade": 1,
+      "obs": "Termo de responsabilidade assinado digitalmente — 1 tipo(s) de ferramenta",
+      "por": "Luan Henrique Coelho Prado",
+      "data": "2026-03-20T14:03:35.524Z"
+    }
+  ]
+}

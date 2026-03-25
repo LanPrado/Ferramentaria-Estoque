@@ -1,0 +1,47 @@
+/* No seu <style> dentro do Index.html */
+
+/* 1. Remova larguras fixas do body e container */
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* Evita barra de rolagem horizontal no celular */
+    min-width: auto; 
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column; /* No celular, o menu fica em cima */
+    width: 100%;
+    min-width: auto;
+}
+
+.sidebar {
+    width: 100%;
+    height: auto;
+    position: relative; /* Sidebar vira um topo no mobile */
+    margin-left: 0;
+}
+
+.main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+}
+
+/* 2. Configuração para Computador (Telas maiores que 768px) */
+@media (min-width: 768px) {
+    .app-container {
+        flex-direction: row; /* Volta a ser lado a lado */
+    }
+    
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+    }
+    
+    .main-content {
+        margin-left: 280px;
+        width: calc(100vw - 280px);
+    }
+}

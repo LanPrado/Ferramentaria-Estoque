@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferramenteiro - Requisição de Material</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e7e34, #28a745);
+            color: white;
+            padding: 20px 25px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .info-user {
+            background: #e8f5e9;
+            border-left: 6px solid #28a745;
+            padding: 15px 20px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e7e34;
+        }
+
+        .user-role {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tabela {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        .tabela th {
+            background: #f8f9fa;
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tabela td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .select-qtd {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .select-material {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+        }
+
+        .input-material {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+
+        .btn-add {
+            background: none;
+            border: 1px dashed #28a745;
+            color: #28a745;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-remove {
+            background: none;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-remove:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .aplicacao {
+            margin-top: 25px;
+        }
+
+        .aplicacao label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #212529;
+        }
+
+        .textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .datas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .data-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .data-box-solicitante {
+            border-left: 4px solid #28a745;
+        }
+
+        .data-box-almox {
+            background: #f8f9fa;
+            border-left: 4px solid #6c757d;
+        }
+
+        .data-titulo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .badge-verde {
+            background: #d4edda;
+            color: #155724;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+        }
+
+        .badge-cinza {
+            background: #e2e3e5;
+            color: #383d41;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+        }
+
+        .campo-data {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        .campo-data:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+
+        .campo-data[disabled] {
+            background: #e9ecef;
+        }
+
+        .acoes {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .btn-outline:hover {
+            background: #6c757d;
+            color: white;
+        }
+
+        .info-footer {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            color: #856404;
+            font-size: 0.85rem;
+            border-left: 4px solid #ffc107;
+        }
+
+        .contador {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>📋 REQUISIÇÃO DE MATERIAL</h1>
+                <p>Material Improdutivo - Ferramenteiro</p>
+                <span class="badge">🔧 MÓDULO DO FERRAMENTEIRO</span>
+            </div>
+
+            <div class="content">
+                <!-- DADOS DO FERRAMENTEIRO -->
+                <div class="info-user">
+                    <div>
+                        <span class="user-name" id="nome-ferramenteiro">João Silva</span>
+                        <div style="color: #6c757d; font-size: 0.85rem; margin-top: 4px;">
+                            Código: <span id="codigo-ferramenteiro">F101</span> • Setor: Manutenção
+                        </div>
+                    </div>
+                    <div class="user-role">FERRAMENTEIRO</div>
+                </div>
+
+                <!-- FORMULÁRIO -->
+                <form id="formRequisicao">
+                    <!-- TABELA DE MATERIAIS -->
+                    <table class="tabela">
+                        <thead>
+                            <tr>
+                                <th>QTD</th>
+                                <th>UN</th>
+                                <th>CÓDIGO</th>
+                                <th>MATERIAL</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-materiais">
+                            <tr class="linha-material">
+                                <td>
+                                    <select class="select-qtd" name="quantidade[]">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="select-qtd" name="unidade[]">
+                                        <option value="UN">UN</option>
+                                        <option value="PC">PC</option>
+                                        <option value="CX">CX</option>
+                                        <option value="MT">MT</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="select-material" name="codigo[]" onchange="preencherDescricao(this)">
+                                        <option value="">Selecione</option>
+                                        <option value="F001">F001 - Chave Inglesa 12"</option>
+                                        <option value="F002">F002 - Alicate Universal</option>
+                                        <option value="F003">F003 - Martelo 500g</option>
+                                        <option value="F004">F004 - Chave Phillips</option>
+                                        <option value="F005">F005 - Chave Fenda 6mm</option>
+                                        <option value="F006">F006 - Trena 5m</option>
+                                        <option value="F007">F007 - Broca Aço 8mm</option>
+                                        <option value="F008">F008 - Parafuso M8</option>
+                                        <option value="F009">F009 - Porca M8</option>
+                                        <option value="F010">F010 - Arruela M8</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="input-material" name="material[]" readonly placeholder="Descrição">
+                                </td>
+                                <td>
+                                    <button type="button" class="btn-remove" onclick="removerLinha(this)">✕</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ADICIONAR MAIS -->
+                    <div style="margin-bottom: 20px;">
+                        <button type="button" class="btn-add" onclick="adicionarLinha()">
+                            + Adicionar material
+                        </button>
+                        <span style="margin-left: 15px; color: #28a745; font-weight: 600;" id="total-itens">1 itens</span>
+                    </div>
+
+                    <!-- APLICAÇÃO -->
+                    <div class="aplicacao">
+                        <label>🔧 APLICAÇÃO (para qual serviço?)</label>
+                        <textarea class="textarea" id="aplicacao" name="aplicacao" 
+                            placeholder="Ex: Manutenção da prensa hidráulica - Setor A2" required></textarea>
+                    </div>
+
+                    <!-- DATAS -->
+                    <div class="datas">
+                        <!-- SOLICITANTE - FERRAMENTEIRO PREENCHE -->
+                        <div class="data-box data-box-solicitante">
+                            <div class="data-titulo">
+                                <span>👤 SOLICITANTE</span>
+                                <span class="badge-verde">VOCÊ PREENCHE</span>
+                            </div>
+                            <div style="margin-bottom: 10px; font-weight: 500; color: #28a745;">
+                                João Silva - F101
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem;">Data da solicitação</label>
+                                <input type="date" class="campo-data" id="data-solicitacao" name="data_solicitacao">
+                            </div>
+                        </div>
+
+                        <!-- ALMOXARIFADO - SOMENTE VISUALIZAÇÃO -->
+                        <div class="data-box data-box-almox">
+                            <div class="data-titulo">
+                                <span>📦 ALMOXARIFADO</span>
+                                <span class="badge-cinza">ADM PREENCHE</span>
+                            </div>
+                            <div style="padding: 12px; background: white; border-radius: 6px; color: #6c757d; text-align: center; font-style: italic;">
+                                ⏳ Aguardando liberação do Administrador
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <input type="date" class="campo-data" disabled value="____-__-__">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÕES -->
+                    <div class="acoes">
+                        <button type="button" class="btn btn-outline" onclick="window.print()">
+                            🖨️ Imprimir
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            📤 Enviar Requisição
+                        </button>
+                    </div>
+
+                    <!-- INFORMAÇÃO -->
+                    <div class="info-footer">
+                        <strong>ⓘ Importante:</strong> Esta requisição será enviada para o Administrador. 
+                        Ele fará a liberação no almoxarifado.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DADOS DO FERRAMENTEIRO ==========
+        const ferramenteiro = {
+            nome: 'João Silva',
+            codigo: 'F101'
+        };
+
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('nome-ferramenteiro').textContent = ferramenteiro.nome;
+            document.getElementById('codigo-ferramenteiro').textContent = ferramenteiro.codigo;
+            
+            // Data atual
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data-solicitacao').value = hoje;
+            
+            atualizarContador();
+        });
+
+        // ========== FUNÇÕES DOS MATERIAIS ==========
+        function preencherDescricao(select) {
+            const row = select.closest('tr');
+            const input = row.querySelector('input[name="material[]"]');
+            
+            if (select.value) {
+                const texto = select.options[select.selectedIndex].text;
+                input.value = texto.split(' - ')[1];
+            } else {
+                input.value = '';
+            }
+        }
+
+        function adicionarLinha() {
+            const tbody = document.getElementById('tbody-materiais');
+            const novaLinha = document.querySelector('.linha-material').cloneNode(true);
+            
+            // Limpar valores
+            novaLinha.querySelector('select[name="codigo[]"]').value = '';
+            novaLinha.querySelector('input[name="material[]"]').value = '';
+            novaLinha.querySelector('.select-qtd').value = '1';
+            
+            tbody.appendChild(novaLinha);
+            atualizarContador();
+        }
+
+        function removerLinha(botao) {
+            const tbody = document.getElementById('tbody-materiais');
+            if (tbody.children.length > 1) {
+                botao.closest('tr').remove();
+                atualizarContador();
+            } else {
+                alert('Mantenha pelo menos um material');
+            }
+        }
+
+        function atualizarContador() {
+            const total = document.querySelectorAll('.linha-material').length;
+            document.getElementById('total-itens').textContent = total + ' itens';
+        }
+
+        // ========== ENVIO DO FORMULÁRIO ==========
+        document.getElementById('formRequisicao').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validar aplicação
+            if (!document.getElementById('aplicacao').value) {
+                alert('Descreva a aplicação do material');
+                return;
+            }
+            
+            // Coletar dados
+            const materiais = [];
+            document.querySelectorAll('.linha-material').forEach(row => {
+                const codigo = row.querySelector('select[name="codigo[]"]').value;
+                if (codigo) {
+                    materiais.push({
+                        quantidade: row.querySelector('select[name="quantidade[]"]').value,
+                        unidade: row.querySelector('select[name="unidade[]"]').value,
+                        codigo: codigo,
+                        descricao: row.querySelector('input[name="material[]"]').value
+                    });
+                }
+            });
+
+            if (materiais.length === 0) {
+                alert('Selecione pelo menos um material');
+                return;
+            }
+
+            const requisicao = {
+                ferramenteiro: ferramenteiro.nome,
+                codigo: ferramenteiro.codigo,
+                data: document.getElementById('data-solicitacao').value,
+                aplicacao: document.getElementById('aplicacao').value,
+                materiais: materiais,
+                status: 'Aguardando Aprovação',
+                dataEnvio: new Date().toLocaleString()
+            };
+
+            // Salvar (simulação)
+            const historico = JSON.parse(localStorage.getItem('requisicoes') || '[]');
+            historico.push(requisicao);
+            localStorage.setItem('requisicoes', JSON.stringify(historico));
+
+            alert('✅ Requisição enviada com sucesso!\nAguardando liberação do Administrador.');
+            
+            // Limpar formulário
+            this.reset();
+            
+            // Resetar data
+            document.getElementById('data-solicitacao').value = new Date().toISOString().split('T')[0];
+            
+            // Manter só uma linha
+            const tbody = document.getElementById('tbody-materiais');
+            tbody.innerHTML = tbody.children[0].outerHTML;
+            atualizarContador();
+        });
+    </script>
+</body>
+</html>

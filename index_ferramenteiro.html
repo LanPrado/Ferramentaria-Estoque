@@ -3,1240 +3,967 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Ferramental - Ferramenteiro</title>
-    <!-- MESMO CSS DO SEU ORIGINAL -->
+    <title>Ferramenteiro — Ferramentaria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* RESET E CONFIGURAÇÕES GERAIS */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            min-width: 1280px;
-            min-height: 720px;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-        }
-        
-        /* CONTAINER PRINCIPAL */
-        .app-container {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-            min-width: 1280px;
-            min-height: 720px;
-            overflow: hidden;
-        }
-        
-        /* SIDEBAR */
-        .sidebar {
-            width: 280px;
-            min-width: 280px;
-            background: linear-gradient(180deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            height: 100vh;
-            overflow-y: auto;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .user-info {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .user-avatar {
-            width: 60px;
-            height: 60px;
-            background: white;
-            color: #28a745;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 0 auto 15px;
-        }
-        
-        .user-details h3 {
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-        
-        .user-details p {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .user-badge {
-            display: inline-block;
-            background: #ffc107;
-            color: #333;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            margin-top: 5px;
-        }
-        
-        .nav-menu {
-            list-style: none;
-            padding: 0 15px;
-        }
-        
-        .nav-item {
-            margin-bottom: 5px;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            color: rgba(255,255,255,0.9);
-            text-decoration: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background-color: rgba(255,255,255,0.15);
-            color: white;
-        }
-        
-        /* NOVO CSS PARA QUANTIDADE */
-        .quantity-info {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .quantity-available {
-            color: #28a745;
-            font-weight: bold;
-        }
-        
-        .quantity-unavailable {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        
-        /* CONTEÚDO PRINCIPAL */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            margin-left: 280px;
-            width: calc(100vw - 280px);
-            height: 100vh;
-            min-width: 1000px;
-            background-color: #f5f7fa;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .header h2 {
-            color: #28a745;
-            font-size: 1.8rem;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        /* BOTÕES */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #218838;
-        }
-        
-        .btn-success {
-            background-color: #20c997;
-            color: white;
-        }
-        
-        .btn-warning {
-            background-color: #ffc107;
-            color: #333;
-        }
-        
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .btn-logout {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .btn-logout:hover {
-            background-color: #5a6268;
-        }
-        
-        /* CARDS */
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            min-width: 250px;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .card-icon {
-            font-size: 2rem;
-        }
-        
-        .card-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .card-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        /* TABELAS */
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            overflow-x: auto;
-            min-width: 800px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-        
-        th {
-            background-color: #f8f9fa;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #555;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-        
-        /* BADGES DE STATUS */
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-block;
-        }
-        
-        .badge-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .badge-warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
-        .badge-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .badge-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        .badge-secondary {
-            background-color: #e2e3e5;
-            color: #383d41;
-        }
-        
-        /* FORMULÁRIOS */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #555;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            min-width: 200px;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #28a745;
-        }
-        
-        /* LOADING */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #28a745;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* VIEWS */
-        .view {
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-        }
-        
-        /* MENSAGENS */
-        .empty-message {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.1rem;
-        }
-        
-        /* RESPONSIVIDADE */
-        @media (max-width: 1279px) {
-            .app-container {
-                min-width: 100%;
-                overflow-x: auto;
-            }
-            
-            .main-content {
-                min-width: 1000px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                min-width: 100%;
-            }
-            
-            .stats-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .table-container {
-                min-width: 100%;
-            }
-            
-            table {
-                min-width: 600px;
-            }
-        }
+:root {
+  --bg:#0a0e1a; --surface:#111827; --surface2:#1a2236; --surface3:#1f2d45;
+  --border:#1e3a5f; --border2:#2a4a70;
+  --accent:#10b981; --accent2:#059669; --accent-glow:rgba(16,185,129,0.15);
+  --yellow:#f59e0b; --green:#10b981; --red:#ef4444; --orange:#f97316; --blue:#00d4ff;
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
+  --font-head:'Rajdhani',sans-serif; --font-mono:'IBM Plex Mono',monospace; --font-body:'Inter',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;min-width:1280px;min-height:720px}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);display:flex}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.logo-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:6px;padding:6px 12px;font-family:var(--font-mono);font-size:.7rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.logo-badge::before{content:'⬡';font-size:1rem}
+.sidebar-logo h1{font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:#fff;line-height:1}
+.sidebar-logo span{color:var(--accent)}
+.user-card{margin:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.user-avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;margin-bottom:8px;font-family:var(--font-head)}
+.user-name{font-size:.85rem;font-weight:600;color:var(--text)}
+.user-role{font-family:var(--font-mono);font-size:.65rem;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+nav{flex:1;padding:8px 12px}
+.nav-section-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:16px 8px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;text-decoration:none;color:var(--text2);font-size:.85rem;font-weight:500;transition:all .2s;margin-bottom:2px;border:1px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text);border-color:var(--border)}
+.nav-item.active{background:var(--accent-glow);color:var(--accent);border-color:rgba(16,185,129,.4)}
+.nav-icon{font-size:1rem;width:20px;text-align:center}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
+.logout-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fc8181;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.logout-btn:hover{background:rgba(239,68,68,.2);border-color:var(--red);color:#fff}
+
+/* MAIN */
+.main-content{margin-left:240px;flex:1;padding:28px;overflow-y:auto;height:100vh;min-width:1000px;background:var(--bg)}
+.view{display:none;width:100%}
+.view.active{display:block}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.page-title{font-family:var(--font-head);font-size:2rem;font-weight:700;color:#fff;line-height:1}
+.page-title span{color:var(--accent)}
+.page-subtitle{font-size:.8rem;color:var(--text3);font-family:var(--font-mono);letter-spacing:1px;margin-top:4px}
+.header-actions{display:flex;gap:10px;align-items:center}
+.current-time{font-family:var(--font-mono);font-size:.75rem;color:var(--text3);letter-spacing:1px}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .25s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),transparent)}
+.stat-card.yellow::before{background:linear-gradient(90deg,var(--yellow),transparent)}
+.stat-card.red::before{background:linear-gradient(90deg,var(--red),transparent)}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.stat-icon{font-size:1.6rem;margin-bottom:12px}
+.stat-value{font-family:var(--font-head);font-size:2.4rem;font-weight:700;color:#fff;line-height:1}
+.stat-label{font-size:.75rem;color:var(--text3);font-family:var(--font-mono);letter-spacing:1px;text-transform:uppercase;margin-top:6px}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.section-title{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.data-table{width:100%;border-collapse:collapse}
+.data-table thead th{background:var(--surface2);padding:11px 16px;text-align:left;font-size:.68rem;font-family:var(--font-mono);color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.data-table tbody tr:last-child{border-bottom:none}
+.data-table tbody tr:hover{background:var(--surface2)}
+.data-table td{padding:11px 16px;font-size:.82rem;color:var(--text2);vertical-align:middle}
+.td-name{font-weight:500;color:var(--text)}
+.td-mono{font-family:var(--font-mono);font-size:.78rem;color:var(--text3)}
+.td-small{font-size:.72rem;color:var(--text3);font-family:var(--font-mono)}
+.qty-ok{color:var(--green);font-family:var(--font-mono);font-weight:600}
+.qty-zero{color:var(--red);font-family:var(--font-mono);font-weight:600}
+
+/* STATUS PILLS */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:5px;font-size:.68rem;font-weight:700;font-family:var(--font-mono);letter-spacing:.5px;white-space:nowrap}
+.pill-ok{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.pill-warn{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+.pill-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.pill-info{background:rgba(0,212,255,.12);color:var(--blue);border:1px solid rgba(0,212,255,.3)}
+.pill-maint{background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-family:var(--font-mono);font-size:.75rem;font-weight:600;letter-spacing:.5px;cursor:pointer;border:1px solid transparent;transition:all .2s;text-transform:uppercase}
+.btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none}
+.btn-primary:hover{opacity:.9;box-shadow:0 4px 16px rgba(16,185,129,.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-success{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:var(--green)}
+.btn-success:hover{background:rgba(16,185,129,.22);border-color:var(--green)}
+.btn-ghost{background:var(--surface2);border-color:var(--border2);color:var(--text2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-sm{padding:5px 10px;font-size:.65rem}
+
+/* FORM */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:20px}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row{margin-bottom:16px}
+label{display:block;font-size:.72rem;font-family:var(--font-mono);color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.form-control{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:.85rem;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.form-control:focus{border-color:var(--accent)}
+.form-control::placeholder{color:var(--text3)}
+.form-control[readonly]{opacity:.7;cursor:default}
+select.form-control option{background:var(--surface2);color:var(--text)}
+textarea.form-control{resize:vertical;min-height:80px}
+.form-hint{font-size:.65rem;color:var(--text3);font-family:var(--font-mono);margin-top:4px;letter-spacing:.5px}
+.form-actions{display:flex;gap:10px;margin-top:20px}
+.qty-info-badge{display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:6px 12px;font-family:var(--font-mono);font-size:.75rem;color:var(--text2);margin-top:8px}
+.qty-info-badge.visible{display:inline-flex;align-items:center;gap:6px}
+
+/* INFO CARD */
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:20px}
+.info-card-title{font-family:var(--font-head);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:12px}
+.info-row{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.78rem;color:var(--text2);margin-bottom:8px}
+.info-row strong{font-family:var(--font-mono);font-size:.7rem}
+
+/* LOADING */
+.loading-state{display:flex;align-items:center;justify-content:center;gap:12px;padding:40px;color:var(--text3);font-family:var(--font-mono);font-size:.8rem}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-message{text-align:center;padding:40px;color:var(--text3);font-family:var(--font-mono);font-size:.8rem}
+
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--text);z-index:9999;transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 24px rgba(0,0,0,.4);min-width:280px;max-width:400px}
+.toast.show{transform:translateX(0)}
+.toast.success{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.08)}
+.toast.error{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.08)}
+.toast.warning{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.08)}
+.toast-msg{flex:1;font-family:var(--font-mono);font-size:.78rem}
+
+/* FERRAMENTAL PESSOAL — FERRAMENTEIRO */
+.fp-status-banner{border-radius:12px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px}
+.fp-status-banner.ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3)}
+.fp-status-banner.pendente{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3)}
+.fp-status-banner.vazio{background:var(--surface);border:1px solid var(--border)}
+.fp-status-icon{font-size:2rem;flex-shrink:0}
+.fp-status-info{flex:1}
+.fp-status-title{font-family:var(--font-head);font-size:1.2rem;font-weight:700}
+.fp-status-sub{font-family:var(--font-mono);font-size:.7rem;letter-spacing:1px;margin-top:3px;opacity:.8}
+
+/* Item de ferramental */
+.fp-item-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;transition:border-color .2s}
+.fp-item-card:hover{border-color:var(--border2)}
+.fp-item-icon{width:40px;height:40px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.fp-item-body{flex:1;min-width:0}
+.fp-item-name{font-weight:600;font-size:.92rem;color:var(--text);margin-bottom:4px}
+.fp-item-meta{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:.5px;line-height:1.8}
+.fp-cond-dot{width:7px;height:7px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:3px}
+.fp-item-badge{flex-shrink:0;align-self:center}
+
+/* Termo de compromisso */
+.termo-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.termo-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:rgba(16,185,129,.04)}
+.termo-header-icon{font-size:1.8rem}
+.termo-header-title{font-family:var(--font-head);font-size:1.2rem;font-weight:700;color:#fff}
+.termo-header-sub{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:1px;margin-top:2px}
+.termo-body{padding:22px 24px}
+.termo-clausulas{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+.termo-clausula{display:flex;gap:12px;margin-bottom:14px;font-size:.82rem;color:var(--text2);line-height:1.6}
+.termo-clausula:last-child{margin-bottom:0}
+.termo-clausula-num{font-family:var(--font-mono);font-size:.7rem;font-weight:700;color:var(--accent);background:var(--accent-glow);border:1px solid rgba(16,185,129,.3);border-radius:5px;padding:2px 7px;flex-shrink:0;height:fit-content;margin-top:1px}
+.termo-items-list{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.termo-items-header{padding:10px 16px;background:var(--surface3);border-bottom:1px solid var(--border);font-family:var(--font-mono);font-size:.65rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase}
+.termo-item-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:.82rem}
+.termo-item-row:last-child{border-bottom:none}
+.termo-item-name{flex:1;font-weight:500;color:var(--text)}
+.termo-item-detail{font-family:var(--font-mono);font-size:.68rem;color:var(--text3)}
+
+/* Assinatura digital */
+.assinatura-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.assinatura-declaracao{font-size:.82rem;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.assinatura-confirm{display:flex;gap:12px;align-items:flex-start;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:14px 16px;margin-bottom:16px;cursor:pointer}
+.assinatura-confirm input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:1px;cursor:pointer}
+.assinatura-confirm-text{font-size:.82rem;color:var(--text);line-height:1.5}
+.assinatura-confirm-text strong{color:var(--accent)}
+.assinatura-meta{font-family:var(--font-mono);font-size:.68rem;color:var(--text3);letter-spacing:.5px;display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px}
+.assinatura-meta-item{display:flex;flex-direction:column;gap:2px}
+.assinatura-meta-label{color:var(--text3)}
+.assinatura-meta-value{color:var(--text2);font-weight:600}
+
+/* Estado do termo assinado */
+.termo-assinado-banner{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.termo-pendente-banner{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:16px}
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="user-info">
-                <div class="user-avatar">👷</div>
-                <div class="user-details">
-                    <h3 id="current-user-name">Ferramenteiro</h3>
-                    <p id="current-user-code">Código: USER</p>
-                    <div class="user-badge">FERRAMENTEIRO</div>
-                </div>
-            </div>
-            
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a class="nav-link active" onclick="showView('dashboard')">
-                        <span>📊</span> Meu Painel
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showView('meus-emprestimos')">
-                        <span>🛠️</span> Meus Empréstimos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showView('solicitar-ferramenta')">
-                        <span>➕</span> Solicitar Ferramenta
-                    </a>
-                </li>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">FERRAMENTEIRO</div>
+    <h1>Ferra<span>mentaria</span></h1>
+  </div>
+  <div class="user-card">
+    <div class="user-avatar" id="avatarInitial">F</div>
+    <div class="user-name" id="current-user-name">Ferramenteiro</div>
+    <div class="user-role" id="current-user-code">Código: USER</div>
+  </div>
+  <nav>
+    <div class="nav-section-label">Menu</div>
+    <a class="nav-item active" onclick="showView('dashboard')"><span class="nav-icon">📊</span> Meu Painel</a>
+    <a class="nav-item" onclick="showView('meus-emprestimos')"><span class="nav-icon">🔧</span> Meus Empréstimos</a>
+    <a class="nav-item" onclick="showView('solicitar-ferramenta')"><span class="nav-icon">➕</span> Solicitar Ferramenta</a>
+    <a class="nav-item" onclick="showView('meu-ferramental')"><span class="nav-icon">🧰</span> Meu Ferramental</a>
+    <a class="nav-item" onclick="showView('requisicao-material')"><span class="nav-icon">📋</span> Requisição de Material</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">🚪 Sair do Sistema</button>
+  </div>
+</aside>
 
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showView('requisicao-material')">
-                        <span>📋</span> Requisição de Material
-                    </a>
-                </li>
+<!-- MAIN -->
+<main class="main-content">
 
-            </ul>
-        </nav>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Dashboard -->
-            <div id="dashboard" class="view">
-                <div class="header">
-                    <h2>Meu Painel</h2>
-                    <div class="header-actions">
-                        <div id="current-time"></div>
-                        <button class="btn btn-logout" onclick="logout()">
-                            <span>🚪</span> Sair
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="stats-cards" id="stats-cards">
-                    <div class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-                
-                <div class="table-container">
-                    <h3>Meus Empréstimos Ativos</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Ferramenta</th>
-                                <th>Data Retirada</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="my-active-loans">
-                            <tr>
-                                <td colspan="3" class="loading">
-                                    <div class="spinner"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Meus Empréstimos -->
-            <div id="meus-emprestimos" class="view" style="display: none;">
-                <div class="header">
-                    <h2>Meus Empréstimos</h2>
-                    <button class="btn btn-primary" onclick="showView('solicitar-ferramenta')">
-                        <span>➕</span> Nova Solicitação
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Ferramenta</th>
-                                <th>Código</th>
-                                <th>Data Retirada</th>
-                                <th>Data Devolução</th>
-                                <th>Status</th>
-                                <th>Quantidade</th>
-                            </tr>
-                        </thead>
-                        <tbody id="all-my-loans">
-                            <tr>
-                                <td colspan="6" class="loading">
-                                    <div class="spinner"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Solicitar Ferramenta -->
-            <div id="solicitar-ferramenta" class="view" style="display: none;">
-                <div class="header">
-                    <h2>Solicitar Ferramenta</h2>
-                    <button class="btn" onclick="showView('dashboard')">
-                        <span>←</span> Voltar
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <form id="request-tool-form" onsubmit="requestTool(event)">
-                        <div class="form-group">
-                            <label class="form-label">Ferramenta *</label>
-                            <select class="form-control" id="tool-select" required>
-                                <option value="">Selecione uma ferramenta...</option>
-                            </select>
-                            <div class="quantity-info" id="tool-quantity-info" style="display: none;">
-                                Disponível: <span id="tool-available-quantity" class="quantity-available">0</span> unidades
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Justificativa</label>
-                            <textarea class="form-control" id="tool-notes" rows="3" 
-                                      placeholder="Descreva para que precisa da ferramenta..."></textarea>
-                        </div>
-                        
-                        <div style="display: flex; gap: 15px; margin-top: 30px;">
-                            <button type="button" class="btn" onclick="showView('dashboard')">
-                                Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-success">
-                                <span>📝</span> Solicitar Ferramenta
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="table-container" style="margin-top: 30px;">
-                    <h3>Ferramentas Disponíveis</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nome</th>
-                                <th>Categoria</th>
-                                <th>Quantidade</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="available-tools">
-                            <tr>
-                                <td colspan="5" class="loading">
-                                    <div class="spinner"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        
-            <!-- Requisição de Material -->
-            <div id="requisicao-material" class="view" style="display: none;">
-                <div class="header">
-                    <h2>Requisição de Material</h2>
-                    <button class="btn" onclick="showView('dashboard')">
-                        <span>←</span> Voltar
-                    </button>
-                </div>
-
-                <div class="card">
-                    <form id="material-request-form" onsubmit="submitMaterialRequest(event)">
-                        <div class="form-group">
-                            <label class="form-label">Seu nome *</label>
-                            <input type="text" class="form-control" id="mr-nome" placeholder="Digite seu nome" required>
-                            <small style="color:#666;">(O ADM vai validar e completar o restante)</small>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                            <div class="form-group">
-                                <label class="form-label">Quantidade *</label>
-                                <input type="number" class="form-control" id="mr-qtd" min="1" value="1" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Unidade *</label>
-                                <select class="form-control" id="mr-un" required>
-                                    <option value="UN">UN</option>
-                                    <option value="PC">PC</option>
-                                    <option value="CX">CX</option>
-                                    <option value="MT">MT</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Código (opcional)</label>
-                                <input type="text" class="form-control" id="mr-codigo" placeholder="Ex: F101">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Material (1 item) *</label>
-                            <input type="text" class="form-control" id="mr-material" placeholder="Ex: Parafuso M8" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Aplicação (opcional)</label>
-                            <textarea class="form-control" id="mr-aplicacao" rows="3" placeholder="Ex: Manutenção do molde X..."></textarea>
-                        </div>
-
-                        <div style="display:flex; gap: 15px; margin-top: 30px;">
-                            <button type="button" class="btn" onclick="showView('dashboard')">Cancelar</button>
-                            <button type="submit" class="btn btn-success">
-                                <span>📤</span> Enviar Requisição
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="info-footer" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; color: #856404; font-size: 0.85rem; border-left: 4px solid #ffc107;">
-                    <strong>ⓘ Importante:</strong> Após enviar, o Administrador (almoxarifado) vai validar, completar os dados e imprimir o PDF.
-                </div>
-            </div>
-
-        </main>
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="view active">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Meu <span>Painel</span></div>
+        <div class="page-subtitle">// BEM-VINDO DE VOLTA</div>
+      </div>
+      <div class="header-actions">
+        <div class="current-time" id="current-time"></div>
+      </div>
     </div>
-    
-    <!-- Script principal ATUALIZADO -->
-    <script>
-        // Variáveis globais
-        let currentUser = null;
-        let database = { users: [], tools: [], loans: [] };
-        let currentView = 'dashboard';
-        
-        // Inicializar aplicação
-        async function init() {
-            await loadUserData();
-            await loadDatabase();
-            updateDashboard();
-            updateTime();
-            setInterval(updateTime, 60000);
-            
-            // Carregar ferramentas disponíveis
-            loadAvailableTools();
-            
-            // Configurar evento para mostrar quantidade ao selecionar ferramenta
-            setupToolQuantityDisplay();
-        }
-        
-        // Configurar exibição de quantidade
-        function setupToolQuantityDisplay() {
-            const toolSelect = document.getElementById('tool-select');
-            if (toolSelect) {
-                toolSelect.addEventListener('change', function() {
-                    const toolId = this.value;
-                    if (toolId) {
-                        const tool = database.tools.find(t => t.id === toolId);
-                        if (tool) {
-                            const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
-                            const totalQty = tool.totalQuantity || 1;
-                            
-                            document.getElementById('tool-quantity-info').style.display = 'block';
-                            document.getElementById('tool-available-quantity').textContent = availableQty;
-                            document.getElementById('tool-available-quantity').className = 
-                                availableQty > 0 ? 'quantity-available' : 'quantity-unavailable';
-                        }
-                    } else {
-                        document.getElementById('tool-quantity-info').style.display = 'none';
-                    }
-                });
-            }
-        }
-        
-        // Carregar dados do usuário
-        async function loadUserData() {
-            const userData = localStorage.getItem('currentUser');
-            if (!userData) {
-                window.location.href = '/';
-                return;
-            }
-            
-            currentUser = JSON.parse(userData);
-            document.getElementById('current-user-name').textContent = currentUser.name;
-            document.getElementById('current-user-code').textContent = `Código: ${currentUser.companyCode}`;
-        }
-        
-        // Carregar banco de dados
-        async function loadDatabase() {
-            try {
-                const response = await fetch('/api/database?_=' + Date.now());
-                if (response.ok) {
-                    database = await response.json();
-                    console.log('✅ Database carregado com sucesso para ferramenteiro');
-                } else {
-                    console.error('❌ Erro ao carregar database');
-                    showMessage('Erro ao carregar dados do sistema', 'error');
-                }
-            } catch (error) {
-                console.error('❌ Erro de conexão:', error);
-                showMessage('Servidor offline. Verifique a conexão.', 'error');
-            }
-        }
-        
-        // Atualizar dashboard
-        function updateDashboard() {
-            if (!currentUser || !database) return;
-            
-            // Estatísticas pessoais
-            const myLoans = database.loans.filter(loan => loan.userId === currentUser.id);
-            const activeLoans = myLoans.filter(loan => loan.status === 'emprestado').length;
-            const returnedLoans = myLoans.filter(loan => loan.status === 'devolvido').length;
-            
-            // Calcular ferramentas disponíveis baseado em quantidade > 0
-            const availableTools = database.tools.filter(tool => {
-                const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
-                return availableQty > 0 && tool.status !== 'indisponivel';
-            }).length;
-            
-            // Calcular total de unidades disponíveis
-            const totalAvailableUnits = database.tools.reduce((total, tool) => {
-                const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
-                return total + availableQty;
-            }, 0);
-            
-            // Atualizar cards
-            document.getElementById('stats-cards').innerHTML = `
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Empréstimos Ativos</h3>
-                        <div class="card-icon">🛠️</div>
-                    </div>
-                    <div class="card-value">${activeLoans}</div>
-                    <div class="card-label">Ferramentas com você</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Devolvidos</h3>
-                        <div class="card-icon">✅</div>
-                    </div>
-                    <div class="card-value">${returnedLoans}</div>
-                    <div class="card-label">Ferramentas devolvidas</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Total</h3>
-                        <div class="card-icon">📊</div>
-                    </div>
-                    <div class="card-value">${myLoans.length}</div>
-                    <div class="card-label">Todos os seus empréstimos</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Disponíveis</h3>
-                        <div class="card-icon">🔧</div>
-                    </div>
-                    <div class="card-value">${availableTools}</div>
-                    <div class="card-label">Ferramentas livres</div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Unidades Livres</h3>
-                        <div class="card-icon">📦</div>
-                    </div>
-                    <div class="card-value">${totalAvailableUnits}</div>
-                    <div class="card-label">Unidades disponíveis</div>
-                </div>
-            `;
-            
-            // Atualizar lista de empréstimos ativos
-            updateMyActiveLoans();
-        }
-        
-        // Atualizar meus empréstimos ativos
-        function updateMyActiveLoans() {
-            const tbody = document.getElementById('my-active-loans');
-            if (!currentUser) return;
-            
-            const activeLoans = database.loans.filter(loan => 
-                loan.userId === currentUser.id && loan.status === 'emprestado'
-            );
-            
-            if (activeLoans.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" class="empty-message">
-                            Você não tem empréstimos ativos no momento
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = '';
-                activeLoans.forEach(loan => {
-                    const tool = database.tools.find(t => t.id === loan.toolId);
-                    if (tool) {
-                        const borrowedDate = new Date(loan.borrowedAt);
-                        const statusBadge = getStatusBadge(loan.status);
-                        
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${tool.name}</strong><br><small>${tool.category}</small></td>
-                                <td>${borrowedDate.toLocaleDateString('pt-BR')}<br>
-                                    <small>${borrowedDate.toLocaleTimeString('pt-BR').slice(0,5)}</small>
-                                </td>
-                                <td>${statusBadge}</td>
-                            </tr>
-                        `;
-                    }
-                });
-            }
-        }
-        
-        // Carregar ferramentas disponíveis (CORRIGIDO para usar quantidade)
-        function loadAvailableTools() {
-            const select = document.getElementById('tool-select');
-            const tbody = document.getElementById('available-tools');
-            
-            // Limpar
-            select.innerHTML = '<option value="">Selecione uma ferramenta...</option>';
-            tbody.innerHTML = '';
-            
-            // Filtrar ferramentas com quantidade disponível > 0
-            const availableTools = database.tools.filter(tool => {
-                const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
-                return availableQty > 0 && tool.status !== 'indisponivel';
-            });
-            
-            if (availableTools.length === 0) {
-                select.innerHTML = '<option value="">Nenhuma ferramenta disponível no momento</option>';
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="empty-message">
-                            Nenhuma ferramenta disponível no momento
-                        </td>
-                    </tr>
-                `;
-            } else {
-                availableTools.forEach(tool => {
-                    const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
-                    const totalQty = tool.totalQuantity || 1;
-                    
-                    // Adicionar ao select
-                    select.innerHTML += `
-                        <option value="${tool.id}" data-quantity="${availableQty}">
-                            ${tool.code} - ${tool.name} (${availableQty}/${totalQty} disponíveis)
-                        </option>
-                    `;
-                    
-                    // Adicionar à tabela
-                    const statusBadge = getStatusBadge(tool.status);
-                    const quantityClass = availableQty > 0 ? 'quantity-available' : 'quantity-unavailable';
-                    
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><code>${tool.code}</code></td>
-                            <td>${tool.name}</td>
-                            <td>${tool.category}</td>
-                            <td><span class="${quantityClass}">${availableQty}/${totalQty}</span></td>
-                            <td>${statusBadge}</td>
-                        </tr>
-                    `;
-                });
-            }
-        }
-        
-        // Solicitar ferramenta (CORRIGIDO para verificar quantidade)
-        async function requestTool(event) {
-            event.preventDefault();
-            
-            const toolId = document.getElementById('tool-select').value;
-            const notes = document.getElementById('tool-notes').value;
-            
-            if (!toolId) {
-                showMessage('Selecione uma ferramenta', 'error');
-                return;
-            }
-            
-            const tool = database.tools.find(t => t.id === toolId);
-            if (!tool) {
-                showMessage('Ferramenta não encontrada', 'error');
-                return;
-            }
-            
-            // Verificar quantidade disponível
-            const availableQty = tool.availableQuantity || (tool.available ? 1 : 0);
-            if (availableQty <= 0) {
-                showMessage('Esta ferramenta não está disponível no momento!', 'error');
-                loadAvailableTools(); // Recarregar lista
-                return;
-            }
-            
-            if (tool.status === 'indisponivel') {
-                showMessage('Esta ferramenta está marcada como indisponível!', 'error');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/emprestimos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUser.id,
-                        toolId: toolId,
-                        notes: notes
-                    })
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    showMessage(`Ferramenta "${tool.name}" solicitada com sucesso!`, 'success');
-                    
-                    // Limpar formulário
-                    document.getElementById('request-tool-form').reset();
-                    document.getElementById('tool-quantity-info').style.display = 'none';
-                    
-                    // Atualizar dados
-                    await loadDatabase();
-                    updateDashboard();
-                    loadAvailableTools();
-                    
-                    // Voltar para dashboard após 2 segundos
-                    setTimeout(() => showView('dashboard'), 2000);
-                } else {
-                    const error = await response.json();
-                    showMessage(error.message || 'Erro ao solicitar ferramenta', 'error');
-                }
-            } catch (error) {
-                showMessage('Erro de conexão com o servidor', 'error');
-            }
-        }
-        
-        // Atualizar todos os meus empréstimos
-        function updateAllMyLoans() {
-            const tbody = document.getElementById('all-my-loans');
-            if (!currentUser) return;
-            
-            const myLoans = database.loans.filter(loan => loan.userId === currentUser.id);
-            const sortedLoans = [...myLoans].sort((a, b) => 
-                new Date(b.borrowedAt) - new Date(a.borrowedAt)
-            );
-            
-            if (sortedLoans.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-message">
-                            Você ainda não realizou nenhum empréstimo
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = '';
-                sortedLoans.forEach(loan => {
-                    const tool = database.tools.find(t => t.id === loan.toolId);
-                    if (tool) {
-                        const borrowedDate = new Date(loan.borrowedAt);
-                        const returnedDate = loan.returnedAt ? new Date(loan.returnedAt) : null;
-                        const statusBadge = getStatusBadge(loan.status);
-                        
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${tool.name}</td>
-                                <td><code>${tool.code}</code></td>
-                                <td>${borrowedDate.toLocaleDateString('pt-BR')}<br>
-                                    <small>${borrowedDate.toLocaleTimeString('pt-BR').slice(0,5)}</small>
-                                </td>
-                                <td>${returnedDate ? returnedDate.toLocaleDateString('pt-BR') : '-'}</td>
-                                <td>${statusBadge}</td>
-                                <td>1 unidade</td>
-                            </tr>
-                        `;
-                    }
-                });
-            }
-        }
-        
-        // Helper functions
-        function getStatusBadge(status) {
-            const statusMap = {
-                'emprestado': { class: 'badge-warning', text: 'EM USO' },
-                'devolvido': { class: 'badge-success', text: 'DEVOLVIDO' },
-                'nao-entregue': { class: 'badge-danger', text: 'NÃO ENTREGUE' },
-                'quebrado': { class: 'badge-danger', text: 'QUEBRADO' },
-                'disponivel': { class: 'badge-success', text: 'DISPONÍVEL' },
-                'indisponivel': { class: 'badge-danger', text: 'INDISPONÍVEL' },
-                'manutencao': { class: 'badge-info', text: 'MANUTENÇÃO' }
-            };
-            
-            const statusInfo = statusMap[status] || { class: 'badge-secondary', text: status };
-            return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>`;
-        }
-        
-        // Mostrar mensagem
-        function showMessage(message, type = 'info') {
-            // Remove mensagens antigas
-            const oldMessage = document.getElementById('system-message');
-            if (oldMessage) oldMessage.remove();
-            
-            // Cria nova mensagem
-            const messageDiv = document.createElement('div');
-            messageDiv.id = 'system-message';
-            messageDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 8px;
-                color: white;
-                font-weight: 500;
-                z-index: 9999;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                animation: slideIn 0.3s ease;
-            `;
-            
-            if (type === 'success') {
-                messageDiv.style.backgroundColor = '#28a745';
-            } else if (type === 'error') {
-                messageDiv.style.backgroundColor = '#dc3545';
-            } else if (type === 'warning') {
-                messageDiv.style.backgroundColor = '#ffc107';
-                messageDiv.style.color = '#333';
-            } else {
-                messageDiv.style.backgroundColor = '#17a2b8';
-            }
-            
-            messageDiv.textContent = message;
-            document.body.appendChild(messageDiv);
-            
-            // Remove após 3 segundos
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.style.animation = 'slideOut 0.3s ease';
-                    setTimeout(() => {
-                        if (messageDiv.parentNode) {
-                            messageDiv.remove();
-                        }
-                    }, 300);
-                }
-            }, 3000);
-            
-            // Adicionar CSS para animação
-            if (!document.querySelector('#message-styles')) {
-                const style = document.createElement('style');
-                style.id = 'message-styles';
-                style.textContent = `
-                    @keyframes slideIn {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                    @keyframes slideOut {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        }
-        
-        // Navegação entre views
-        
-        // ============================================
-        // REQUISIÇÃO DE MATERIAL (Ferramenteiro)
-        // ============================================
-        function prepareMaterialRequestForm() {
-            // Prefill: nome do usuário logado, se existir
-            const nomeEl = document.getElementById('mr-nome');
-            const codEl = document.getElementById('mr-codigo');
+    <div class="stats-grid" id="stats-cards">
+      <div class="loading-state"><div class="spinner"></div> Carregando...</div>
+    </div>
+    <div class="section-title">Meus Empréstimos Ativos</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Ferramenta</th><th>Data Retirada</th><th>Status</th></tr></thead>
+        <tbody id="my-active-loans">
+          <tr><td colspan="3" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-            if (nomeEl && currentUser?.name) nomeEl.value = currentUser.name;
-            if (codEl && currentUser?.companyCode) codEl.value = currentUser.companyCode;
-        }
+  <!-- MEUS EMPRÉSTIMOS -->
+  <div id="meus-emprestimos" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Meus <span>Empréstimos</span></div>
+        <div class="page-subtitle">// HISTÓRICO COMPLETO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="showView('solicitar-ferramenta')">➕ Nova Solicitação</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Ferramenta</th><th>Código</th><th>Data Retirada</th><th>Data Devolução</th><th>Status</th><th>Quantidade</th>
+        </tr></thead>
+        <tbody id="all-my-loans">
+          <tr><td colspan="6" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-        async function submitMaterialRequest(event) {
-            event.preventDefault();
+  <!-- SOLICITAR FERRAMENTA -->
+  <div id="solicitar-ferramenta" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Solicitar <span>Ferramenta</span></div>
+        <div class="page-subtitle">// RETIRADA DE EQUIPAMENTO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showView('dashboard')">← Voltar</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <form id="request-tool-form" onsubmit="requestTool(event)">
+        <div class="form-row">
+          <label>Ferramenta *</label>
+          <select class="form-control" id="tool-select" required>
+            <option value="">Selecione uma ferramenta...</option>
+          </select>
+          <div class="qty-info-badge" id="tool-quantity-info">
+            <span>Disponível:</span>
+            <span id="tool-available-quantity" class="qty-ok">0</span>
+            <span>unidades</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Justificativa</label>
+          <textarea class="form-control" id="tool-notes" rows="3" placeholder="Descreva para que precisa da ferramenta..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="showView('dashboard')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">📝 Solicitar Ferramenta</button>
+        </div>
+      </form>
+    </div>
 
-            const solicitanteNome = document.getElementById('mr-nome').value.trim();
-            const solicitanteCodigo = document.getElementById('mr-codigo').value.trim();
-            const quantidade = document.getElementById('mr-qtd').value;
-            const unidade = document.getElementById('mr-un').value;
-            const material = document.getElementById('mr-material').value.trim();
-            const aplicacao = document.getElementById('mr-aplicacao').value.trim();
+    <div class="section-title">Ferramentas Disponíveis</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>Código</th><th>Nome</th><th>Categoria</th><th>Quantidade</th><th>Status</th>
+        </tr></thead>
+        <tbody id="available-tools">
+          <tr><td colspan="5" class="loading-state"><div class="spinner"></div> Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-            if (!solicitanteNome || !material) {
-                showMessage('Preencha seu nome e o material', 'error');
-                return;
-            }
+  <!-- REQUISIÇÃO DE MATERIAL -->
+  <div id="requisicao-material" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Requisi<span>ção</span></div>
+        <div class="page-subtitle">// SOLICITAÇÃO DE MATERIAL AO ALMOXARIFADO</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="showView('dashboard')">← Voltar</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <form id="material-request-form" onsubmit="submitMaterialRequest(event)">
+        <div class="form-row">
+          <label>Seu Nome *</label>
+          <input type="text" class="form-control" id="mr-nome" placeholder="Digite seu nome" required>
+          <div class="form-hint">// O ADM vai validar e completar o restante</div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-row"><label>Quantidade *</label><input type="number" class="form-control" id="mr-qtd" min="1" value="1" required></div>
+          <div class="form-row">
+            <label>Unidade *</label>
+            <select class="form-control" id="mr-un" required>
+              <option value="UN">UN</option><option value="PC">PC</option><option value="CX">CX</option><option value="MT">MT</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Código (opcional)</label><input type="text" class="form-control" id="mr-codigo" placeholder="Ex: F101"></div>
+        </div>
+        <div class="form-row"><label>Material (1 item) *</label><input type="text" class="form-control" id="mr-material" placeholder="Ex: Parafuso M8" required></div>
+        <div class="form-row"><label>Aplicação (opcional)</label><textarea class="form-control" id="mr-aplicacao" rows="3" placeholder="Ex: Manutenção do molde X..."></textarea></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="showView('dashboard')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">📤 Enviar Requisição</button>
+        </div>
+      </form>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">📌 Informações</div>
+      <div class="info-row"><strong style="color:var(--yellow)">IMPORTANTE</strong><br>Após enviar, o Administrador (almoxarifado) vai validar, completar os dados e imprimir o PDF.</div>
+      <div class="info-row"><strong style="color:var(--blue)">PRAZO</strong><br>Solicitações são analisadas em até 24 horas úteis.</div>
+    </div>
+  </div>
+  <!-- ══════════════════════════════════════════
+       MEU FERRAMENTAL PESSOAL
+  ══════════════════════════════════════════ -->
+  <div id="meu-ferramental" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Meu <span>Ferramental</span></div>
+        <div class="page-subtitle">// FERRAMENTAS SOB MINHA RESPONSABILIDADE</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="loadMeuFerramental()">🔄 Atualizar</button>
+        <button class="btn btn-primary" id="btn-imprimir-termo" onclick="imprimirMeuTermo()" style="display:none">🖨️ Imprimir Termo</button>
+      </div>
+    </div>
 
-            try {
-                const response = await fetch('/api/requisicoes-material', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        solicitanteNome,
-                        solicitanteCodigo,
-                        quantidade,
-                        unidade,
-                        material,
-                        aplicacao
-                    })
-                });
+    <!-- Banner de status -->
+    <div id="fp-meu-banner" class="fp-status-banner vazio">
+      <div class="fp-status-icon">🧰</div>
+      <div class="fp-status-info">
+        <div class="fp-status-title" style="color:var(--text2)">Carregando...</div>
+        <div class="fp-status-sub" style="color:var(--text3)">Aguarde</div>
+      </div>
+    </div>
 
-                if (response.ok) {
-                    showMessage('Requisição enviada! Aguardando validação do ADM.', 'success');
+    <!-- Layout em duas colunas -->
+    <div style="display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start" id="fp-meu-grid">
 
-                    // Limpar, mas manter nome/código se veio do login
-                    document.getElementById('material-request-form').reset();
-                    prepareMaterialRequestForm();
+      <!-- COLUNA ESQUERDA: itens em posse -->
+      <div>
+        <div class="section-title">Ferramentas em Minha Posse</div>
+        <div id="fp-meus-itens">
+          <div class="loading-state"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
 
-                    // Voltar ao dashboard
-                    setTimeout(() => showView('dashboard'), 1200);
-                } else {
-                    const err = await response.json().catch(() => ({}));
-                    showMessage(err.message || 'Erro ao enviar requisição', 'error');
-                }
-            } catch (error) {
-                showMessage('Erro de conexão com o servidor', 'error');
-            }
-        }
+      <!-- COLUNA DIREITA: termo de compromisso -->
+      <div id="fp-termo-col">
+        <div class="section-title">Termo de Compromisso</div>
+        <div id="fp-termo-content">
+          <div class="loading-state"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
 
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast" class="toast"><span id="toastMsg" class="toast-msg"></span></div>
+
+<script>
+// ── ESTADO ──
+let currentUser = null;
+let database = { users:[], tools:[], loans:[] };
+let currentView = 'dashboard';
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+    await loadUserData();
+    await loadDatabase();
+    updateDashboard();
+    loadAvailableTools();
+    setupToolQuantityDisplay();
+    updateTime();
+    setInterval(updateTime, 60000);
+}
+
+// ── NAVIGATION ──
 function showView(viewName) {
-            // Esconder todas as views
-            document.querySelectorAll('.view').forEach(view => {
-                view.style.display = 'none';
-            });
-            
-            // Mostrar view selecionada
-            document.getElementById(viewName).style.display = 'block';
-            
-            // Atualizar menu ativo
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            let activeSelector = '';
-            switch(viewName) {
-                case 'dashboard': 
-                    activeSelector = '[onclick="showView(\'dashboard\')"]';
-                    updateDashboard();
-                    break;
-                case 'meus-emprestimos': 
-                    activeSelector = '[onclick="showView(\'meus-emprestimos\')"]';
-                    updateAllMyLoans();
-                    break;
-                case 'solicitar-ferramenta': 
-                    activeSelector = '[onclick="showView(\'solicitar-ferramenta\')"]';
-                    loadAvailableTools();
-                    break;
-                case 'requisicao-material':
-                    activeSelector = '[onclick="showView(\'requisicao-material\')"]';
-                    prepareMaterialRequestForm();
-                    break;
-            }
-            
-            if (activeSelector) {
-                document.querySelector(activeSelector).classList.add('active');
-            }
-            
-            currentView = viewName;
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(viewName).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const map={
+        'dashboard':'[onclick="showView(\'dashboard\')"]',
+        'meus-emprestimos':'[onclick="showView(\'meus-emprestimos\')"]',
+        'solicitar-ferramenta':'[onclick="showView(\'solicitar-ferramenta\')"]',
+        'meu-ferramental':'[onclick="showView(\'meu-ferramental\')"]',
+        'requisicao-material':'[onclick="showView(\'requisicao-material\')"]'
+    };
+    if (map[viewName]) { const el=document.querySelector(map[viewName]); if(el) el.classList.add('active'); }
+    currentView = viewName;
+    if (viewName==='meus-emprestimos') updateAllMyLoans();
+    if (viewName==='solicitar-ferramenta') loadAvailableTools();
+    if (viewName==='requisicao-material') prepareMaterialRequestForm();
+    if (viewName==='meu-ferramental') loadMeuFerramental();
+}
+
+// ── USER ──
+async function loadUserData() {
+    const ud = localStorage.getItem('currentUser');
+    if (!ud) { window.location.href='/'; return; }
+    currentUser = JSON.parse(ud);
+    document.getElementById('current-user-name').textContent = currentUser.name;
+    document.getElementById('current-user-code').textContent = `Código: ${currentUser.companyCode}`;
+    const initials = currentUser.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('avatarInitial').textContent = initials;
+}
+
+// ── DATABASE ──
+async function loadDatabase() {
+    try {
+        const res = await fetch('/api/database?_='+Date.now());
+        if (res.ok) { database = await res.json(); }
+        else { showToast('error','❌ Erro ao carregar dados.'); }
+    } catch(e) { showToast('error','❌ Servidor offline.'); }
+}
+
+// ── DASHBOARD ──
+function updateDashboard() {
+    if (!currentUser||!database) return;
+    const myLoans = database.loans.filter(l=>l.userId===currentUser.id);
+    const activeLoans = myLoans.filter(l=>l.status==='emprestado').length;
+    const returnedLoans = myLoans.filter(l=>l.status==='devolvido').length;
+    const availableTools = database.tools.filter(t=>{const aq=t.availableQuantity||(t.available?1:0);return aq>0&&t.status!=='indisponivel';}).length;
+    const totalAvailableUnits = database.tools.reduce((s,t)=>s+(t.availableQuantity||(t.available?1:0)),0);
+    document.getElementById('stats-cards').innerHTML = `
+        <div class="stat-card blue"><div class="stat-icon">🛠️</div><div class="stat-value">${activeLoans}</div><div class="stat-label">Ativos</div></div>
+        <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value">${returnedLoans}</div><div class="stat-label">Devolvidos</div></div>
+        <div class="stat-card yellow"><div class="stat-icon">📊</div><div class="stat-value">${myLoans.length}</div><div class="stat-label">Total Empréstimos</div></div>
+        <div class="stat-card green"><div class="stat-icon">🔧</div><div class="stat-value">${availableTools}</div><div class="stat-label">Ferramentas Livres</div></div>
+        <div class="stat-card blue"><div class="stat-icon">📦</div><div class="stat-value">${totalAvailableUnits}</div><div class="stat-label">Unidades Livres</div></div>
+    `;
+    updateMyActiveLoans();
+}
+
+function updateMyActiveLoans() {
+    const tbody = document.getElementById('my-active-loans');
+    if (!currentUser) return;
+    const loans = database.loans.filter(l=>l.userId===currentUser.id&&l.status==='emprestado');
+    if (!loans.length) { tbody.innerHTML='<tr><td colspan="3" class="empty-message">Você não tem empréstimos ativos no momento</td></tr>'; return; }
+    tbody.innerHTML='';
+    loans.forEach(loan=>{
+        const tool=database.tools.find(t=>t.id===loan.toolId);
+        if(tool){
+            const d=new Date(loan.borrowedAt);
+            tbody.innerHTML+=`<tr>
+                <td><div class="td-name">${tool.name}</div><div class="td-small">${tool.category}</div></td>
+                <td><div class="td-mono">${d.toLocaleDateString('pt-BR')}</div><div class="td-small">${d.toLocaleTimeString('pt-BR').slice(0,5)}</div></td>
+                <td>${getStatusPill(loan.status)}</td>
+            </tr>`;
         }
-        
-        // Atualizar hora
-        function updateTime() {
-            const now = new Date();
-            const timeEl = document.getElementById('current-time');
-            if (timeEl) {
-                timeEl.innerHTML = `
-                    <small>${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</small>
-                `;
+    });
+}
+
+function updateAllMyLoans() {
+    const tbody = document.getElementById('all-my-loans');
+    if (!currentUser) return;
+    const loans = [...database.loans.filter(l=>l.userId===currentUser.id)].sort((a,b)=>new Date(b.borrowedAt)-new Date(a.borrowedAt));
+    if (!loans.length) { tbody.innerHTML='<tr><td colspan="6" class="empty-message">Você ainda não realizou nenhum empréstimo</td></tr>'; return; }
+    tbody.innerHTML='';
+    loans.forEach(loan=>{
+        const tool=database.tools.find(t=>t.id===loan.toolId);
+        if(tool){
+            const bd=new Date(loan.borrowedAt), rd=loan.returnedAt?new Date(loan.returnedAt):null;
+            tbody.innerHTML+=`<tr>
+                <td class="td-name">${tool.name}</td>
+                <td class="td-mono">${tool.code}</td>
+                <td><div class="td-mono">${bd.toLocaleDateString('pt-BR')}</div><div class="td-small">${bd.toLocaleTimeString('pt-BR').slice(0,5)}</div></td>
+                <td class="td-mono">${rd?rd.toLocaleDateString('pt-BR'):'-'}</td>
+                <td>${getStatusPill(loan.status)}</td>
+                <td class="td-mono">1 unidade</td>
+            </tr>`;
+        }
+    });
+}
+
+// ── SOLICITAR FERRAMENTA ──
+function setupToolQuantityDisplay() {
+    const sel = document.getElementById('tool-select');
+    if (!sel) return;
+    sel.addEventListener('change', function(){
+        const tid=this.value, badge=document.getElementById('tool-quantity-info'), span=document.getElementById('tool-available-quantity');
+        if (tid) {
+            const t=database.tools.find(t=>t.id===tid);
+            if (t) {
+                const aq=t.availableQuantity||(t.available?1:0);
+                badge.className='qty-info-badge visible';
+                span.textContent=aq;
+                span.className=aq>0?'qty-ok':'qty-zero';
             }
+        } else { badge.className='qty-info-badge'; }
+    });
+}
+
+function loadAvailableTools() {
+    const sel=document.getElementById('tool-select'), tbody=document.getElementById('available-tools');
+    sel.innerHTML='<option value="">Selecione uma ferramenta...</option>';
+    tbody.innerHTML='';
+    const avail=database.tools.filter(t=>{const aq=t.availableQuantity||(t.available?1:0);return aq>0&&t.status!=='indisponivel';});
+    if (!avail.length) {
+        sel.innerHTML='<option value="">Nenhuma ferramenta disponível</option>';
+        tbody.innerHTML='<tr><td colspan="5" class="empty-message">Nenhuma ferramenta disponível no momento</td></tr>';
+        return;
+    }
+    avail.forEach(t=>{
+        const aq=t.availableQuantity||(t.available?1:0), tq=t.totalQuantity||1;
+        sel.innerHTML+=`<option value="${t.id}" data-quantity="${aq}">${t.code} - ${t.name} (${aq}/${tq} disponíveis)</option>`;
+        tbody.innerHTML+=`<tr>
+            <td class="td-mono">${t.code}</td>
+            <td class="td-name">${t.name}</td>
+            <td class="td-mono">${t.category}</td>
+            <td class="${aq>0?'qty-ok':'qty-zero'}">${aq}/${tq}</td>
+            <td>${getStatusPill(t.status)}</td>
+        </tr>`;
+    });
+}
+
+async function requestTool(event) {
+    event.preventDefault();
+    const toolId=document.getElementById('tool-select').value, notes=document.getElementById('tool-notes').value;
+    if (!toolId) { showToast('error','Selecione uma ferramenta'); return; }
+    const tool=database.tools.find(t=>t.id===toolId);
+    if (!tool) { showToast('error','Ferramenta não encontrada'); return; }
+    const aq=tool.availableQuantity||(tool.available?1:0);
+    if (aq<=0||tool.status==='indisponivel') { showToast('error','⚠️ Ferramenta indisponível!'); loadAvailableTools(); return; }
+    const btn=event.target.querySelector('[type=submit]'); btn.disabled=true; btn.textContent='⟳ ENVIANDO...';
+    try {
+        const res=await fetch('/api/emprestimos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:currentUser.id,toolId,notes})});
+        if (res.ok) {
+            showToast('success',`✅ "${tool.name}" solicitada!`);
+            event.target.reset();
+            document.getElementById('tool-quantity-info').className='qty-info-badge';
+            await loadDatabase(); updateDashboard(); loadAvailableTools();
+            setTimeout(()=>showView('dashboard'),2000);
+        } else { const e=await res.json(); showToast('error','❌ '+(e.message||'Erro')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+    finally { btn.disabled=false; btn.textContent='📝 SOLICITAR FERRAMENTA'; }
+}
+
+// ══════════════════════════════════════════════
+// MEU FERRAMENTAL PESSOAL
+// ══════════════════════════════════════════════
+async function loadMeuFerramental() {
+    if (!currentUser) return;
+    // Garante dados frescos
+    await loadDatabase();
+
+    const fp = (database.ferramentalPessoal || []).filter(i => i.userId === currentUser.id);
+    const emPosse = fp.filter(i => i.status === 'posse');
+    const comProblema = fp.filter(i => i.status === 'perdida' || i.status === 'danificada');
+    const totalItens = emPosse.reduce((s,i)=>s+(i.quantidade||1),0);
+    const termoAssinado = currentUser.termoAssinado || false;
+
+    // ── Banner de status ──
+    const banner = document.getElementById('fp-meu-banner');
+    if (!emPosse.length) {
+        banner.className='fp-status-banner vazio';
+        banner.innerHTML=`<div class="fp-status-icon">🧰</div><div class="fp-status-info"><div class="fp-status-title" style="color:var(--text2)">Nenhum ferramental atribuído</div><div class="fp-status-sub" style="color:var(--text3)">O administrador ainda não registrou ferramentas em sua posse</div></div>`;
+    } else if (comProblema.length) {
+        banner.className='fp-status-banner pendente';
+        banner.innerHTML=`<div class="fp-status-icon">⚠️</div><div class="fp-status-info"><div class="fp-status-title" style="color:var(--yellow)">${totalItens} item(s) em posse · ${comProblema.length} pendência(s)</div><div class="fp-status-sub" style="color:var(--yellow)">EXISTEM IRREGULARIDADES — ENTRE EM CONTATO COM O ADMIN</div></div>`;
+    } else {
+        banner.className='fp-status-banner ok';
+        banner.innerHTML=`<div class="fp-status-icon">✅</div><div class="fp-status-info"><div class="fp-status-title" style="color:var(--green)">${emPosse.length} tipo(s) · ${totalItens} unidade(s) em posse</div><div class="fp-status-sub" style="color:var(--green)">SITUAÇÃO REGULAR · ${termoAssinado?'TERMO ASSINADO':'TERMO PENDENTE DE ASSINATURA'}</div></div>${termoAssinado?'':'<span class="status-pill pill-warn" style="flex-shrink:0">⚠️ ASSINAR TERMO</span>'}`;
+    }
+
+    // Botão imprimir
+    document.getElementById('btn-imprimir-termo').style.display = emPosse.length ? 'flex' : 'none';
+
+    // ── Lista de itens ──
+    const itensDiv = document.getElementById('fp-meus-itens');
+    if (!emPosse.length) {
+        itensDiv.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;text-align:center">
+            <div style="font-size:2.5rem;margin-bottom:12px">🧰</div>
+            <div style="font-family:var(--font-mono);font-size:.78rem;color:var(--text3);letter-spacing:1px">NENHUM ITEM ATRIBUÍDO</div>
+            <div style="font-size:.82rem;color:var(--text3);margin-top:8px">Quando o administrador entregar ferramentas para você, elas aparecerão aqui.</div>
+        </div>`;
+    } else {
+        const condColors = {nova:'var(--green)',boa:'var(--accent)',regular:'var(--yellow)',desgastada:'var(--red)'};
+        itensDiv.innerHTML = emPosse.map(item => {
+            const t = database.tools.find(t=>t.id===item.toolId);
+            const d = new Date(item.entregueEm);
+            const condColor = condColors[item.condicao]||'var(--text3)';
+            return `<div class="fp-item-card">
+                <div class="fp-item-icon">🔧</div>
+                <div class="fp-item-body">
+                    <div class="fp-item-name">${t?.name||'Ferramenta removida'}</div>
+                    <div class="fp-item-meta">
+                        <span style="color:var(--text2);font-weight:600">${item.quantidade||1}x</span>
+                        &nbsp;·&nbsp; Cód: ${t?.code||'—'}
+                        &nbsp;·&nbsp; <span class="fp-cond-dot" style="background:${condColor}"></span><span style="color:${condColor}">${item.condicao||'—'}</span>
+                        ${item.serie?`<br>Série/Patrimônio: <span style="color:var(--text2)">${item.serie}</span>`:''}
+                        <br>Entregue em ${d.toLocaleDateString('pt-BR')} por <span style="color:var(--text2)">${item.entregueBy||'Admin'}</span>
+                        ${item.obs?`<br><span style="color:var(--text3)">Obs: ${item.obs}</span>`:''}
+                    </div>
+                </div>
+                <div class="fp-item-badge">
+                    <span class="status-pill pill-ok">EM POSSE</span>
+                </div>
+            </div>`;
+        }).join('') + (comProblema.length ? comProblema.map(item=>{
+            const t=database.tools.find(t=>t.id===item.toolId);
+            const pillMap={perdida:'pill-danger',danificada:'pill-warn'};
+            const txtMap={perdida:'❌ PERDIDA',danificada:'⚠️ DANIFICADA'};
+            return `<div class="fp-item-card" style="opacity:.6;border-color:rgba(239,68,68,.3)">
+                <div class="fp-item-icon" style="opacity:.5">🔧</div>
+                <div class="fp-item-body"><div class="fp-item-name" style="color:var(--text2)">${t?.name||'?'} — ${item.quantidade||1}x</div></div>
+                <span class="status-pill ${pillMap[item.status]}">${txtMap[item.status]||item.status}</span>
+            </div>`;
+        }).join('') : '');
+    }
+
+    // ── Termo de compromisso ──
+    renderTermo(emPosse, termoAssinado);
+}
+
+function renderTermo(emPosse, termoAssinado) {
+    const termoCol = document.getElementById('fp-termo-content');
+    const now = new Date();
+    const dataHoje = now.toLocaleDateString('pt-BR');
+    const horaAgora = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+    const rowsItens = emPosse.length
+        ? emPosse.map(item => {
+            const t = database.tools.find(t=>t.id===item.toolId);
+            return `<div class="termo-item-row">
+                <div class="termo-item-name">${t?.name||'?'}</div>
+                <span class="termo-item-detail">${item.quantidade||1}x · ${t?.code||'—'} · ${item.condicao||'—'}${item.serie?' · '+item.serie:''}</span>
+            </div>`;
+        }).join('')
+        : '<div class="termo-item-row" style="color:var(--text3);font-family:var(--font-mono);font-size:.72rem">Nenhum item registrado</div>';
+
+    // Se não tem itens, mostra apenas mensagem
+    if (!emPosse.length) {
+        termoCol.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;font-family:var(--font-mono);font-size:.75rem;color:var(--text3)">
+            O termo será gerado automaticamente quando o administrador atribuir ferramentas a você.
+        </div>`;
+        return;
+    }
+
+    if (termoAssinado) {
+        // Termo já assinado — mostrar confirmação
+        termoCol.innerHTML = `
+        <div class="termo-assinado-banner">
+            <span style="font-size:1.6rem">✅</span>
+            <div>
+                <div style="font-weight:600;color:var(--green);font-size:.9rem">Termo assinado digitalmente</div>
+                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--text3);margin-top:2px">
+                    Em: ${currentUser.termoAssinadoEm ? new Date(currentUser.termoAssinadoEm).toLocaleString('pt-BR') : '—'}
+                </div>
+            </div>
+        </div>
+        <div class="termo-box">
+          <div class="termo-header">
+            <div class="termo-header-icon">📄</div>
+            <div><div class="termo-header-title">Termo de Compromisso</div><div class="termo-header-sub">// FERRAMENTAL SOB SUA RESPONSABILIDADE</div></div>
+          </div>
+          <div class="termo-body">
+            <div class="termo-items-list">
+              <div class="termo-items-header">Itens em Posse</div>
+              ${rowsItens}
+            </div>
+            <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--text3);text-align:center;padding:8px">
+              Assinado por <strong style="color:var(--text2)">${currentUser.name}</strong> · Cód. ${currentUser.companyCode}
+            </div>
+            <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="imprimirMeuTermo()">🖨️ Reimprimir</button>
+          </div>
+        </div>`;
+    } else {
+        // Termo pendente — mostrar para assinar
+        termoCol.innerHTML = `
+        <div class="termo-pendente-banner">
+            <span style="font-size:1.4rem">📝</span>
+            <div>
+                <div style="font-weight:600;color:var(--yellow);font-size:.88rem">Assinatura pendente</div>
+                <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--text3);margin-top:2px">Leia e assine o termo abaixo para confirmar o recebimento</div>
+            </div>
+        </div>
+        <div class="termo-box">
+          <div class="termo-header">
+            <div class="termo-header-icon">📄</div>
+            <div><div class="termo-header-title">Termo de Compromisso</div><div class="termo-header-sub">// FERRAMENTAL SOB SUA RESPONSABILIDADE</div></div>
+          </div>
+          <div class="termo-body">
+            <div class="termo-clausulas">
+              <div class="termo-clausula"><span class="termo-clausula-num">1</span>Declaro ter recebido as ferramentas listadas abaixo em perfeito estado e nas condições descritas.</div>
+              <div class="termo-clausula"><span class="termo-clausula-num">2</span>Comprometo-me a zelar pela conservação, uso adequado e guarda segura de todos os itens recebidos.</div>
+              <div class="termo-clausula"><span class="termo-clausula-num">3</span>Em caso de perda, extravio ou dano por mau uso, poderei ser responsabilizado pelos custos de reposição.</div>
+              <div class="termo-clausula"><span class="termo-clausula-num">4</span>As ferramentas deverão ser devolvidas ao setor de Ferramentaria no ato do desligamento ou quando solicitado.</div>
+              <div class="termo-clausula"><span class="termo-clausula-num">5</span>Qualquer irregularidade deverá ser comunicada imediatamente ao responsável pelo setor.</div>
+            </div>
+            <div class="termo-items-list">
+              <div class="termo-items-header">Itens que Confirmo Ter Recebido</div>
+              ${rowsItens}
+            </div>
+            <div class="assinatura-box">
+              <div class="assinatura-declaracao">Ao marcar a opção abaixo, confirmo que li e concordo com os termos acima, e que recebi os itens listados na data de hoje <strong>${dataHoje}</strong>.</div>
+              <label class="assinatura-confirm">
+                <input type="checkbox" id="chk-concordo" onchange="fpCheckConcordo()">
+                <div class="assinatura-confirm-text">Li e concordo com os termos de responsabilidade acima, e confirmo o recebimento de <strong>${emPosse.reduce((s,i)=>s+(i.quantidade||1),0)} item(s)</strong> listados neste documento.</div>
+              </label>
+              <div class="assinatura-meta">
+                <div class="assinatura-meta-item"><span class="assinatura-meta-label">FUNCIONÁRIO</span><span class="assinatura-meta-value">${currentUser.name}</span></div>
+                <div class="assinatura-meta-item"><span class="assinatura-meta-label">CÓDIGO</span><span class="assinatura-meta-value">${currentUser.companyCode}</span></div>
+                <div class="assinatura-meta-item"><span class="assinatura-meta-label">DATA</span><span class="assinatura-meta-value">${dataHoje} ${horaAgora}</span></div>
+              </div>
+              <button class="btn btn-primary" id="btn-assinar" style="width:100%;justify-content:center;padding:13px;font-size:.9rem;opacity:.4;cursor:not-allowed" disabled onclick="assinarTermo()">
+                ✅ Assinar Digitalmente
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+}
+
+function fpCheckConcordo() {
+    const chk = document.getElementById('chk-concordo');
+    const btn = document.getElementById('btn-assinar');
+    if (!chk || !btn) return;
+    btn.disabled = !chk.checked;
+    btn.style.opacity = chk.checked ? '1' : '.4';
+    btn.style.cursor = chk.checked ? 'pointer' : 'not-allowed';
+}
+
+async function assinarTermo() {
+    const btn = document.getElementById('btn-assinar');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = '⟳ Registrando...';
+    try {
+        const res = await fetch('/api/ferramental-pessoal/assinar-termo', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({userId: currentUser.id})
+        });
+        if (res.ok) {
+            const data = await res.json();
+            showToast('success','✅ Termo assinado com sucesso!');
+            // Atualizar currentUser com dados do servidor (garantia de persistência)
+            currentUser.termoAssinado = true;
+            currentUser.termoAssinadoEm = data.assinadoEm;
+            currentUser.termoItensAssinados = data.user?.termoItensAssinados || [];
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            // Recarregar e imprimir
+            await loadMeuFerramental();
+            setTimeout(() => imprimirMeuTermo(), 800);
+        } else {
+            const e = await res.json().catch(()=>({}));
+            showToast('error','❌ '+(e.message||'Erro ao assinar'));
+            btn.disabled=false; btn.textContent='✅ Assinar Digitalmente';
         }
-        
-        // Logout
-        function logout() {
-            if (confirm('Tem certeza que deseja sair do sistema?')) {
-                localStorage.removeItem('currentUser');
-                window.location.href = '/';
-            }
-        }
-        
-        // Teste de API para debug
-        async function debugTools() {
-            console.log('=== DEBUG FERRAMENTEIRO ===');
-            console.log('Usuário:', currentUser);
-            
-            const response = await fetch('/api/ferramentas');
-            const tools = await response.json();
-            console.log('Total de ferramentas:', tools.length);
-            
-            tools.forEach(tool => {
-                console.log(`${tool.code} - ${tool.name}: ${tool.availableQuantity || 0}/${tool.totalQuantity || 1} - Status: ${tool.status}`);
-            });
-        }
-        
-        // Inicializar quando a página carregar
-        window.addEventListener('DOMContentLoaded', init);
-    </script>
+    } catch(e) {
+        showToast('error','❌ Erro de conexão.');
+        btn.disabled=false; btn.textContent='✅ Assinar Digitalmente';
+    }
+}
+
+function imprimirMeuTermo() {
+    if (!currentUser || !database) return;
+    const fp = (database.ferramentalPessoal||[]).filter(i=>i.userId===currentUser.id&&i.status==='posse');
+    const termoAssinado = currentUser.termoAssinado || false;
+    const dataAssinatura = currentUser.termoAssinadoEm ? new Date(currentUser.termoAssinadoEm).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+
+    const rows = fp.map(item=>{
+        const t = database.tools.find(t=>t.id===item.toolId);
+        const d = new Date(item.entregueEm);
+        return `<tr>
+            <td>${t?.code||'—'}</td>
+            <td>${t?.name||'—'}</td>
+            <td style="text-align:center">${item.quantidade||1}</td>
+            <td>${item.condicao||'—'}</td>
+            <td>${item.serie||'—'}</td>
+            <td>${d.toLocaleDateString('pt-BR')}</td>
+        </tr>`;
+    }).join('');
+
+    const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Termo de Responsabilidade — ${currentUser.name}</title>
+<style>
+body{font-family:Arial,sans-serif;padding:32px;font-size:13px;color:#1a1a2e}
+.header{text-align:center;margin-bottom:28px;border-bottom:3px solid #10b981;padding-bottom:16px}
+h1{font-size:18px;font-weight:bold;margin-bottom:4px}
+h2{font-size:13px;color:#555;font-weight:normal}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px;border:1px solid #ddd;border-radius:6px;padding:14px}
+.info-block .label{font-size:10px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:1px}
+.info-block .value{font-size:14px;font-weight:600;border-bottom:1px solid #000;padding-bottom:3px;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-bottom:24px}
+th,td{border:1px solid #aaa;padding:8px 10px;font-size:12px}
+th{background:#f0f0f0;font-weight:700;text-align:left}
+.clausulas{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:16px;margin-bottom:24px}
+.clausulas h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:10px}
+.clausula{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#444;line-height:1.5}
+.num{background:#10b981;color:#fff;border-radius:3px;padding:1px 6px;font-weight:700;flex-shrink:0;font-size:10px;height:fit-content;margin-top:1px}
+.assinatura-section{margin-top:28px}
+.assinatura-grid{display:flex;gap:32px;margin-top:40px}
+.assinatura-linha{flex:1;border-top:1px solid #000;padding-top:6px;text-align:center;font-size:11px;color:#666}
+.stamp{display:inline-block;border:2px solid #10b981;border-radius:6px;padding:8px 16px;color:#10b981;font-weight:700;font-size:11px;letter-spacing:1px;margin-top:16px}
+.pendente-stamp{border-color:#dc3545;color:#dc3545}
+@media print{.no-print{display:none}}
+</style></head><body>
+<div class="header">
+  <h1>TERMO DE RESPONSABILIDADE — FERRAMENTAL PESSOAL</h1>
+  <h2>Ferramentaria Industrial · Sistema de Controle de Ferramental</h2>
+</div>
+<div class="info-grid">
+  <div class="info-block"><div class="label">Funcionário</div><div class="value">${currentUser.name}</div></div>
+  <div class="info-block"><div class="label">Código da Empresa</div><div class="value">${currentUser.companyCode}</div></div>
+  <div class="info-block"><div class="label">Data de Emissão</div><div class="value">${new Date().toLocaleDateString('pt-BR')}</div></div>
+</div>
+<div class="clausulas">
+  <h3>Cláusulas de Responsabilidade</h3>
+  <div class="clausula"><span class="num">1</span>O funcionário acima identificado declara ter recebido as ferramentas listadas abaixo em perfeito estado e nas condições descritas.</div>
+  <div class="clausula"><span class="num">2</span>O funcionário compromete-se a zelar pela conservação, uso adequado e guarda segura de todos os itens recebidos.</div>
+  <div class="clausula"><span class="num">3</span>Em caso de perda, extravio ou dano por mau uso, o funcionário poderá ser responsabilizado pelos custos de reposição.</div>
+  <div class="clausula"><span class="num">4</span>As ferramentas deverão ser devolvidas ao setor de Ferramentaria no ato do desligamento ou quando solicitado pelo responsável.</div>
+  <div class="clausula"><span class="num">5</span>Qualquer irregularidade verificada deverá ser comunicada imediatamente ao responsável pelo setor.</div>
+</div>
+<table>
+  <thead><tr><th>Código</th><th>Ferramenta</th><th>Qtd</th><th>Condição</th><th>Nº Série / Patrimônio</th><th>Data Entrega</th></tr></thead>
+  <tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:#999">Nenhum item registrado</td></tr>'}</tbody>
+</table>
+<div class="assinatura-section">
+  <div style="font-size:12px;color:#555;margin-bottom:8px">
+    ${termoAssinado
+        ? `<strong>✅ Assinado digitalmente</strong> por <strong>${currentUser.name}</strong> em ${dataAssinatura}`
+        : `<strong style="color:#dc3545">⚠️ PENDENTE DE ASSINATURA</strong> — Este documento ainda não foi assinado pelo funcionário.`
+    }
+  </div>
+  <div class="assinatura-grid">
+    <div class="assinatura-linha">Assinatura do Funcionário<br><small>${currentUser.name} · ${currentUser.companyCode}</small></div>
+    <div class="assinatura-linha">Responsável pela Ferramentaria</div>
+    <div class="assinatura-linha">Testemunha</div>
+  </div>
+  <div style="text-align:center;margin-top:20px">
+    ${termoAssinado
+        ? `<span class="stamp">ASSINADO DIGITALMENTE · ${dataAssinatura}</span>`
+        : `<span class="stamp pendente-stamp">AGUARDANDO ASSINATURA DIGITAL</span>`
+    }
+  </div>
+</div>
+<br>
+<div class="no-print" style="text-align:center">
+  <button onclick="window.print()" style="padding:10px 24px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600">🖨️ Imprimir</button>
+  <button onclick="window.close()" style="padding:10px 24px;background:#555;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:10px">✕ Fechar</button>
+</div>
+<script>window.onload=function(){window.print();}<\/script>
+</body></html>`;
+    const w = window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+// ── REQUISIÇÃO DE MATERIAL ──
+function prepareMaterialRequestForm() {
+    const nm=document.getElementById('mr-nome'), cd=document.getElementById('mr-codigo');
+    if (nm&&currentUser?.name) nm.value=currentUser.name;
+    if (cd&&currentUser?.companyCode) cd.value=currentUser.companyCode;
+}
+
+async function submitMaterialRequest(event) {
+    event.preventDefault();
+    const solicitanteNome=document.getElementById('mr-nome').value.trim();
+    const solicitanteCodigo=document.getElementById('mr-codigo').value.trim();
+    const quantidade=document.getElementById('mr-qtd').value;
+    const unidade=document.getElementById('mr-un').value;
+    const material=document.getElementById('mr-material').value.trim();
+    const aplicacao=document.getElementById('mr-aplicacao').value.trim();
+    if (!solicitanteNome||!material) { showToast('error','⚠️ Preencha nome e material'); return; }
+    const btn=event.target.querySelector('[type=submit]'); btn.disabled=true; btn.textContent='⟳ ENVIANDO...';
+    try {
+        const res=await fetch('/api/requisicoes-material',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({solicitanteNome,solicitanteCodigo,quantidade,unidade,material,aplicacao})});
+        if (res.ok) {
+            showToast('success','✅ Solicitação enviada! Aguardando validação do ADM.');
+            document.getElementById('material-request-form').reset();
+            prepareMaterialRequestForm();
+            setTimeout(()=>showView('dashboard'),1200);
+        } else { const e=await res.json().catch(()=>({})); showToast('error','❌ '+(e.message||'Erro ao enviar')); }
+    } catch(e) { showToast('error','❌ Erro de conexão.'); }
+    finally { btn.disabled=false; btn.textContent='📤 ENVIAR REQUISIÇÃO'; }
+}
+
+// ── HELPERS ──
+function getStatusPill(status) {
+    const map={
+        'emprestado':['pill-warn','EM USO'],'devolvido':['pill-ok','DEVOLVIDO'],
+        'nao-entregue':['pill-danger','NÃO ENTREGUE'],'quebrado':['pill-danger','QUEBRADO'],
+        'disponivel':['pill-ok','DISPONÍVEL'],'indisponivel':['pill-danger','INDISPONÍVEL'],
+        'manutencao':['pill-maint','MANUTENÇÃO']
+    };
+    const [cls,txt]=map[status]||['pill-info',status];
+    return `<span class="status-pill ${cls}">${txt}</span>`;
+}
+
+function showMessage(msg,type) { showToast(type==='success'?'success':type==='error'?'error':'warning',msg); }
+
+let toastTimer;
+function showToast(type,msg) {
+    const t=document.getElementById('toast');
+    document.getElementById('toastMsg').textContent=msg;
+    t.className=`toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function updateTime() {
+    const el=document.getElementById('current-time');
+    const now=new Date();
+    if (el) el.textContent=`${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function logout() {
+    if (confirm('Tem certeza que deseja sair do sistema?')) {
+        localStorage.removeItem('currentUser');
+        window.location.href='/';
+    }
+}
+</script>
 </body>
 </html>
